@@ -115,8 +115,9 @@ publishing {
             /**
              * Make sure you have the below properties in the gradle.properties file in your local .gradle folder
              */
-            val mavenUser: String by project
-            val mavenPassword: String by project
+            val mavenUser: String? by project
+            val mavenPassword: String? by project
+
 
             credentials {
                 username = mavenUser
