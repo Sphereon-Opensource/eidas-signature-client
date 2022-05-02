@@ -1,0 +1,310 @@
+package com.sphereon.vdx.ades.sign.util
+
+import com.sphereon.vdx.ades.PKIException
+import com.sphereon.vdx.ades.SignClientException
+import com.sphereon.vdx.ades.SigningException
+import com.sphereon.vdx.ades.enums.*
+import com.sphereon.vdx.ades.model.*
+import eu.europa.esig.dss.AbstractSignatureParameters
+import eu.europa.esig.dss.cades.CAdESSignatureParameters
+import eu.europa.esig.dss.cades.signature.CAdESService
+import eu.europa.esig.dss.cades.signature.CAdESTimestampParameters
+import eu.europa.esig.dss.enumerations.DigestAlgorithm
+import eu.europa.esig.dss.enumerations.EncryptionAlgorithm
+import eu.europa.esig.dss.enumerations.MaskGenerationFunction
+import eu.europa.esig.dss.enumerations.SignatureAlgorithm
+import eu.europa.esig.dss.jades.signature.JAdESService
+import eu.europa.esig.dss.model.*
+import eu.europa.esig.dss.model.TimestampParameters
+import eu.europa.esig.dss.model.x509.CertificateToken
+import eu.europa.esig.dss.pades.PAdESSignatureParameters
+import eu.europa.esig.dss.pades.PAdESTimestampParameters
+import eu.europa.esig.dss.pades.signature.PAdESService
+import eu.europa.esig.dss.signature.AbstractSignatureService
+import eu.europa.esig.dss.token.DSSPrivateKeyEntry
+import eu.europa.esig.dss.token.KSPrivateKeyEntry
+import eu.europa.esig.dss.token.Pkcs11SignatureToken
+import eu.europa.esig.dss.token.Pkcs12SignatureToken
+import java.io.ByteArrayInputStream
+import java.security.KeyFactory
+import java.security.KeyStore
+import java.security.KeyStore.PasswordProtection
+import java.security.PrivateKey
+import java.security.cert.CertificateFactory
+import java.security.cert.X509Certificate
+import java.security.spec.AlgorithmParameterSpec
+import java.security.spec.PKCS8EncodedKeySpec
+
+
+fun DigestAlg.toDSS(): DigestAlgorithm {
+    return DigestAlgorithm.valueOf(name)
+}
+
+fun MaskGenFunction.toDSS(): MaskGenerationFunction {
+    return MaskGenerationFunction.valueOf(name)
+}
+
+fun EncryptionAlgorithm.fromDSS(): CryptoAlg {
+    return CryptoAlg.valueOf(name)
+}
+
+fun CryptoAlg.toDSS(): EncryptionAlgorithm {
+    return EncryptionAlgorithm.valueOf(name)
+}
+
+fun SignatureAlgorithm.fromDSS(): SignatureAlg {
+    return SignatureAlg.valueOf(name)
+}
+
+fun SignatureAlg.toDSS(): SignatureAlgorithm {
+    return SignatureAlgorithm.valueOf(name)
+}
+
+fun SignatureLevel.toDSS(): eu.europa.esig.dss.enumerations.SignatureLevel {
+    return eu.europa.esig.dss.enumerations.SignatureLevel.valueOf(name)
+}
+
+fun KSPrivateKeyEntry.fromDSS(): IPrivateKeyEntry {
+    return PrivateKeyEntry(
+        alias = this.alias,
+//        attributes = if (this.attributes != null) null else null,
+        privateKey = Key(value = this.privateKey.encoded, algorithm = CryptoAlg.valueOf(this.privateKey.algorithm), format = this.privateKey.format),
+        certificate = Certificate(value = this.certificate.certificate.encoded),
+        certificateChain = this.certificateChain.map { Certificate(value = it.certificate.encoded) },
+        encryptionAlgorithm = this.certificate.signatureAlgorithm.encryptionAlgorithm.fromDSS()
+    )
+}
+
+fun DSSPrivateKeyEntry.fromDSS(alias: String? = null): IKeyEntry {
+    return when (this) {
+        is KSPrivateKeyEntry -> this.fromDSS()
+        else -> KeyEntry(
+            alias = alias,
+            certificate = Certificate(value = this.certificate.certificate.encoded),
+            certificateChain = if (certificateChain == null) null else certificateChain.map { Certificate(value = it.certificate.encoded) },
+            encryptionAlgorithm = this.certificate.signatureAlgorithm.encryptionAlgorithm.fromDSS()
+        )
+    }
+}
+
+fun IKeyEntry.toDSS(): DSSPrivateKeyEntry {
+    return when (this) {
+        is IPrivateKeyEntry -> this.toDSS()
+        else -> throw PKIException("Not supported yet")
+    }
+}
+
+fun IPrivateKeyEntry.toDSS(): DSSPrivateKeyEntry {
+    // for now, we just always assume a KS Private Key
+    return KSPrivateKeyEntry(this.alias, this.toJavaPrivateKeyEntry())
+}
+
+fun IPrivateKeyEntry.toJavaPrivateKeyEntry(): KeyStore.PrivateKeyEntry {
+    return KeyStore.PrivateKeyEntry(this.privateKey.toJavaPrivateKey(), this.certificateChain.map { it.toDSS() }.toTypedArray())
+
+}
+
+fun Key.toJavaPrivateKey(): PrivateKey {
+    val kf = KeyFactory.getInstance(algorithm.internalName)
+    val keySpec = PKCS8EncodedKeySpec(value)
+    return kf.generatePrivate(keySpec)
+}
+
+fun KeystoreParameters.toPkcs12SignatureToken(callback: PasswordInputCallback): Pkcs12SignatureToken {
+    return if (this.providerBytes != null) Pkcs12SignatureToken(providerBytes, callback.toDSS())
+    else if (this.providerPath != null) Pkcs12SignatureToken(providerPath, callback.toDSS())
+    else throw SignClientException("Please either provide bytes or a path for the keystore")
+}
+
+
+fun Certificate.toDSS(): java.security.cert.Certificate {
+    val certFactory: CertificateFactory = CertificateFactory.getInstance("X.509")
+    return certFactory.generateCertificate(ByteArrayInputStream(this.value))
+}
+
+fun Pkcs11Parameters.toPkcs11SignatureToken(): Pkcs11SignatureToken {
+    return Pkcs11SignatureToken("FIXME")
+}
+
+
+fun PasswordInputCallback.toDSS(): PasswordProtection {
+    return if (this.protectionParameters == null) PasswordProtection(this.password) else PasswordProtection(
+        password,
+        protectionAlgorithm,
+        protectionParameters as AlgorithmParameterSpec?
+    )
+
+}
+
+
+fun SignInput.toBeSigned(): ToBeSigned {
+    return ToBeSigned(this.input)
+}
+
+fun SignInput.toDigest(): Digest {
+    if (this.digestAlgorithm == null) throw SigningException("Digest algorithm is required when signinput is converted to digest")
+    return Digest(this.digestAlgorithm.toDSS(), this.input)
+}
+
+
+fun Signature.toDSS(): SignatureValue {
+    return SignatureValue(algorithm.toDSS(), value)
+}
+
+fun SignatureValue.fromDSS(signMode: SignMode, keyEntry: IKeyEntry?): Signature {
+    return this.fromDSS(signMode, keyEntry?.certificate, keyEntry?.certificateChain)
+}
+
+fun SignatureValue.fromDSS(signMode: SignMode, certificate: Certificate?, certificateChain: List<Certificate>?): Signature {
+    return Signature(
+        value = this.value,
+        signMode = signMode,
+        algorithm = this.algorithm.fromDSS(),
+        certificate = certificate,
+        certificateChain = certificateChain
+    )
+}
+
+fun SignaturePackaging.toDSS(): eu.europa.esig.dss.enumerations.SignaturePackaging {
+    return eu.europa.esig.dss.enumerations.SignaturePackaging.valueOf(name)
+}
+
+fun SignatureParameters.signatureForm(): SignatureForm {
+    return signatureLevelParameters?.signatureLevel?.form
+        ?: throw SigningException("Cannot deturm signature form when signature level params are not set")
+}
+
+fun AbstractSignatureService<out AbstractSignatureParameters<out TimestampParameters>, out TimestampParameters>.toCAdESService(): CAdESService {
+    return this as CAdESService
+}
+
+fun AbstractSignatureService<out AbstractSignatureParameters<out TimestampParameters>, out TimestampParameters>.toJAdESService(): JAdESService {
+    return this as JAdESService
+}
+
+fun AbstractSignatureService<out AbstractSignatureParameters<out TimestampParameters>, out TimestampParameters>.toPAdESService(): PAdESService {
+    return this as PAdESService
+}
+
+
+fun SignatureParameters.toDSS(
+    certificate: Certificate? = null,
+    certificateChain: List<Certificate>? = null
+): AbstractSignatureParameters<out SerializableTimestampParameters> {
+    return when (signatureForm()) {
+        SignatureForm.CAdES -> toCades(certificate, certificateChain)
+        SignatureForm.PAdES -> toPades(certificate, certificateChain)
+        else -> throw SigningException("Encryption algorithm $encryptionAlgorithm not supported yet")
+    }
+}
+
+fun SignatureParameters.toCades(
+    certificate: Certificate? = null,
+    certificateChain: List<Certificate>? = null
+): CAdESSignatureParameters {
+    if (signatureForm() != SignatureForm.CAdES) throw SigningException("Cannot convert to cades signature parameters when signature form is ${signatureForm()}")
+    return mapCadesSignatureParams(this, certificate, certificateChain)
+}
+
+fun SignatureParameters.toPades(
+    certificate: Certificate? = null,
+    certificateChain: List<Certificate>? = null
+): PAdESSignatureParameters {
+    if (signatureForm() != SignatureForm.PAdES) throw SigningException("Cannot convert to pades signature parameters when signature form is ${signatureForm()}")
+    return mapPadesSignatureParams(this, certificate, certificateChain)
+}
+
+fun mapPadesSignatureParams(
+    signatureParameters: SignatureParameters,
+    certificate: Certificate? = null,
+    certificateChain: List<Certificate>? = null
+): PAdESSignatureParameters {
+    val dssParams = PAdESSignatureParameters()
+    dssParams.contentTimestampParameters = PAdESTimestampParameters()
+    dssParams.signatureTimestampParameters = PAdESTimestampParameters()
+    dssParams.archiveTimestampParameters = PAdESTimestampParameters()
+
+    mapTimestampParams(dssParams, signatureParameters)
+    mapGenericSignatureParams(dssParams, signatureParameters, certificate, certificateChain)
+    dssParams.isEn319122 = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.en319122 ?: true
+    dssParams.contentHintsDescription = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.contentHintsDescription
+    dssParams.contentHintsType = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.contentHintsType
+    dssParams.contentIdentifierPrefix = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.contentIdentifierPrefix
+    dssParams.contentIdentifierSuffix = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.contentIdentifierSuffix
+
+    dssParams.contactInfo = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.contactInfo
+    dssParams.location = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.location
+    dssParams.permission =
+        if (signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.permission != null) eu.europa.esig.dss.enumerations.CertificationPermission.valueOf(
+            signatureParameters.signatureFormParameters.padesSignatureFormParameters.permission.name
+        ) else null
+    dssParams.reason = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.reason
+    dssParams.signerName = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.signerName
+//    dssParams.signingTimeZone = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.
+
+    return dssParams
+}
+
+fun mapCadesSignatureParams(
+    signatureParameters: SignatureParameters,
+    certificate: Certificate? = null,
+    certificateChain: List<Certificate>? = null
+): CAdESSignatureParameters {
+    val dssParams = CAdESSignatureParameters()
+    dssParams.contentTimestampParameters = CAdESTimestampParameters()
+    dssParams.signatureTimestampParameters = CAdESTimestampParameters()
+    dssParams.archiveTimestampParameters = CAdESTimestampParameters()
+
+    mapTimestampParams(dssParams, signatureParameters)
+    mapGenericSignatureParams(dssParams, signatureParameters, certificate, certificateChain)
+    dssParams.isEn319122 = signatureParameters.signatureFormParameters?.cadesSignatureFormParameters?.en319122 ?: true
+    dssParams.contentHintsDescription = signatureParameters.signatureFormParameters?.cadesSignatureFormParameters?.contentHintsDescription
+    dssParams.contentHintsType = signatureParameters.signatureFormParameters?.cadesSignatureFormParameters?.contentHintsType
+    dssParams.contentIdentifierPrefix = signatureParameters.signatureFormParameters?.cadesSignatureFormParameters?.contentIdentifierPrefix
+    dssParams.contentIdentifierSuffix = signatureParameters.signatureFormParameters?.cadesSignatureFormParameters?.contentIdentifierSuffix
+
+    return dssParams
+}
+
+
+fun mapGenericSignatureParams(
+    dssParams: AbstractSignatureParameters<out SerializableTimestampParameters>,
+    signatureParameters: SignatureParameters,
+    certificate: Certificate? = null,
+    certificateChain: List<Certificate>? = null
+) {
+    dssParams.signaturePackaging = signatureParameters.signaturePackaging?.toDSS()
+    dssParams.signatureLevel = signatureParameters.signatureLevelParameters?.signatureLevel?.toDSS()
+    dssParams.digestAlgorithm = signatureParameters.digestAlgorithm.toDSS()
+    dssParams.encryptionAlgorithm = signatureParameters.encryptionAlgorithm?.toDSS()
+    dssParams.maskGenerationFunction = signatureParameters.maskGenerationFunction?.toDSS()
+    dssParams.isCheckCertificateRevocation = signatureParameters.checkCertificateRevocation ?: false
+    dssParams.isSignWithExpiredCertificate = signatureParameters.signWithExpiredCertificate ?: false
+    dssParams.isSignWithNotYetValidCertificate = signatureParameters.signWithNotYetValidCertificate ?: false
+
+    if (signatureParameters.signingCertificate == null && certificate != null) {
+        dssParams.signingCertificate = CertificateToken(certificate.toDSS() as X509Certificate)
+    }
+    if (signatureParameters.certificateChain == null && certificateChain != null) {
+        dssParams.certificateChain = certificateChain.map { CertificateToken(it.toDSS() as X509Certificate) }
+    }
+}
+
+fun mapTimestampParams(
+    dssParams: AbstractSignatureParameters<out SerializableTimestampParameters>,
+    signatureParameters: SignatureParameters,
+) {
+    if (signatureParameters.timestampParameters?.contentTimestampParameters != null) {
+        ((dssParams.contentTimestampParameters) as TimestampParameters).digestAlgorithm =
+            signatureParameters.timestampParameters.contentTimestampParameters.digestAlgorithm.toDSS()
+    }
+    if (signatureParameters.timestampParameters?.archiveTimestampParameters != null) {
+        ((dssParams.archiveTimestampParameters) as TimestampParameters).digestAlgorithm =
+            signatureParameters.timestampParameters.archiveTimestampParameters.digestAlgorithm.toDSS()
+    }
+    if (signatureParameters.timestampParameters?.signatureTimestampParameters != null) {
+        ((dssParams.signatureTimestampParameters) as TimestampParameters).digestAlgorithm =
+            signatureParameters.timestampParameters.signatureTimestampParameters.digestAlgorithm.toDSS()
+    }
+
+}
