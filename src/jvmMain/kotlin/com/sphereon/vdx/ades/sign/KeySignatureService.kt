@@ -4,6 +4,7 @@ import com.sphereon.vdx.ades.SigningException
 import com.sphereon.vdx.ades.enums.*
 import com.sphereon.vdx.ades.model.*
 import com.sphereon.vdx.ades.pki.CertificateProviderService
+import com.sphereon.vdx.ades.pki.ICertificateProviderService
 import com.sphereon.vdx.ades.sign.util.*
 import eu.europa.esig.dss.cades.CAdESSignatureParameters
 import eu.europa.esig.dss.enumerations.SignatureAlgorithm
@@ -19,14 +20,14 @@ import java.security.spec.PSSParameterSpec
 import java.util.*
 
 
-open class SignatureService(override val certificateProvider: CertificateProviderService) : ISignatureService {
+open class KeySignatureService(val certificateProvider: ICertificateProviderService) : IKeySignatureService {
 
     // todo: We are creating another connection, do we need to expose the connection from the cert provider?
     private val tokenConnection = ConnectionFactory.connection(this.certificateProvider.settings)
 
 
     override fun digest(signInput: SignInput): SignInput {
-//        if (signInput.signMode != SignMode.DIGEST) throw SigningException("Signing mode must be DIGEST when creating a digest!")
+//        if (signInput.signMode == SignMode.DIGEST) throw SigningException("Signing mode must be DOCUMENT when creating a digest!")
         if (signInput.digestAlgorithm == null) throw SigningException("Cannot create a digest when the digest mode is not specified")
         if (signInput.digestAlgorithm == DigestAlg.NONE) throw SigningException("Cannot create a digest when the digest mode is set to NONE")
         val digest = DSSUtils.digest(signInput.digestAlgorithm.toDSS(), signInput.input)
@@ -143,12 +144,7 @@ open class SignatureService(override val certificateProvider: CertificateProvide
 
     }
 
-    /* protected fun digestWhenNeeded(signInput: SignInput): SignInput {
-         // todo: We need to create a deepcopy method for the input, as the copy is shallow
-         return if (signInput.signMode == SignMode.DIGEST) digest(signInput) else signInput.copy()
-     }*/
-
-    protected fun signImpl(signInput: SignInput, keyEntry: IKeyEntry, mgf: MaskGenFunction? = null): Signature {
+    private fun signImpl(signInput: SignInput, keyEntry: IKeyEntry, mgf: MaskGenFunction? = null): Signature {
         if (signInput.digestAlgorithm == null) throw SigningException("Digest algorithm needs to be specified at this point")
 
         return if (signInput.signMode == SignMode.DIGEST && signInput.digestAlgorithm != DigestAlg.NONE) {

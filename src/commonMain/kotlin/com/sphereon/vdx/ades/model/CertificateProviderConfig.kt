@@ -5,6 +5,12 @@ import com.sphereon.vdx.ades.enums.CertificateProviderType
 
 @kotlinx.serialization.Serializable
 data class CertificateProviderConfig(
+    /** Enable caching of keys/certificates. Requires a JSR107 Cache implementation on the classpath! */
+    val cacheEnabled: Boolean? = false,
+
+    /** How long in seconds should certificates be kept in the cache since last access. Default: 5 min */
+    val cacheTTLInSeconds: Long? = 5 * 60,
+
     val type: CertificateProviderType,
 
     val password: PasswordInputCallback? = null,

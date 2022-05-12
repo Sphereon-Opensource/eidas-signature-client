@@ -71,6 +71,7 @@ kotlin {
                 implementation("eu.europa.ec.joinup.sd-dss:dss-signature-rest:$dssVersion")
                 implementation("eu.europa.ec.joinup.sd-dss:dss-enumerations:$dssVersion")
                 implementation("org.bouncycastle:bcprov-jdk18on:$bcVersion")
+                implementation("javax.cache:cache-api:1.1.1")
             }
 
 
@@ -80,6 +81,7 @@ kotlin {
                 implementation("eu.europa.ec.joinup.sd-dss:dss-test:$dssVersion:tests")
                 implementation("eu.europa.ec.joinup.sd-dss:dss-pades-pdfbox:$dssVersion")
                 implementation("org.bouncycastle:bcpkix-jdk18on:$bcVersion")
+                implementation("org.ehcache:ehcache:3.8.1")
             }
         }
         /* val jsMain by getting

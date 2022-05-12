@@ -8,24 +8,28 @@ import com.sphereon.vdx.ades.enums.SignatureAlg
 import com.sphereon.vdx.ades.model.*
 import com.sphereon.vdx.ades.pki.ICertificateProviderService
 
-interface ISignatureService {
-
+interface IAliasSignatureService {
 
     val certificateProvider: ICertificateProviderService
-
 
     /**
      * Determines the bytes that will serve as input for the digest or signature.
      * Since multiple signature types are supported the configuration and key are required te determine the appropriate mode
      *
      * @param origData The orignal data/file
-     * @param keyEntry The certificate to use
+     * @param certificateAlias
+     * The certificate alias
      * @param signMode The signmode to use
      * @param signatureConfiguration The configuration
      *
      * @return Sign input, which can be fed to the createSignature or digest methods
      */
-    fun determineSignInput(origData: OrigData, keyEntry: IKeyEntry, signMode: SignMode, signatureConfiguration: SignatureConfiguration): SignInput
+    fun determineSignInput(
+        origData: OrigData,
+        certificateAlias: String,
+        signMode: SignMode,
+        signatureConfiguration: SignatureConfiguration
+    ): SignInput
 
     /**
      * Generate a digest from the input value, using the digest algorithm supplied. SignMode must be set to 'DIGEST'
@@ -47,14 +51,14 @@ interface ISignatureService {
      *
      * @param signInput
      * The data that need to be signed
-     * @param keyEntry
-     * The private key to be used
+     * @param certificateAlias
+     * The certificate alias
      * @return the signature value representation with the used algorithm and the binary value
      * @throws SigningException
      * If there is any problem during the signature process
      */
     @Throws(SigningException::class)
-    fun createSignature(signInput: SignInput, keyEntry: IKeyEntry): Signature
+    fun createSignature(signInput: SignInput, certificateAlias: String): Signature
 
 
     /**
@@ -65,8 +69,8 @@ interface ISignatureService {
      * The data that need to be signed
      * @param mgf
      * the mask generation function
-     * @param keyEntry
-     * The private key to be used
+     * @param certificateAlias
+     * The certificate alias
      * @return the signature value representation with the used algorithm and the binary value
      * @throws SigningException
      * If there is any problem during the signature process
@@ -74,7 +78,7 @@ interface ISignatureService {
     @Throws(SigningException::class)
     fun createSignature(
         signInput: SignInput,
-        keyEntry: IKeyEntry,
+        certificateAlias: String,
         mgf: MaskGenFunction
     ): Signature
 
@@ -86,8 +90,8 @@ interface ISignatureService {
      * The data that need to be signed
      * @param signatureAlgorithm
      * the Signature Algorithm
-     * @param keyEntry
-     * The private key to be used
+     * @param certificateAlias
+     * The certificate alias
      * @return the signature value representation with the used algorithm and the binary value
      * @throws SigningException
      * If there is any problem during the signature process
@@ -95,14 +99,14 @@ interface ISignatureService {
     @Throws(SigningException::class)
     fun createSignature(
         signInput: SignInput,
-        keyEntry: IKeyEntry,
+        certificateAlias: String,
         signatureAlgorithm: SignatureAlg
     ): Signature
 
     fun isValidSignature(signInput: SignInput, signature: Signature, certificate: Certificate): Boolean
 
 
-    fun isValidSignature(signInput: SignInput, signature: Signature, keyEntry: IKeyEntry): Boolean
+    fun isValidSignature(signInput: SignInput, signature: Signature, certificateAlias: String): Boolean
 
     /**
      *
@@ -111,8 +115,8 @@ interface ISignatureService {
      *
      * @param origData
      * The data that need to be signed
-     * @param keyEntry
-     * The private key to be used
+     * @param certificateAlias
+     * The certificate alias
      * @param signMode
      * The signing mode
      * @param signatureConfiguration
@@ -122,7 +126,7 @@ interface ISignatureService {
      * If there is any problem during the signature process
      */
     @Throws(SigningException::class)
-    fun sign(origData: OrigData, keyEntry: IKeyEntry, signMode: SignMode, signatureConfiguration: SignatureConfiguration): SignOutput
+    fun sign(origData: OrigData, certificateAlias: String, signMode: SignMode, signatureConfiguration: SignatureConfiguration): SignOutput
 
     /**
      * This method create the `signOutput` using the `signInput` a calculated `signature` and the provided configuration

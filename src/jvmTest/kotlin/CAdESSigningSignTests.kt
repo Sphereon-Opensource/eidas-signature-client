@@ -1,11 +1,14 @@
 import com.sphereon.vdx.ades.enums.*
-import com.sphereon.vdx.ades.model.*
+import com.sphereon.vdx.ades.model.OrigData
+import com.sphereon.vdx.ades.model.SignatureConfiguration
+import com.sphereon.vdx.ades.model.SignatureLevelParameters
+import com.sphereon.vdx.ades.model.SignatureParameters
+import com.sphereon.vdx.ades.sign.KeySignatureService
 import eu.europa.esig.dss.model.InMemoryDocument
 import eu.europa.esig.dss.validation.CommonCertificateVerifier
 import eu.europa.esig.dss.validation.SignedDocumentValidator
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
-import java.io.File
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -16,8 +19,10 @@ class CAdESSigningSignTests : AbstractAdESTest() {
     fun `Given an input with signmode DOCUMENT the sign method should sign the document`() {
         val origData = OrigData(value = "test".toByteArray())
 
-        val signingService = constructSignatureService()
-        val keyEntry = signingService.certificateProvider.getKey("certificate")!!
+        val certProvider = constructCertProviderService()
+
+        val signingService = KeySignatureService(certProvider)
+        val keyEntry = certProvider.getKey("certificate")!!
 
 
         val signatureConfiguration = SignatureConfiguration(

@@ -10,13 +10,13 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-class SimpleSigningSignTests : AbstractAdESTest() {
+class SimpleKeySigningSignTests : AbstractAdESTest() {
 
     @Test
     fun `Given an input with signmode DOCUMENT the sign method should sign the document`() {
         val signInput = SignInput(input = "test".toByteArray(), signMode = SignMode.DOCUMENT, digestAlgorithm = DigestAlg.SHA256)
 
-        val signingService = constructSignatureService()
+        val signingService = constructKeySignatureService()
         val keyEntry = signingService.certificateProvider.getKey("certificate")!!
         val signature = signingService.createSignature(signInput, keyEntry)
         assertNotNull(signature)
@@ -39,7 +39,7 @@ class SimpleSigningSignTests : AbstractAdESTest() {
             digestAlgorithm = DigestAlg.SHA256
         )
 
-        val signingService = constructSignatureService()
+        val signingService = constructKeySignatureService()
         val keyEntry = signingService.certificateProvider.getKey("certificate")!!
         val signature = signingService.createSignature(signInput, keyEntry)
         assertNotNull(signature)
@@ -56,7 +56,7 @@ class SimpleSigningSignTests : AbstractAdESTest() {
     fun `Given an input with signmode DOCUMENT and maskgen function 1 the sign method should sign the document`() {
         val signInput = SignInput(input = "test".toByteArray(), signMode = SignMode.DOCUMENT, digestAlgorithm = DigestAlg.SHA256)
 
-        val signingService = constructSignatureService()
+        val signingService = constructKeySignatureService()
         val keyEntry = signingService.certificateProvider.getKey("certificate")!!
         val signature = signingService.createSignature(signInput, keyEntry, MaskGenFunction.MGF1)
         assertNotNull(signature)
@@ -77,7 +77,7 @@ class SimpleSigningSignTests : AbstractAdESTest() {
             digestAlgorithm = DigestAlg.SHA256
         )
 
-        val signingService = constructSignatureService()
+        val signingService = constructKeySignatureService()
         val keyEntry = signingService.certificateProvider.getKey("certificate")!!
         val signature = signingService.createSignature(signInput, keyEntry, MaskGenFunction.MGF1)
         assertNotNull(signature)

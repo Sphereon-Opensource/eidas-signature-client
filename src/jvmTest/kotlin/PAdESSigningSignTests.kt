@@ -7,7 +7,6 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
-import java.io.File
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -20,7 +19,7 @@ class PAdESSigningSignTests : AbstractAdESTest() {
         val pdfDocInput = this::class.java.classLoader.getResource("test-unsigned.pdf")
         val origData = OrigData(value = pdfDocInput.readBytes(), name = "test-unsigned.pdf")
 
-        val signingService = constructSignatureService(keystoreFilename = "good-user.p12", password = "ks-password")
+        val signingService = constructKeySignatureService(keystoreFilename = "good-user.p12", password = "ks-password")
         val keyEntry = signingService.certificateProvider.getKey("good-user")!!
         val signatureConfiguration = SignatureConfiguration(
 

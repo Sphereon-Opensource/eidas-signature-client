@@ -284,10 +284,10 @@ fun mapGenericSignatureParams(
     dssParams.isSignWithNotYetValidCertificate = signatureParameters.signWithNotYetValidCertificate ?: false
 
     if (signatureParameters.signingCertificate == null && certificate != null) {
-        dssParams.signingCertificate = CertificateToken(certificate.toX509Certificate() as X509Certificate)
+        dssParams.signingCertificate = CertificateToken(certificate.toX509Certificate())
     }
     if (signatureParameters.certificateChain == null && certificateChain != null) {
-        dssParams.certificateChain = certificateChain.map { CertificateToken(it.toX509Certificate() as X509Certificate) }
+        dssParams.certificateChain = certificateChain.map { CertificateToken(it.toX509Certificate()) }
     }
 }
 
