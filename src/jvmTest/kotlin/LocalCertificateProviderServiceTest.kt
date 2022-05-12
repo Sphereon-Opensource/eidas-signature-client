@@ -1,7 +1,7 @@
 import com.sphereon.vdx.ades.PKIException
 import com.sphereon.vdx.ades.enums.CertificateProviderType
 import com.sphereon.vdx.ades.model.*
-import com.sphereon.vdx.ades.pki.CertificateProviderService
+import com.sphereon.vdx.ades.pki.LocalCertificateProviderService
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Test
@@ -13,11 +13,11 @@ import java.security.cert.X509Certificate
 import kotlin.test.*
 
 
-class CertificateProviderServiceTest {
+class LocalCertificateProviderServiceTest {
     @Test
     fun `Given too few config parameters a PKI Exception occurs`() {
         val pkcs11Ex = assertFailsWith<PKIException> {
-            CertificateProviderService(
+            LocalCertificateProviderService(
                 CertificateProviderSettings(id = "pkcs11", CertificateProviderConfig(type = CertificateProviderType.PKCS11))
             )
         }
@@ -25,7 +25,7 @@ class CertificateProviderServiceTest {
 
 
         val pkcs12Ex = assertFailsWith<PKIException> {
-            CertificateProviderService(
+            LocalCertificateProviderService(
                 CertificateProviderSettings(id = "pkcs12", CertificateProviderConfig(type = CertificateProviderType.PKCS12))
             )
         }
@@ -33,7 +33,7 @@ class CertificateProviderServiceTest {
 
 
         val notSupportedEx = assertFailsWith<PKIException> {
-            CertificateProviderService(
+            LocalCertificateProviderService(
                 CertificateProviderSettings(id = "not supported yet", CertificateProviderConfig(type = CertificateProviderType.JKS))
             )
         }
@@ -70,7 +70,7 @@ class CertificateProviderServiceTest {
             pkcs12Parameters = KeystoreParameters(providerBytes = providerBytes)
         )
         val certProvider =
-            CertificateProviderService(
+            LocalCertificateProviderService(
                 CertificateProviderSettings(
                     id = "pkcs12",
                     providerConfig,
@@ -96,7 +96,7 @@ class CertificateProviderServiceTest {
             pkcs12Parameters = KeystoreParameters(providerPath)
         )
         val certProvider =
-            CertificateProviderService(
+            LocalCertificateProviderService(
                 CertificateProviderSettings(
                     id = "pkcs12",
                     providerConfig,

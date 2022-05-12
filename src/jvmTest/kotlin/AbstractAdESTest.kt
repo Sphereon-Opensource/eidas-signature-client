@@ -3,7 +3,7 @@ import com.sphereon.vdx.ades.model.CertificateProviderConfig
 import com.sphereon.vdx.ades.model.CertificateProviderSettings
 import com.sphereon.vdx.ades.model.KeystoreParameters
 import com.sphereon.vdx.ades.model.PasswordInputCallback
-import com.sphereon.vdx.ades.pki.CertificateProviderService
+import com.sphereon.vdx.ades.pki.LocalCertificateProviderService
 import com.sphereon.vdx.ades.sign.AliasSignatureService
 import com.sphereon.vdx.ades.sign.KeySignatureService
 
@@ -12,7 +12,7 @@ abstract class AbstractAdESTest {
         keystoreFilename: String = "user_a_rsa.p12",
         password: String = "password",
         enableCache: Boolean = false
-    ): CertificateProviderService {
+    ): LocalCertificateProviderService {
         val providerPath = this::class.java.classLoader.getResource(keystoreFilename).path
         val passwordInputCallback = PasswordInputCallback(password = password.toCharArray())
         val providerConfig = CertificateProviderConfig(
@@ -20,7 +20,7 @@ abstract class AbstractAdESTest {
             type = CertificateProviderType.PKCS12,
             pkcs12Parameters = KeystoreParameters(providerPath)
         )
-        return CertificateProviderService(
+        return LocalCertificateProviderService(
             CertificateProviderSettings(
                 id = "pkcs12",
                 providerConfig,

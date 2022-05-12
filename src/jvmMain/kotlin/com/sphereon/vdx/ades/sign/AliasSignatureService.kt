@@ -5,10 +5,10 @@ import com.sphereon.vdx.ades.enums.MaskGenFunction
 import com.sphereon.vdx.ades.enums.SignMode
 import com.sphereon.vdx.ades.enums.SignatureAlg
 import com.sphereon.vdx.ades.model.*
-import com.sphereon.vdx.ades.pki.CertificateProviderService
+import com.sphereon.vdx.ades.pki.LocalCertificateProviderService
 
 
-open class AliasSignatureService(override val certificateProvider: CertificateProviderService) : IAliasSignatureService {
+open class AliasSignatureService(override val certificateProvider: LocalCertificateProviderService) : IAliasSignatureService {
 
     private val delegate = KeySignatureService(certificateProvider)
 

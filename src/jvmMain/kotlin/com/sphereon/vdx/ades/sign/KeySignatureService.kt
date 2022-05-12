@@ -3,7 +3,6 @@ package com.sphereon.vdx.ades.sign
 import com.sphereon.vdx.ades.SigningException
 import com.sphereon.vdx.ades.enums.*
 import com.sphereon.vdx.ades.model.*
-import com.sphereon.vdx.ades.pki.CertificateProviderService
 import com.sphereon.vdx.ades.pki.ICertificateProviderService
 import com.sphereon.vdx.ades.sign.util.*
 import eu.europa.esig.dss.cades.CAdESSignatureParameters
