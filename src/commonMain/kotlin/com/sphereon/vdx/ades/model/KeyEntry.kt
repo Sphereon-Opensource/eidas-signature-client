@@ -19,7 +19,7 @@ val json = Json { serializersModule = serializers }
 
 interface IKeyEntry {
     val attributes: Set<Attribute>?
-    val alias: String?
+    val alias: String
     val certificate: Certificate
     val certificateChain: List<Certificate>?
     val encryptionAlgorithm: CryptoAlg
@@ -34,7 +34,7 @@ interface IPrivateKeyEntry : IKeyEntry {
 @kotlinx.serialization.Serializable
 @SerialName("KeyEntry")
 data class KeyEntry(
-    override val alias: String? = null,
+    override val alias: String,
     override val attributes: Set<Attribute>? = null,
     override val encryptionAlgorithm: CryptoAlg,
     override val certificate: Certificate,
@@ -57,7 +57,7 @@ data class KeyEntry(
     }
 
     override fun hashCode(): Int {
-        var result = alias?.hashCode() ?: 0
+        var result = alias.hashCode()
         result = 31 * result + (attributes?.hashCode() ?: 0)
         result = 31 * result + encryptionAlgorithm.hashCode()
         result = 31 * result + certificate.hashCode()
@@ -69,15 +69,13 @@ data class KeyEntry(
 @kotlinx.serialization.Serializable
 @SerialName("PrivateKeyEntry")
 data class PrivateKeyEntry(
-    override val alias: String? = null,
-    // todo: Move to interface and remove privateKey, so a caller cannot easily directly access the private key
+    override val alias: String,
     override val privateKey: Key,
     override val attributes: Set<Attribute>? = null,
     override val encryptionAlgorithm: CryptoAlg,
     override val certificate: Certificate,
     override val certificateChain: List<Certificate>
 ) : IPrivateKeyEntry {
-    //    override fun getPrivateKey() = privateKey
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
@@ -95,7 +93,7 @@ data class PrivateKeyEntry(
     }
 
     override fun hashCode(): Int {
-        var result = alias?.hashCode() ?: 0
+        var result = alias.hashCode()
         result = 31 * result + privateKey.hashCode()
         result = 31 * result + (attributes?.hashCode() ?: 0)
         result = 31 * result + encryptionAlgorithm.hashCode()

@@ -74,7 +74,7 @@ open class SignatureService(override val certificateProvider: CertificateProvide
                 )
                 javaSig.setParameter(parameterSpec)
             }
-            javaSig.initVerify(certificate.toDSS().publicKey)
+            javaSig.initVerify(certificate.toX509Certificate().publicKey)
             javaSig.update(signInput.input)
             javaSig.verify(signature.value)
         } catch (e: GeneralSecurityException) {

@@ -25,12 +25,10 @@ import eu.europa.esig.dss.token.DSSPrivateKeyEntry
 import eu.europa.esig.dss.token.KSPrivateKeyEntry
 import eu.europa.esig.dss.token.Pkcs11SignatureToken
 import eu.europa.esig.dss.token.Pkcs12SignatureToken
-import java.io.ByteArrayInputStream
 import java.security.KeyFactory
 import java.security.KeyStore
 import java.security.KeyStore.PasswordProtection
 import java.security.PrivateKey
-import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
 import java.security.spec.AlgorithmParameterSpec
 import java.security.spec.PKCS8EncodedKeySpec
@@ -69,19 +67,19 @@ fun KSPrivateKeyEntry.fromDSS(): IPrivateKeyEntry {
         alias = this.alias,
 //        attributes = if (this.attributes != null) null else null,
         privateKey = Key(value = this.privateKey.encoded, algorithm = CryptoAlg.valueOf(this.privateKey.algorithm), format = this.privateKey.format),
-        certificate = Certificate(value = this.certificate.certificate.encoded),
-        certificateChain = this.certificateChain.map { Certificate(value = it.certificate.encoded) },
+        certificate = this.certificate.certificate.toCertificate(),
+        certificateChain = this.certificateChain.map { it.toCertificate() },
         encryptionAlgorithm = this.certificate.signatureAlgorithm.encryptionAlgorithm.fromDSS()
     )
 }
 
-fun DSSPrivateKeyEntry.fromDSS(alias: String? = null): IKeyEntry {
+fun DSSPrivateKeyEntry.fromDSS(alias: String): IKeyEntry {
     return when (this) {
         is KSPrivateKeyEntry -> this.fromDSS()
         else -> KeyEntry(
             alias = alias,
-            certificate = Certificate(value = this.certificate.certificate.encoded),
-            certificateChain = if (certificateChain == null) null else certificateChain.map { Certificate(value = it.certificate.encoded) },
+            certificate = this.certificate.toCertificate(),
+            certificateChain = if (certificateChain == null) null else certificateChain.map { it.toCertificate() },
             encryptionAlgorithm = this.certificate.signatureAlgorithm.encryptionAlgorithm.fromDSS()
         )
     }
@@ -100,7 +98,7 @@ fun IPrivateKeyEntry.toDSS(): DSSPrivateKeyEntry {
 }
 
 fun IPrivateKeyEntry.toJavaPrivateKeyEntry(): KeyStore.PrivateKeyEntry {
-    return KeyStore.PrivateKeyEntry(this.privateKey.toJavaPrivateKey(), this.certificateChain.map { it.toDSS() }.toTypedArray())
+    return KeyStore.PrivateKeyEntry(this.privateKey.toJavaPrivateKey(), this.certificateChain.map { it.toX509Certificate() }.toTypedArray())
 
 }
 
@@ -117,9 +115,12 @@ fun KeystoreParameters.toPkcs12SignatureToken(callback: PasswordInputCallback): 
 }
 
 
-fun Certificate.toDSS(): java.security.cert.Certificate {
-    val certFactory: CertificateFactory = CertificateFactory.getInstance("X.509")
-    return certFactory.generateCertificate(ByteArrayInputStream(this.value))
+fun X509Certificate.toCertificate(): Certificate {
+    return CertificateUtil.toCertificate(this)
+}
+
+fun Certificate.toX509Certificate(): X509Certificate {
+    return CertificateUtil.toX509Certificate(this)
 }
 
 fun Pkcs11Parameters.toPkcs11SignatureToken(): Pkcs11SignatureToken {
@@ -283,10 +284,10 @@ fun mapGenericSignatureParams(
     dssParams.isSignWithNotYetValidCertificate = signatureParameters.signWithNotYetValidCertificate ?: false
 
     if (signatureParameters.signingCertificate == null && certificate != null) {
-        dssParams.signingCertificate = CertificateToken(certificate.toDSS() as X509Certificate)
+        dssParams.signingCertificate = CertificateToken(certificate.toX509Certificate() as X509Certificate)
     }
     if (signatureParameters.certificateChain == null && certificateChain != null) {
-        dssParams.certificateChain = certificateChain.map { CertificateToken(it.toDSS() as X509Certificate) }
+        dssParams.certificateChain = certificateChain.map { CertificateToken(it.toX509Certificate() as X509Certificate) }
     }
 }
 
@@ -307,4 +308,8 @@ fun mapTimestampParams(
             signatureParameters.timestampParameters.signatureTimestampParameters.digestAlgorithm.toDSS()
     }
 
+}
+
+fun CertificateToken.toCertificate(): Certificate {
+    return CertificateUtil.toCertificate(this.certificate)
 }
