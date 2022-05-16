@@ -2,6 +2,7 @@ package com.sphereon.vdx.ades.sign.util
 
 import com.sphereon.vdx.ades.model.Certificate
 import kotlinx.datetime.toKotlinInstant
+import org.jose4j.base64url.Base64
 import java.io.ByteArrayInputStream
 import java.security.MessageDigest
 import java.security.cert.CertificateFactory
@@ -13,6 +14,15 @@ object CertificateUtil {
     fun toX509Certificate(certificate: Certificate): X509Certificate {
         val certFactory: CertificateFactory = CertificateFactory.getInstance("X.509")
         return certFactory.generateCertificate(ByteArrayInputStream(certificate.value)) as X509Certificate
+    }
+
+    fun toX509Certificate(certificateBase64: String): X509Certificate {
+        return toX509Certificate(Base64.decode(certificateBase64))
+    }
+
+    fun toX509Certificate(certificate: ByteArray): X509Certificate {
+        val certFactory: CertificateFactory = CertificateFactory.getInstance("X.509")
+        return certFactory.generateCertificate(ByteArrayInputStream(certificate)) as X509Certificate
     }
 
     fun toCertificate(certificate: X509Certificate): Certificate {

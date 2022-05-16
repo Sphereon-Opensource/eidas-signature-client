@@ -1,7 +1,9 @@
+package com.sphereon.vdx.ades.pki
+
+import SelfSignedCertGenerator
 import com.sphereon.vdx.ades.PKIException
 import com.sphereon.vdx.ades.enums.CertificateProviderType
 import com.sphereon.vdx.ades.model.*
-import com.sphereon.vdx.ades.pki.LocalCertificateProviderService
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Test
@@ -17,7 +19,7 @@ class LocalCertificateProviderServiceTest {
     @Test
     fun `Given too few config parameters a PKI Exception occurs`() {
         val pkcs11Ex = assertFailsWith<PKIException> {
-            LocalCertificateProviderService(
+            CertificateProviderServiceFactory.createFromConfig(
                 CertificateProviderSettings(id = "pkcs11", CertificateProviderConfig(type = CertificateProviderType.PKCS11))
             )
         }
@@ -25,7 +27,7 @@ class LocalCertificateProviderServiceTest {
 
 
         val pkcs12Ex = assertFailsWith<PKIException> {
-            LocalCertificateProviderService(
+            CertificateProviderServiceFactory.createFromConfig(
                 CertificateProviderSettings(id = "pkcs12", CertificateProviderConfig(type = CertificateProviderType.PKCS12))
             )
         }
@@ -33,7 +35,7 @@ class LocalCertificateProviderServiceTest {
 
 
         val notSupportedEx = assertFailsWith<PKIException> {
-            LocalCertificateProviderService(
+            CertificateProviderServiceFactory.createFromConfig(
                 CertificateProviderSettings(id = "not supported yet", CertificateProviderConfig(type = CertificateProviderType.JKS))
             )
         }
@@ -70,7 +72,7 @@ class LocalCertificateProviderServiceTest {
             pkcs12Parameters = KeystoreParameters(providerBytes = providerBytes)
         )
         val certProvider =
-            LocalCertificateProviderService(
+            CertificateProviderServiceFactory.createFromConfig(
                 CertificateProviderSettings(
                     id = "pkcs12",
                     providerConfig,

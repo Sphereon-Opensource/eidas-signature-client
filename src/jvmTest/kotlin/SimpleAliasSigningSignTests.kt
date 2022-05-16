@@ -43,6 +43,7 @@ class SimpleAliasSigningSignTests : AbstractAdESTest() {
 
         val signingService = constructAliasSignatureService(enableCache = true)
         val keyEntry = signingService.certificateProvider.getKey(CERTIFICATE)!!
+        assertNotNull(keyEntry)
         val signature = signingService.createSignature(signInput, CERTIFICATE)
         assertNotNull(signature)
         assertEquals(SignatureAlg.RSA_SHA256, signature.algorithm)
@@ -81,6 +82,7 @@ class SimpleAliasSigningSignTests : AbstractAdESTest() {
 
         val signingService = constructAliasSignatureService(enableCache = false)
         val keyEntry = signingService.certificateProvider.getKey(CERTIFICATE)!!
+        assertNotNull(keyEntry)
         val signature = signingService.createSignature(signInput, CERTIFICATE, MaskGenFunction.MGF1)
         assertNotNull(signature)
         assertEquals(SignatureAlg.RSA_SSA_PSS_SHA256_MGF1, signature.algorithm)

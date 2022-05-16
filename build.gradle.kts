@@ -8,8 +8,6 @@ group = "com.sphereon.vdx"
 version = "0.2.0-SNAPSHOT"
 
 
-
-
 kotlin {
     jvm {
         compilations.all {
@@ -40,6 +38,10 @@ kotlin {
 
 
     sourceSets {
+        all {
+            languageSettings.optIn("ExperimentalSerializationApi")
+        }
+
         val dssVersion = "5.10.1"
         val kotlinSerializationVersion = "1.3.2"
         val kotlinDateTimeVersion = "0.3.3"
@@ -72,18 +74,39 @@ kotlin {
                 implementation("eu.europa.ec.joinup.sd-dss:dss-enumerations:$dssVersion")
                 implementation("org.bouncycastle:bcprov-jdk18on:$bcVersion")
                 implementation("javax.cache:cache-api:1.1.1")
+
+
+                // todo separate into separate project probably
+                implementation("com.sphereon.vdx:eidas-signature-client-rest-native:0.0.3")
             }
-
-
         }
         val jvmTest by getting {
             dependencies {
                 implementation("eu.europa.ec.joinup.sd-dss:dss-test:$dssVersion:tests")
                 implementation("eu.europa.ec.joinup.sd-dss:dss-pades-pdfbox:$dssVersion")
                 implementation("org.bouncycastle:bcpkix-jdk18on:$bcVersion")
+                implementation("io.mockk:mockk:1.12.4")
+
+//                implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
+
                 implementation("org.ehcache:ehcache:3.8.1")
             }
         }
+
+        /*   create("jvmREST") {
+               kotlin.srcDir("src/jvmREST/kotlin")
+               resources.srcDir("src/jvmREST/resources")
+               dependencies  {
+   //                implementation(project(":jvmMain"))
+
+               }
+           }
+           val jvmREST by getting {
+               dependencies  {
+   //                implementation(project(":jvmMain"))
+                   implementation("com.sphereon.vdx:eidas-signature-client-rest-native:0.0.3")
+               }
+           }*/
         /* val jsMain by getting
          val jsTest by getting*/
     }
@@ -91,6 +114,7 @@ kotlin {
 
 
 repositories {
+    mavenLocal()
     mavenCentral()
     maven {
         name = "jitpack.io"
