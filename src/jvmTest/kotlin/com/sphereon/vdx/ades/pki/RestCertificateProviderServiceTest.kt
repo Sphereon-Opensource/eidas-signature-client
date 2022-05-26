@@ -1,11 +1,11 @@
 package com.sphereon.vdx.ades.pki
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.sphereon.vdx.ades.RestClientConfig
 import com.sphereon.vdx.ades.enums.CertificateProviderType
 import com.sphereon.vdx.ades.model.CertificateProviderConfig
 import com.sphereon.vdx.ades.model.CertificateProviderSettings
 import com.sphereon.vdx.ades.model.PasswordInputCallback
-import com.sphereon.vdx.ades.model.RestConfig
 import com.sphereon.vdx.ades.rest.client.ApiResponse
 import com.sphereon.vdx.ades.rest.client.JSON
 import com.sphereon.vdx.ades.rest.client.api.CertificatesApi
@@ -21,7 +21,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 
 
-class RESTCertificateProviderServiceTest {
+class RestCertificateProviderServiceTest {
     private val mapper: ObjectMapper = JSON.getDefault().mapper
 
 
@@ -53,7 +53,7 @@ class RESTCertificateProviderServiceTest {
 
     }
 
-    private fun setupCertProviderMock(data: CertificateResponse): RESTCertificateProviderService {
+    private fun setupCertProviderMock(data: CertificateResponse): RestCertificateProviderService {
         val certApiMock = mockk<CertificatesApi>()
 
         every {
@@ -64,18 +64,23 @@ class RESTCertificateProviderServiceTest {
             data
         )
 
-        val certProvider = spyk(RESTCertificateProviderService(constructCertificateProviderSettings()))
+        val certProvider = spyk(RestCertificateProviderService(constructCertificateProviderSettings(), constructRestClientConfig()))
         every {
-            certProvider.getCertApi()
+            certProvider.newCertApi()
         } returns certApiMock
         return certProvider
     }
 
 
+    private fun constructRestClientConfig(baseUrl: String? = "http://mocked"): RestClientConfig {
+        return RestClientConfig(
+            baseUrl = baseUrl
+        )
+    }
+
     private fun constructCertificateProviderSettings(
         password: String = "password",
-        enableCache: Boolean = false,
-        baseUrl: String? = "http://mocked"
+        enableCache: Boolean = false
     ): CertificateProviderSettings {
 
         return CertificateProviderSettings(
@@ -83,10 +88,8 @@ class RESTCertificateProviderServiceTest {
             config = CertificateProviderConfig(
                 cacheEnabled = enableCache,
                 type = CertificateProviderType.REST,
-                restConfig = RestConfig(
-                    baseUrl = baseUrl
-                )
-            ),
+
+                ),
             passwordInputCallback = PasswordInputCallback(password = password.toCharArray())
         )
 

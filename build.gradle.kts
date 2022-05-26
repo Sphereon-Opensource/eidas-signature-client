@@ -72,18 +72,21 @@ kotlin {
                 implementation("eu.europa.ec.joinup.sd-dss:dss-service:$dssVersion")
                 implementation("eu.europa.ec.joinup.sd-dss:dss-signature-rest:$dssVersion")
                 implementation("eu.europa.ec.joinup.sd-dss:dss-enumerations:$dssVersion")
+                implementation("eu.europa.ec.joinup.sd-dss:dss-pades-pdfbox:$dssVersion")
                 implementation("org.bouncycastle:bcprov-jdk18on:$bcVersion")
                 implementation("javax.cache:cache-api:1.1.1")
+                implementation("jakarta.xml.bind:jakarta.xml.bind-api:2.3.3")
+                implementation("org.glassfish.jaxb:jaxb-runtime:2.3.3")
 
 
                 // todo separate into separate project probably
-                implementation("com.sphereon.vdx:eidas-signature-client-rest-native:0.0.3")
+                implementation("com.sphereon.vdx:eidas-signature-client-rest-jersey3:0.1.0")
             }
         }
         val jvmTest by getting {
             dependencies {
                 implementation("eu.europa.ec.joinup.sd-dss:dss-test:$dssVersion:tests")
-                implementation("eu.europa.ec.joinup.sd-dss:dss-pades-pdfbox:$dssVersion")
+
                 implementation("org.bouncycastle:bcpkix-jdk18on:$bcVersion")
                 implementation("io.mockk:mockk:1.12.4")
 

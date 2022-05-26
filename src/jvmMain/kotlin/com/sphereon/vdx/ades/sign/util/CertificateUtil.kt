@@ -1,13 +1,14 @@
 package com.sphereon.vdx.ades.sign.util
 
 import com.sphereon.vdx.ades.model.Certificate
+import jakarta.xml.bind.DatatypeConverter
 import kotlinx.datetime.toKotlinInstant
 import org.jose4j.base64url.Base64
 import java.io.ByteArrayInputStream
 import java.security.MessageDigest
 import java.security.cert.CertificateFactory
 import java.security.cert.X509Certificate
-import javax.xml.bind.DatatypeConverter
+
 
 object CertificateUtil {
 

@@ -355,6 +355,13 @@ val valid = signingService.isValidSignature(digestInput, signature, signature.ce
 // Returns a boolean
 ````
 
+### PDF Signatures
+
+This library supports different PDF signature types. Supported are:
+
+- adbe.pkcs7.detached/adbe.pkcs7.sha1
+- ETSI.PAdES/ETSI.CAdES.detached, which is ETSI/eIDAS compliant using
+
 ### Environment variables
 
 Currently NA

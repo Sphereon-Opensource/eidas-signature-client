@@ -21,18 +21,18 @@ data class CertificateProviderConfig(
 
     val jksParameters: KeystoreParameters? = null,
 
-    val restConfig: RestConfig? = null
+//    val restConfig: RestConfig? = null
 
 )
-
+/*
 @kotlinx.serialization.Serializable
 data class RestConfig(
     val baseUrl: String? = "http://localhost/",
 
-    val connectTimeoutInMS: Long? = 5000,
-    val readTimeoutInMS: Long? = 10000
+    val connectTimeoutInMS: Int? = 5000,
+    val readTimeoutInMS: Int? = 10000
 
-)
+)*/
 
 @kotlinx.serialization.Serializable
 data class Pkcs11Parameters(
