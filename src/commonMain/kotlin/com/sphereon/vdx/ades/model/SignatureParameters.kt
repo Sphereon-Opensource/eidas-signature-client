@@ -120,13 +120,28 @@ data class SignatureFormParameters(
     // SignatureForm comes from the signature level
     // val signatureForm: SignatureForm,
 
+    /**
+     * ETSI Cades
+     */
     val cadesSignatureFormParameters: CadesSignatureFormParameters? = null,
 
+    /**
+     * ETSI Pades PDF
+     */
     val padesSignatureFormParameters: PadesSignatureFormParameters? = null,
 
+    /**
+     * Adobe PKCS7 PDF
+     */
+    val pkcs7SignatureFormParameters: Pkcs7SignatureFormParameters? = null,
+
+    /**
+     * ETSI Jades JSON
+     */
     val jadesSignatureFormParameters: JadesSignatureFormParameters? = null,
 
-    val xadesSignatureFormParameters: XadesSignatureFormParameters? = null
+
+//    val xadesSignatureFormParameters: XadesSignatureFormParameters? = null
 )
 
 @kotlinx.serialization.Serializable
@@ -142,6 +157,81 @@ data class JadesSignatureFormParameters(
 //    private val sigDMechanism: SigDMechanism? = null
 
 )
+
+// adbe.pkcs7.detached
+@kotlinx.serialization.Serializable
+data class Pkcs7SignatureFormParameters(
+    /**
+     * The signature mode, according to the PDF spec
+     */
+    val mode: PdfSignatureMode? = PdfSignatureMode.APPROVAL,
+
+    /**
+     * This attribute allows to explicitly specify the SignerName (name for the Signature).
+     * The person or authority signing the document.
+     */
+    val signerName: String? = null,
+
+
+    /** The signature creation reason  */
+    val reason: String? = null,
+
+    /** The contact info  */
+    val contactInfo: String? = null,
+
+    /** The signer's location  */
+    val location: String? = null,
+
+    /**
+     * Defines the preserved space for a signature context
+     *
+     * Default : 9472 (default value in pdfbox)
+     */
+    val signatureSize: Int? = 9472,
+
+    /**
+     * This attribute allows to override the used Filter for a Signature.
+     *
+     * Default value is Adobe.PPKLite
+     */
+    val signatureFilter: String? = "Adobe.PPKLite",
+
+    /**
+     * This attribute allows to override the used subFilter for a Signature.
+     *
+     * Default value is adbe.pkcs7.detached
+     */
+    val signatureSubFilter: String? = "adbe.pkcs7.detached",
+
+    /**
+     * This attribute is used to create visible signature in PAdES form
+     */
+//    val signatureImageParameters?: SignatureImageParameters = null,
+
+    /**
+     * This attribute allows to create a "certification signature". That allows to remove permission(s) in case of
+     * future change(s).
+     */
+    val permission: CertificationPermission? = null,
+
+    /**
+     * Password used to encrypt a PDF
+     */
+    val passwordProtection: String? = null,
+
+    /**
+     * The time-zone used for signature creation
+     *
+     * Default: TimeZone.getDefault()
+     */
+//    val signingTimeZone: java.util.TimeZone =        java.util.TimeZone.getDefault(),
+
+
+)
+
+enum class PdfSignatureMode {
+    CERTIFICATION, APPROVAL
+}
 
 @kotlinx.serialization.Serializable
 data class PadesSignatureFormParameters(
