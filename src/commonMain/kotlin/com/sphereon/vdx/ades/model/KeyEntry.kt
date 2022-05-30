@@ -20,13 +20,13 @@ val json = Json { serializersModule = serializers }
 interface IKeyEntry {
     val attributes: Set<Attribute>?
     val alias: String
-    val certificate: Certificate
+    val publicKey: Key
+    val certificate: Certificate?
     val certificateChain: List<Certificate>?
     val encryptionAlgorithm: CryptoAlg
 }
 
 interface IPrivateKeyEntry : IKeyEntry {
-    override val certificateChain: List<Certificate>
     val privateKey: Key
 }
 
@@ -35,9 +35,10 @@ interface IPrivateKeyEntry : IKeyEntry {
 @SerialName("KeyEntry")
 data class KeyEntry(
     override val alias: String,
+    override val publicKey: Key,
     override val attributes: Set<Attribute>? = null,
     override val encryptionAlgorithm: CryptoAlg,
-    override val certificate: Certificate,
+    override val certificate: Certificate? = null,
     override val certificateChain: List<Certificate>? = null
 ) : IKeyEntry {
 
@@ -48,6 +49,7 @@ data class KeyEntry(
         other as KeyEntry
 
         if (alias != other.alias) return false
+        if (publicKey != other.publicKey) return false
         if (attributes != other.attributes) return false
         if (encryptionAlgorithm != other.encryptionAlgorithm) return false
         if (certificate != other.certificate) return false
@@ -58,9 +60,10 @@ data class KeyEntry(
 
     override fun hashCode(): Int {
         var result = alias.hashCode()
+        result = 31 * result + publicKey.hashCode()
         result = 31 * result + (attributes?.hashCode() ?: 0)
         result = 31 * result + encryptionAlgorithm.hashCode()
-        result = 31 * result + certificate.hashCode()
+        result = 31 * result + (certificate?.hashCode() ?: 0)
         result = 31 * result + (certificateChain?.hashCode() ?: 0)
         return result
     }
@@ -71,10 +74,11 @@ data class KeyEntry(
 data class PrivateKeyEntry(
     override val alias: String,
     override val privateKey: Key,
+    override val publicKey: Key,
     override val attributes: Set<Attribute>? = null,
     override val encryptionAlgorithm: CryptoAlg,
-    override val certificate: Certificate,
-    override val certificateChain: List<Certificate>
+    override val certificate: Certificate? = null,
+    override val certificateChain: List<Certificate>? = null
 ) : IPrivateKeyEntry {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -84,6 +88,7 @@ data class PrivateKeyEntry(
 
         if (alias != other.alias) return false
         if (privateKey != other.privateKey) return false
+        if (publicKey != other.publicKey) return false
         if (attributes != other.attributes) return false
         if (encryptionAlgorithm != other.encryptionAlgorithm) return false
         if (certificate != other.certificate) return false
@@ -95,10 +100,11 @@ data class PrivateKeyEntry(
     override fun hashCode(): Int {
         var result = alias.hashCode()
         result = 31 * result + privateKey.hashCode()
+        result = 31 * result + publicKey.hashCode()
         result = 31 * result + (attributes?.hashCode() ?: 0)
         result = 31 * result + encryptionAlgorithm.hashCode()
-        result = 31 * result + certificate.hashCode()
-        result = 31 * result + certificateChain.hashCode()
+        result = 31 * result + (certificate?.hashCode() ?: 0)
+        result = 31 * result + (certificateChain?.hashCode() ?: 0)
         return result
     }
 }

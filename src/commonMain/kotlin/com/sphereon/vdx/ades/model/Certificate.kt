@@ -7,7 +7,7 @@ import kotlinx.datetime.Instant
 class Certificate(
     @kotlinx.serialization.Serializable(with = Base64Serializer::class) val value: ByteArray,
     val fingerPrint: String,
-    val serialNumber: Long? = null,
+    val serialNumber: String? = null,
     val issuerDN: String,
     val subjectDN: String,
     val notBefore: Instant,

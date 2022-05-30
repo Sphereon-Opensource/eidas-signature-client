@@ -7,7 +7,7 @@ import com.sphereon.vdx.ades.enums.SignMode
 import com.sphereon.vdx.ades.enums.SignatureAlg
 import com.sphereon.vdx.ades.model.*
 
-interface IKeySignatureService {
+interface IKeySignatureService : ISimpleSignatureService {
 
     /**
      * Determines the bytes that will serve as input for the digest or signature.
@@ -35,69 +35,10 @@ interface IKeySignatureService {
     @Throws(SignClientException::class)
     fun digest(signInput: SignInput): SignInput
 
-    /**
-     *
-     * This method signs the `signInput` data with the digest `digestAlg` and
-     * the given `keyEntry`.
-     *
-     * @param signInput
-     * The data that need to be signed
-     * @param keyEntry
-     * The certificate to use
-     * @return the signature value representation with the used algorithm and the binary value
-     * @throws SigningException
-     * If there is any problem during the signature process
-     */
-    @Throws(SigningException::class)
-    fun createSignature(signInput: SignInput, keyEntry: IKeyEntry): Signature
 
 
-    /**
-     * This method signs the `signInput` data with the digest `digestAlg`, the mask `mgf` and
-     * the given `keyEntry`.
-     *
-     * @param signInput
-     * The data that need to be signed
-     * @param mgf
-     * the mask generation function
-     * @param keyEntry
-     * The certificate to use
-     * @return the signature value representation with the used algorithm and the binary value
-     * @throws SigningException
-     * If there is any problem during the signature process
-     */
-    @Throws(SigningException::class)
-    fun createSignature(
-        signInput: SignInput,
-        keyEntry: IKeyEntry,
-        mgf: MaskGenFunction
-    ): Signature
-
-    /**
-     * This method signs the `signInput` data with the provided Signature Algorithm and
-     * the given `keyEntry`.
-     *
-     * @param signInput
-     * The data that need to be signed
-     * @param signatureAlgorithm
-     * the Signature Algorithm
-     * @param keyEntry
-     * The certificate to use
-     * @return the signature value representation with the used algorithm and the binary value
-     * @throws SigningException
-     * If there is any problem during the signature process
-     */
-    @Throws(SigningException::class)
-    fun createSignature(
-        signInput: SignInput,
-        keyEntry: IKeyEntry,
-        signatureAlgorithm: SignatureAlg
-    ): Signature
-
-    fun isValidSignature(signInput: SignInput, signature: Signature, certificate: Certificate): Boolean
 
 
-    fun isValidSignature(signInput: SignInput, signature: Signature, keyEntry: IKeyEntry): Boolean
 
     /**
      *

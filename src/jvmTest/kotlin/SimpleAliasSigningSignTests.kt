@@ -18,7 +18,7 @@ class SimpleAliasSigningSignTests : AbstractAdESTest() {
     fun `Given an input with signmode DOCUMENT the sign method should sign the document`() {
         val signInput = SignInput(input = "test".toByteArray(), signMode = SignMode.DOCUMENT, digestAlgorithm = DigestAlg.SHA256)
 
-        val signingService = constructAliasSignatureService(enableCache = true)
+        val signingService = constructAliasSignatureService(enableCache = true, keystoreFilename = "user_a_rsa.p12", password = "password")
         val keyEntry = signingService.certificateProvider.getKey(CERTIFICATE)!!
         val signature = signingService.createSignature(signInput, CERTIFICATE)
         assertNotNull(signature)
@@ -28,7 +28,7 @@ class SimpleAliasSigningSignTests : AbstractAdESTest() {
             signature.value
         )
 
-        assertTrue(signingService.isValidSignature(signInput, signature, keyEntry.certificate))
+        assertTrue(signingService.isValidSignature(signInput, signature, keyEntry.publicKey))
 
     }
 
@@ -41,7 +41,7 @@ class SimpleAliasSigningSignTests : AbstractAdESTest() {
             digestAlgorithm = DigestAlg.SHA256
         )
 
-        val signingService = constructAliasSignatureService(enableCache = true)
+        val signingService = constructAliasSignatureService(enableCache = true, keystoreFilename = "user_a_rsa.p12", password = "password")
         val keyEntry = signingService.certificateProvider.getKey(CERTIFICATE)!!
         assertNotNull(keyEntry)
         val signature = signingService.createSignature(signInput, CERTIFICATE)
@@ -59,7 +59,7 @@ class SimpleAliasSigningSignTests : AbstractAdESTest() {
     fun `Given an input with signmode DOCUMENT and maskgen function 1 the sign method should sign the document`() {
         val signInput = SignInput(input = "test".toByteArray(), signMode = SignMode.DOCUMENT, digestAlgorithm = DigestAlg.SHA256)
 
-        val signingService = constructAliasSignatureService(enableCache = false)
+        val signingService = constructAliasSignatureService(enableCache = false, keystoreFilename = "user_a_rsa.p12", password = "password")
         val keyEntry = signingService.certificateProvider.getKey(CERTIFICATE)!!
         val signature = signingService.createSignature(signInput, CERTIFICATE, MaskGenFunction.MGF1)
         assertNotNull(signature)
@@ -67,7 +67,7 @@ class SimpleAliasSigningSignTests : AbstractAdESTest() {
         // Since we use a MGF1 in this test, the signature is randomized
         assertNotNull(signature.value)
 
-        assertTrue(signingService.isValidSignature(signInput, signature, keyEntry.certificate))
+        assertTrue(signingService.isValidSignature(signInput, signature, keyEntry.publicKey))
 
     }
 
@@ -80,7 +80,7 @@ class SimpleAliasSigningSignTests : AbstractAdESTest() {
             digestAlgorithm = DigestAlg.SHA256
         )
 
-        val signingService = constructAliasSignatureService(enableCache = false)
+        val signingService = constructAliasSignatureService(enableCache = false, keystoreFilename = "user_a_rsa.p12", password = "password")
         val keyEntry = signingService.certificateProvider.getKey(CERTIFICATE)!!
         assertNotNull(keyEntry)
         val signature = signingService.createSignature(signInput, CERTIFICATE, MaskGenFunction.MGF1)

@@ -61,7 +61,7 @@ class PAdESSigningSignTests : AbstractAdESTest() {
         assertNotNull(signOutput)
 
 
-        assertTrue(signingService.isValidSignature(digestInput, signature, signature.certificate!!))
+        assertTrue(signingService.isValidSignature(digestInput, signature, signature.publicKey!!))
 //        assertTrue(signingService.isValidSignature(signInput, signature, signature.certificate!!))
         val documentValidator = SignedDocumentValidator.fromDocument(InMemoryDocument(signOutput.value, signOutput.name))
         documentValidator.setCertificateVerifier(CommonCertificateVerifier())

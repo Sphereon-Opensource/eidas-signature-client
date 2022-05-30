@@ -1,10 +1,12 @@
 package com.sphereon.vdx.ades.sign.util
 
-import com.sphereon.vdx.ades.PKIException
 import com.sphereon.vdx.ades.SignClientException
 import com.sphereon.vdx.ades.SigningException
 import com.sphereon.vdx.ades.enums.*
 import com.sphereon.vdx.ades.model.*
+import com.sphereon.vdx.ades.pki.AzureKeyvaultClientConfig
+import com.sphereon.vdx.ades.pki.AzureKeyvaultTokenConnection
+import com.sphereon.vdx.ades.pki.DSSWrappedKeyEntry
 import eu.europa.esig.dss.AbstractSignatureParameters
 import eu.europa.esig.dss.cades.CAdESSignatureParameters
 import eu.europa.esig.dss.cades.signature.CAdESService
@@ -29,9 +31,11 @@ import java.security.KeyFactory
 import java.security.KeyStore
 import java.security.KeyStore.PasswordProtection
 import java.security.PrivateKey
+import java.security.PublicKey
 import java.security.cert.X509Certificate
 import java.security.spec.AlgorithmParameterSpec
 import java.security.spec.PKCS8EncodedKeySpec
+import java.security.spec.X509EncodedKeySpec
 
 
 fun DigestAlg.toDSS(): DigestAlgorithm {
@@ -66,6 +70,7 @@ fun KSPrivateKeyEntry.fromDSS(): IPrivateKeyEntry {
     return PrivateKeyEntry(
         alias = this.alias,
 //        attributes = if (this.attributes != null) null else null,
+        publicKey = this.certificate.publicKey.toKey(),
         privateKey = Key(value = this.privateKey.encoded, algorithm = CryptoAlg.valueOf(this.privateKey.algorithm), format = this.privateKey.format),
         certificate = this.certificate.certificate.toCertificate(),
         certificateChain = this.certificateChain.map { it.toCertificate() },
@@ -78,6 +83,7 @@ fun DSSPrivateKeyEntry.fromDSS(alias: String): IKeyEntry {
         is KSPrivateKeyEntry -> this.fromDSS()
         else -> KeyEntry(
             alias = alias,
+            publicKey = this.certificate.publicKey.toKey(),
             certificate = this.certificate.toCertificate(),
             certificateChain = if (certificateChain == null) null else certificateChain.map { it.toCertificate() },
             encryptionAlgorithm = this.certificate.signatureAlgorithm.encryptionAlgorithm.fromDSS()
@@ -87,19 +93,27 @@ fun DSSPrivateKeyEntry.fromDSS(alias: String): IKeyEntry {
 
 fun IKeyEntry.toDSS(): DSSPrivateKeyEntry {
     return when (this) {
-        is IPrivateKeyEntry -> this.toDSS()
-        else -> throw PKIException("Not supported yet")
+        is IPrivateKeyEntry -> // for now, we just always assume a KS Private Key. We need this since most of DSS depends on this implementation
+            return KSPrivateKeyEntry(this.alias, this.toJavaPrivateKeyEntry())
+        else -> DSSWrappedKeyEntry(this)
     }
 }
 
-fun IPrivateKeyEntry.toDSS(): DSSPrivateKeyEntry {
+/*fun IPrivateKeyEntry.toDSS(): DSSPrivateKeyEntry {
     // for now, we just always assume a KS Private Key
     return KSPrivateKeyEntry(this.alias, this.toJavaPrivateKeyEntry())
-}
+}*/
 
 fun IPrivateKeyEntry.toJavaPrivateKeyEntry(): KeyStore.PrivateKeyEntry {
-    return KeyStore.PrivateKeyEntry(this.privateKey.toJavaPrivateKey(), this.certificateChain.map { it.toX509Certificate() }.toTypedArray())
+    return KeyStore.PrivateKeyEntry(this.privateKey.toJavaPrivateKey(), this.certificateChain?.map { it.toX509Certificate() }?.toTypedArray())
 
+}
+
+fun Key.toJavaPublicKey(): PublicKey {
+    // FIXME: Assumes x509
+    val kf = KeyFactory.getInstance(algorithm.internalName)
+    val keySpec = X509EncodedKeySpec(value)
+    return kf.generatePublic(keySpec)
 }
 
 fun Key.toJavaPrivateKey(): PrivateKey {
@@ -114,9 +128,21 @@ fun KeystoreParameters.toPkcs12SignatureToken(callback: PasswordInputCallback): 
     else throw SignClientException("Please either provide bytes or a path for the keystore")
 }
 
+fun AzureKeyvaultClientConfig.toAzureSignatureToken(alias: String): AzureKeyvaultTokenConnection {
+    return AzureKeyvaultTokenConnection(this, alias)
+}
+
 
 fun X509Certificate.toCertificate(): Certificate {
     return CertificateUtil.toCertificate(this)
+}
+
+fun PublicKey.toKey(): Key {
+    return Key(algorithm = CryptoAlg.valueOf(algorithm), value = encoded, format = format)
+}
+
+fun X509Certificate.toPublicKey(): Key {
+    return publicKey.toKey()
 }
 
 fun Certificate.toX509Certificate(): X509Certificate {
@@ -153,14 +179,15 @@ fun Signature.toDSS(): SignatureValue {
 }
 
 fun SignatureValue.fromDSS(signMode: SignMode, keyEntry: IKeyEntry?): Signature {
-    return this.fromDSS(signMode, keyEntry?.certificate, keyEntry?.certificateChain)
+    return this.fromDSS(signMode, keyEntry?.publicKey, keyEntry?.certificate, keyEntry?.certificateChain)
 }
 
-fun SignatureValue.fromDSS(signMode: SignMode, certificate: Certificate?, certificateChain: List<Certificate>?): Signature {
+fun SignatureValue.fromDSS(signMode: SignMode, publicKey: Key?, certificate: Certificate?, certificateChain: List<Certificate>?): Signature {
     return Signature(
         value = this.value,
         signMode = signMode,
         algorithm = this.algorithm.fromDSS(),
+        publicKey = publicKey ?: certificate?.toX509Certificate()!!.toPublicKey(),
         certificate = certificate,
         certificateChain = certificateChain
     )
@@ -286,7 +313,7 @@ fun mapGenericSignatureParams(
     if (signatureParameters.signingCertificate == null && certificate != null) {
         dssParams.signingCertificate = CertificateToken(certificate.toX509Certificate())
     }
-    if (signatureParameters.certificateChain == null && certificateChain != null) {
+    if ((signatureParameters.certificateChain == null || signatureParameters.certificateChain.isEmpty()) && certificateChain != null) {
         dssParams.certificateChain = certificateChain.map { CertificateToken(it.toX509Certificate()) }
     }
 }

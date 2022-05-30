@@ -7,12 +7,15 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Signature(
-    @kotlinx.serialization.Serializable(with = Base64Serializer::class) val value: ByteArray,
+    @Serializable(with = Base64Serializer::class)
+    val value: ByteArray,
     val algorithm: SignatureAlg,
     val signMode: SignMode,
+    val publicKey: Key,
     val certificate: Certificate?,
     val certificateChain: List<Certificate>?
 ) {
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
@@ -21,6 +24,8 @@ data class Signature(
 
         if (!value.contentEquals(other.value)) return false
         if (algorithm != other.algorithm) return false
+        if (signMode != other.signMode) return false
+        if (publicKey != other.publicKey) return false
         if (certificate != other.certificate) return false
         if (certificateChain != other.certificateChain) return false
 
@@ -30,6 +35,8 @@ data class Signature(
     override fun hashCode(): Int {
         var result = value.contentHashCode()
         result = 31 * result + algorithm.hashCode()
+        result = 31 * result + signMode.hashCode()
+        result = 31 * result + publicKey.hashCode()
         result = 31 * result + (certificate?.hashCode() ?: 0)
         result = 31 * result + (certificateChain?.hashCode() ?: 0)
         return result

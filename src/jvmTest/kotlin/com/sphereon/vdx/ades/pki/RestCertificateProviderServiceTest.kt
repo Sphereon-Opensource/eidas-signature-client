@@ -1,7 +1,6 @@
 package com.sphereon.vdx.ades.pki
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.sphereon.vdx.ades.RestClientConfig
 import com.sphereon.vdx.ades.enums.CertificateProviderType
 import com.sphereon.vdx.ades.model.CertificateProviderConfig
 import com.sphereon.vdx.ades.model.CertificateProviderSettings
@@ -34,15 +33,15 @@ class RestCertificateProviderServiceTest {
         assertNotNull(key)
         assertEquals("rest", key.alias)
         assertNotNull(key.certificate)
-        assertEquals("1A485229434026D47F47ADE3BDCA499253F588C0", key.certificate.fingerPrint)
-        assertEquals("C=LU, OU=PKI-TEST, O=Nowina Solutions, CN=good-ca", key.certificate.issuerDN)
-        assertEquals("C=LU, OU=PKI-TEST, O=Nowina Solutions, CN=good-user", key.certificate.subjectDN)
-        assertEquals(10L, key.certificate.serialNumber)
-        assertNotNull(key.certificate.keyUsage)
-        assertEquals(9, key.certificate.keyUsage!!.size)
-        assertEquals(true, key.certificate.keyUsage!!["nonRepudiation"])
-        assertEquals(LocalDateTime.parse("2021-04-01T15:00:16").toInstant(TimeZone.UTC), key.certificate.notBefore)
-        assertEquals(LocalDateTime.parse("2023-02-01T15:00:16").toInstant(TimeZone.UTC), key.certificate.notAfter)
+        assertEquals("1A485229434026D47F47ADE3BDCA499253F588C0", key.certificate?.fingerPrint)
+        assertEquals("C=LU, OU=PKI-TEST, O=Nowina Solutions, CN=good-ca", key.certificate?.issuerDN)
+        assertEquals("C=LU, OU=PKI-TEST, O=Nowina Solutions, CN=good-user", key.certificate?.subjectDN)
+        assertEquals("10", key.certificate?.serialNumber)
+        assertNotNull(key.certificate?.keyUsage)
+        assertEquals(9, key.certificate?.keyUsage!!.size)
+        assertEquals(true, key.certificate?.keyUsage!!["nonRepudiation"])
+        assertEquals(LocalDateTime.parse("2021-04-01T15:00:16").toInstant(TimeZone.UTC), key.certificate?.notBefore)
+        assertEquals(LocalDateTime.parse("2023-02-01T15:00:16").toInstant(TimeZone.UTC), key.certificate?.notAfter)
 
         assertNotNull(key.certificateChain)
         assertEquals(3, key.certificateChain!!.size)

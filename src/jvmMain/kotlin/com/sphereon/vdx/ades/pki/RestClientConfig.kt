@@ -1,4 +1,4 @@
-package com.sphereon.vdx.ades
+package com.sphereon.vdx.ades.pki
 
 import com.sphereon.vdx.ades.rest.client.auth.OAuthFlow
 

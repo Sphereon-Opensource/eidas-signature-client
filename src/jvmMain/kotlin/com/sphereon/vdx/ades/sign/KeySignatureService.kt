@@ -21,10 +21,6 @@ import java.util.*
 
 open class KeySignatureService(val certificateProvider: ICertificateProviderService) : IKeySignatureService {
 
-    // todo: We are creating another connection, do we need to expose the connection from the cert provider?
-    private val tokenConnection = ConnectionFactory.connection(this.certificateProvider.settings)
-
-
     override fun digest(signInput: SignInput): SignInput {
 //        if (signInput.signMode == SignMode.DIGEST) throw SigningException("Signing mode must be DOCUMENT when creating a digest!")
         if (signInput.digestAlgorithm == null) throw SigningException("Cannot create a digest when the digest mode is not specified")
@@ -34,52 +30,24 @@ open class KeySignatureService(val certificateProvider: ICertificateProviderServ
     }
 
     override fun createSignature(signInput: SignInput, keyEntry: IKeyEntry): Signature {
-        return signImpl(signInput, keyEntry, null)
+        return certificateProvider.createSignature(signInput, keyEntry)
     }
 
     override fun createSignature(signInput: SignInput, keyEntry: IKeyEntry, mgf: MaskGenFunction): Signature {
-        return signImpl(signInput, keyEntry, mgf)
+        return certificateProvider.createSignature(signInput, keyEntry, mgf)
     }
 
     override fun createSignature(signInput: SignInput, keyEntry: IKeyEntry, signatureAlgorithm: SignatureAlg): Signature {
-        val input = signInput.copy(digestAlgorithm = signatureAlgorithm.digestAlgorithm)
-        return signImpl(input, keyEntry, signatureAlgorithm.maskGenFunction)
+        return certificateProvider.createSignature(signInput, keyEntry, signatureAlgorithm)
     }
 
     override fun isValidSignature(signInput: SignInput, signature: Signature, keyEntry: IKeyEntry): Boolean {
-        return isValidSignature(signInput, signature, keyEntry.certificate)
+        return certificateProvider.isValidSignature(signInput, signature, keyEntry)
     }
 
 
-    override fun isValidSignature(signInput: SignInput, signature: Signature, certificate: Certificate): Boolean {
-        Objects.requireNonNull(signInput, "signInput cannot be null!")
-        Objects.requireNonNull(signature, "Signature cannot be null!")
-        Objects.requireNonNull(certificate, "Certificate cannot be null!")
-        return try {
-            val javaSig = java.security.Signature.getInstance(
-                // Replace with RAW for RSA in case we receive a digest. Probably we should correct the signature algorithm value itself instead of correcting it here
-                if (signInput.signMode == SignMode.DIGEST && signature.algorithm.encryptionAlgorithm == CryptoAlg.RSA)
-                    if (signature.algorithm.maskGenFunction == null) SignatureAlgorithm.RSA_RAW.jceId else SignatureAlgorithm.RSA_SSA_PSS_RAW_MGF1.jceId
-                else signature.algorithm.toDSS().jceId,
-                DSSSecurityProvider.getSecurityProviderName()
-            )
-            if (signature.algorithm.maskGenFunction != null) {
-                val digestJavaName: String = signature.algorithm.digestAlgorithm?.toDSS()!!.javaName
-                val parameterSpec = PSSParameterSpec(
-                    digestJavaName,
-                    "MGF1",
-                    MGF1ParameterSpec(digestJavaName),
-                    signature.algorithm.digestAlgorithm.toDSS().saltLength,
-                    1
-                )
-                javaSig.setParameter(parameterSpec)
-            }
-            javaSig.initVerify(certificate.toX509Certificate().publicKey)
-            javaSig.update(signInput.input)
-            javaSig.verify(signature.value)
-        } catch (e: GeneralSecurityException) {
-            false
-        }
+    override fun isValidSignature(signInput: SignInput, signature: Signature, publicKey: Key): Boolean {
+        return certificateProvider.isValidSignature(signInput, signature, publicKey)
     }
 
 
@@ -127,7 +95,7 @@ open class KeySignatureService(val certificateProvider: ICertificateProviderServ
             else -> throw SigningException("Signing using signature form ${signatureConfiguration.signatureParameters.signatureForm()} not support")
         }
 
-//        dssDocument.save("" + System.currentTimeMillis() + "-" + dssDocument.name)
+        dssDocument.save("" + System.currentTimeMillis() + "-" + dssDocument.name)
         ByteArrayOutputStream().use { baos ->
 
             dssDocument.writeTo(baos)
@@ -143,15 +111,6 @@ open class KeySignatureService(val certificateProvider: ICertificateProviderServ
 
     }
 
-    private fun signImpl(signInput: SignInput, keyEntry: IKeyEntry, mgf: MaskGenFunction? = null): Signature {
-        if (signInput.digestAlgorithm == null) throw SigningException("Digest algorithm needs to be specified at this point")
 
-        return if (signInput.signMode == SignMode.DIGEST && signInput.digestAlgorithm != DigestAlg.NONE) {
-            tokenConnection.signDigest(signInput.toDigest(), mgf?.toDSS(), keyEntry.toDSS()).fromDSS(signMode = signInput.signMode, keyEntry)
-        } else {
-            tokenConnection.sign(signInput.toBeSigned(), signInput.digestAlgorithm.toDSS(), mgf?.toDSS(), keyEntry.toDSS())
-                .fromDSS(signMode = signInput.signMode, keyEntry)
-        }
-    }
 
 }

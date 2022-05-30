@@ -103,10 +103,10 @@ interface IAliasSignatureService {
         signatureAlgorithm: SignatureAlg
     ): Signature
 
-    fun isValidSignature(signInput: SignInput, signature: Signature, certificate: Certificate): Boolean
+    fun isValidSignature(signInput: SignInput, signature: Signature, publicKey: Key): Boolean
 
 
-    fun isValidSignature(signInput: SignInput, signature: Signature, certificateAlias: String): Boolean
+    fun isValidSignature(signInput: SignInput, signature: Signature, publicKeyAlias: String): Boolean
 
     /**
      *

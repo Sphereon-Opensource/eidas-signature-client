@@ -1,28 +1,27 @@
 package com.sphereon.vdx.ades.pki
 
 import com.sphereon.vdx.ades.PKIException
-import com.sphereon.vdx.ades.RestClientConfig
 import com.sphereon.vdx.ades.SignClientException
 import com.sphereon.vdx.ades.enums.CertificateProviderType
 import com.sphereon.vdx.ades.enums.CryptoAlg
-import com.sphereon.vdx.ades.model.CertificateProviderSettings
-import com.sphereon.vdx.ades.model.IKeyEntry
-import com.sphereon.vdx.ades.model.KeyEntry
+import com.sphereon.vdx.ades.enums.MaskGenFunction
+import com.sphereon.vdx.ades.model.*
 import com.sphereon.vdx.ades.rest.client.ApiClient
 import com.sphereon.vdx.ades.rest.client.api.CertificatesApi
+import com.sphereon.vdx.ades.rest.client.api.SigningApi
 import com.sphereon.vdx.ades.rest.client.auth.HttpBearerAuth
 import com.sphereon.vdx.ades.rest.client.auth.OAuth
+import com.sphereon.vdx.ades.rest.client.model.CreateSignature
 import com.sphereon.vdx.ades.sign.util.CertificateUtil
 import com.sphereon.vdx.ades.sign.util.toCertificate
+import com.sphereon.vdx.ades.sign.util.toKey
 
 
 private const val BEARER_LITERAL = "bearer"
 private const val OAUTH2_LITERAL = "oauth2"
 
-open class RestCertificateProviderService(override val settings: CertificateProviderSettings, val restClientConfig: RestClientConfig) :
-    ICertificateProviderService {
-
-    private val cacheService = CacheService(settings)
+open class RestCertificateProviderService(settings: CertificateProviderSettings, val restClientConfig: RestClientConfig) :
+    AbstractCertificateProviderService(settings) {
 
     private val apiClient: ApiClient
 
@@ -30,6 +29,12 @@ open class RestCertificateProviderService(override val settings: CertificateProv
         assertRestSettings()
         apiClient = newApiClient()
         initAuth()
+    }
+
+    override fun createSignatureImpl(signInput: SignInput, keyEntry: IKeyEntry, mgf: MaskGenFunction?): Signature {
+        TODO()
+//        val signingClient = newSigningApi()
+//        signingClient.createSignature(CreateSignature().signInput(com.sphereon.vdx.ades.rest.client.model.SignInput().))
     }
 
     override fun getKeys(): List<IKeyEntry> {
@@ -49,9 +54,11 @@ open class RestCertificateProviderService(override val settings: CertificateProv
         }
         val certData = certResponse.data
 
+        val x509Certificate = CertificateUtil.toX509Certificate(certData.certificate)
         val key = KeyEntry(
             alias = alias,
-            certificate = CertificateUtil.toX509Certificate(certData.certificate).toCertificate(),
+            publicKey = x509Certificate.publicKey.toKey(),
+            certificate = x509Certificate.toCertificate(),
             certificateChain = certData.certificateChain?.map {
                 CertificateUtil.toX509Certificate(it).toCertificate()
             },
@@ -77,6 +84,10 @@ open class RestCertificateProviderService(override val settings: CertificateProv
 
     fun newCertApi(): CertificatesApi {
         return CertificatesApi(apiClient)
+    }
+
+    fun newSigningApi(): SigningApi {
+        return SigningApi(apiClient)
     }
 
     private fun newApiClient(): ApiClient {

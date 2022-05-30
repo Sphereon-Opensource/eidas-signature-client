@@ -78,9 +78,17 @@ kotlin {
                 implementation("jakarta.xml.bind:jakarta.xml.bind-api:2.3.3")
                 implementation("org.glassfish.jaxb:jaxb-runtime:2.3.3")
 
+                implementation("io.github.microutils:kotlin-logging-jvm:2.1.23")
 
                 // todo separate into separate project probably
                 implementation("com.sphereon.vdx:eidas-signature-client-rest-jersey3:0.1.0")
+
+                implementation(project.dependencies.platform("com.azure:azure-sdk-bom:1.2.2"))
+                implementation("com.azure:azure-identity")
+                implementation("com.azure:azure-security-keyvault-administration")
+                implementation("com.azure:azure-security-keyvault-certificates")
+                implementation("com.azure:azure-security-keyvault-keys")
+
             }
         }
         val jvmTest by getting {

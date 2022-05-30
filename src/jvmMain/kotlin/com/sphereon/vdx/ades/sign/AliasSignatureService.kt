@@ -5,10 +5,10 @@ import com.sphereon.vdx.ades.enums.MaskGenFunction
 import com.sphereon.vdx.ades.enums.SignMode
 import com.sphereon.vdx.ades.enums.SignatureAlg
 import com.sphereon.vdx.ades.model.*
-import com.sphereon.vdx.ades.pki.LocalCertificateProviderService
+import com.sphereon.vdx.ades.pki.ICertificateProviderService
 
 
-open class AliasSignatureService(override val certificateProvider: LocalCertificateProviderService) : IAliasSignatureService {
+open class AliasSignatureService(override val certificateProvider: ICertificateProviderService) : IAliasSignatureService {
 
     private val delegate = KeySignatureService(certificateProvider)
 
@@ -28,23 +28,23 @@ open class AliasSignatureService(override val certificateProvider: LocalCertific
         return delegate.createSignature(signInput, getKey(certificateAlias), signatureAlgorithm)
     }
 
-    override fun isValidSignature(signInput: SignInput, signature: Signature, certificateAlias: String): Boolean {
-        return delegate.isValidSignature(signInput, signature, getKey(certificateAlias))
+    override fun isValidSignature(signInput: SignInput, signature: Signature, publicKeyAlias: String): Boolean {
+        return delegate.isValidSignature(signInput, signature, getKey(publicKeyAlias))
     }
 
 
-    override fun isValidSignature(signInput: SignInput, signature: Signature, certificate: Certificate): Boolean {
-        return delegate.isValidSignature(signInput, signature, certificate)
+    override fun isValidSignature(signInput: SignInput, signature: Signature, publicKey: Key): Boolean {
+        return delegate.isValidSignature(signInput, signature, publicKey)
     }
 
 
     override fun determineSignInput(
         origData: OrigData,
-        certificateAlias: String,
+        alias: String,
         signMode: SignMode,
         signatureConfiguration: SignatureConfiguration
     ): SignInput {
-        return delegate.determineSignInput(origData, getKey(certificateAlias), signMode, signatureConfiguration)
+        return delegate.determineSignInput(origData, getKey(alias), signMode, signatureConfiguration)
     }
 
     override fun sign(origData: OrigData, certificateAlias: String, signMode: SignMode, signatureConfiguration: SignatureConfiguration): SignOutput {

@@ -29,17 +29,17 @@ abstract class AbstractAdESTest {
         )
     }
 
-    protected fun constructKeySignatureService(
-        keystoreFilename: String = "user_a_rsa.p12",
-        password: String = "password",
+    protected open fun constructKeySignatureService(
+        keystoreFilename: String,
+        password: String,
         enableCache: Boolean = false
     ): KeySignatureService {
         return KeySignatureService(constructCertProviderService(keystoreFilename, password, enableCache))
     }
 
     protected fun constructAliasSignatureService(
-        keystoreFilename: String = "user_a_rsa.p12",
-        password: String = "password",
+        keystoreFilename: String,
+        password: String,
         enableCache: Boolean = false
     ): AliasSignatureService {
         return AliasSignatureService(constructCertProviderService(keystoreFilename, password, enableCache))
