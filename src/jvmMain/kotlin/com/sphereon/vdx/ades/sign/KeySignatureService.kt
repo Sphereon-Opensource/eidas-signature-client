@@ -92,6 +92,8 @@ open class KeySignatureService(val certificateProvider: ICertificateProviderServ
                 .signDocument(toSign, signatureParameters as CAdESSignatureParameters, signature.toDSS())
             SignatureForm.PAdES -> adESService.toPAdESService()
                 .signDocument(toSign, signatureParameters as PAdESSignatureParameters, signature.toDSS())
+            SignatureForm.PKCS7 -> adESService.toPKCS7Service()
+                .signDocument(toSign, signatureParameters as PAdESSignatureParameters, signature.toDSS())
             else -> throw SigningException("Signing using signature form ${signatureConfiguration.signatureParameters.signatureForm()} not support")
         }
 

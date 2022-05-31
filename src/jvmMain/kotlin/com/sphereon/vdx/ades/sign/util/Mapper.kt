@@ -7,6 +7,7 @@ import com.sphereon.vdx.ades.model.*
 import com.sphereon.vdx.ades.pki.AzureKeyvaultClientConfig
 import com.sphereon.vdx.ades.pki.AzureKeyvaultTokenConnection
 import com.sphereon.vdx.ades.pki.DSSWrappedKeyEntry
+import com.sphereon.vdx.pkcs.v7.PKCS7Service
 import eu.europa.esig.dss.AbstractSignatureParameters
 import eu.europa.esig.dss.cades.CAdESSignatureParameters
 import eu.europa.esig.dss.cades.signature.CAdESService
@@ -212,6 +213,10 @@ fun AbstractSignatureService<out AbstractSignatureParameters<out TimestampParame
 
 fun AbstractSignatureService<out AbstractSignatureParameters<out TimestampParameters>, out TimestampParameters>.toPAdESService(): PAdESService {
     return this as PAdESService
+}
+
+fun AbstractSignatureService<out AbstractSignatureParameters<out TimestampParameters>, out TimestampParameters>.toPKCS7Service(): PKCS7Service {
+    return this as PKCS7Service
 }
 
 
