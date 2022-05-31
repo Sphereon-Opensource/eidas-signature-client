@@ -101,6 +101,8 @@ kotlin {
 //                implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
 
                 implementation("org.ehcache:ehcache:3.8.1")
+                implementation("javax.xml.bind:jaxb-api:2.3.0")
+
             }
         }
 

@@ -217,35 +217,39 @@ fun AbstractSignatureService<out AbstractSignatureParameters<out TimestampParame
 
 fun SignatureParameters.toDSS(
     certificate: Certificate? = null,
-    certificateChain: List<Certificate>? = null
+    certificateChain: List<Certificate>? = null,
+    signedData: ByteArray? = null
 ): AbstractSignatureParameters<out SerializableTimestampParameters> {
     return when (signatureForm()) {
-        SignatureForm.CAdES -> toCades(certificate, certificateChain)
-        SignatureForm.PAdES -> toPades(certificate, certificateChain)
+        SignatureForm.CAdES -> toCades(certificate, certificateChain, signedData)
+        SignatureForm.PAdES -> toPades(certificate, certificateChain, signedData)
         else -> throw SigningException("Encryption algorithm $encryptionAlgorithm not supported yet")
     }
 }
 
 fun SignatureParameters.toCades(
     certificate: Certificate? = null,
-    certificateChain: List<Certificate>? = null
+    certificateChain: List<Certificate>? = null,
+    signedData: ByteArray? = null
 ): CAdESSignatureParameters {
     if (signatureForm() != SignatureForm.CAdES) throw SigningException("Cannot convert to cades signature parameters when signature form is ${signatureForm()}")
-    return mapCadesSignatureParams(this, certificate, certificateChain)
+    return mapCadesSignatureParams(this, certificate, certificateChain, signedData)
 }
 
 fun SignatureParameters.toPades(
     certificate: Certificate? = null,
-    certificateChain: List<Certificate>? = null
+    certificateChain: List<Certificate>? = null,
+    signedData: ByteArray?
 ): PAdESSignatureParameters {
     if (signatureForm() != SignatureForm.PAdES) throw SigningException("Cannot convert to pades signature parameters when signature form is ${signatureForm()}")
-    return mapPadesSignatureParams(this, certificate, certificateChain)
+    return mapPadesSignatureParams(this, certificate, certificateChain, signedData)
 }
 
 fun mapPadesSignatureParams(
     signatureParameters: SignatureParameters,
     certificate: Certificate? = null,
-    certificateChain: List<Certificate>? = null
+    certificateChain: List<Certificate>? = null,
+    signedData: ByteArray?
 ): PAdESSignatureParameters {
     val dssParams = PAdESSignatureParameters()
     dssParams.contentTimestampParameters = PAdESTimestampParameters()
@@ -253,21 +257,23 @@ fun mapPadesSignatureParams(
     dssParams.archiveTimestampParameters = PAdESTimestampParameters()
 
     mapTimestampParams(dssParams, signatureParameters)
-    mapGenericSignatureParams(dssParams, signatureParameters, certificate, certificateChain)
+    mapGenericSignatureParams(dssParams, signatureParameters, certificate, certificateChain, signedData)
     dssParams.isEn319122 = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.en319122 ?: true
     dssParams.contentHintsDescription = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.contentHintsDescription
     dssParams.contentHintsType = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.contentHintsType
     dssParams.contentIdentifierPrefix = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.contentIdentifierPrefix
     dssParams.contentIdentifierSuffix = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.contentIdentifierSuffix
 
-    dssParams.contactInfo = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.contactInfo
-    dssParams.location = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.location
     dssParams.permission =
         if (signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.permission != null) eu.europa.esig.dss.enumerations.CertificationPermission.valueOf(
             signatureParameters.signatureFormParameters.padesSignatureFormParameters.permission.name
         ) else null
-    dssParams.reason = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.reason
     dssParams.signerName = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.signerName
+    dssParams.contactInfo = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.contactInfo
+    dssParams.location = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.location
+    dssParams.reason = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.reason
+    dssParams.filter = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.signatureFilter
+    dssParams.subFilter = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.signatureSubFilter
 //    dssParams.signingTimeZone = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.
 
     return dssParams
@@ -276,7 +282,8 @@ fun mapPadesSignatureParams(
 fun mapCadesSignatureParams(
     signatureParameters: SignatureParameters,
     certificate: Certificate? = null,
-    certificateChain: List<Certificate>? = null
+    certificateChain: List<Certificate>? = null,
+    signedData: ByteArray? = null
 ): CAdESSignatureParameters {
     val dssParams = CAdESSignatureParameters()
     dssParams.contentTimestampParameters = CAdESTimestampParameters()
@@ -284,7 +291,7 @@ fun mapCadesSignatureParams(
     dssParams.archiveTimestampParameters = CAdESTimestampParameters()
 
     mapTimestampParams(dssParams, signatureParameters)
-    mapGenericSignatureParams(dssParams, signatureParameters, certificate, certificateChain)
+    mapGenericSignatureParams(dssParams, signatureParameters, certificate, certificateChain, signedData)
     dssParams.isEn319122 = signatureParameters.signatureFormParameters?.cadesSignatureFormParameters?.en319122 ?: true
     dssParams.contentHintsDescription = signatureParameters.signatureFormParameters?.cadesSignatureFormParameters?.contentHintsDescription
     dssParams.contentHintsType = signatureParameters.signatureFormParameters?.cadesSignatureFormParameters?.contentHintsType
@@ -299,7 +306,8 @@ fun mapGenericSignatureParams(
     dssParams: AbstractSignatureParameters<out SerializableTimestampParameters>,
     signatureParameters: SignatureParameters,
     certificate: Certificate? = null,
-    certificateChain: List<Certificate>? = null
+    certificateChain: List<Certificate>? = null,
+    signedData: ByteArray? = null
 ) {
     dssParams.signaturePackaging = signatureParameters.signaturePackaging?.toDSS()
     dssParams.signatureLevel = signatureParameters.signatureLevelParameters?.signatureLevel?.toDSS()
@@ -316,6 +324,7 @@ fun mapGenericSignatureParams(
     if ((signatureParameters.certificateChain == null || signatureParameters.certificateChain.isEmpty()) && certificateChain != null) {
         dssParams.certificateChain = certificateChain.map { CertificateToken(it.toX509Certificate()) }
     }
+    dssParams.signedData = signedData
 }
 
 fun mapTimestampParams(

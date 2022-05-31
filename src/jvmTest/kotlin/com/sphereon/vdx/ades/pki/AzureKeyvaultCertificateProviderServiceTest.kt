@@ -4,10 +4,22 @@ import AbstractAdESTest
 import com.sphereon.vdx.ades.enums.*
 import com.sphereon.vdx.ades.model.*
 import com.sphereon.vdx.ades.sign.AliasSignatureService
-import com.sphereon.vdx.ades.sign.KeySignatureService
+import com.sphereon.vdx.ades.sign.util.toX509Certificate
+import eu.europa.esig.dss.enumerations.DigestAlgorithm
+import eu.europa.esig.dss.enumerations.TokenExtractionStrategy
 import eu.europa.esig.dss.model.InMemoryDocument
+import eu.europa.esig.dss.model.x509.CertificateToken
+import eu.europa.esig.dss.pades.validation.PDFDocumentValidator
+import eu.europa.esig.dss.service.crl.OnlineCRLSource
+import eu.europa.esig.dss.service.ocsp.OnlineOCSPSource
+import eu.europa.esig.dss.spi.x509.CommonCertificateSource
+import eu.europa.esig.dss.spi.x509.CommonTrustedCertificateSource
+import eu.europa.esig.dss.spi.x509.ListCertificateSource
+import eu.europa.esig.dss.spi.x509.aia.DefaultAIASource
 import eu.europa.esig.dss.validation.CommonCertificateVerifier
+import eu.europa.esig.dss.validation.SignaturePolicyProvider
 import eu.europa.esig.dss.validation.SignedDocumentValidator
+import eu.europa.esig.dss.validation.executor.ValidationLevel
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
@@ -86,7 +98,8 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
                         signerName = "Test Case",
                         contactInfo = "support@sphereon.com",
                         reason = "Test",
-                        location = "Online"
+                        location = "Online",
+//                        signatureSubFilter = "adbe.pkcs7.detached"
                     )
                 )
             ),
@@ -100,23 +113,66 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
 
         println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(signInput))
 
-        /* val digestInput = signingService.digest(signInput)
-         println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(digestInput))
- */
-        val signature = signingService.createSignature(signInput, alias)
+        val digestInput = signingService.digest(signInput)
+        println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(digestInput))
+
+        val signature = signingService.createSignature(digestInput, alias)
         println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(signature))
 
         val signOutput = signingService.sign(origData, signature, signatureConfiguration)
         println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(signOutput))
         assertNotNull(signOutput)
 
+        val validSignature = signingService.isValidSignature(signInput, signature, alias)
+        assertTrue(validSignature)
 
 //        assertTrue(signingService.isValidSignature(digestInput, signature, signature.publicKey!!))
 //        assertTrue(signingService.isValidSignature(signInput, signature, signature.certificate!!))
-        val documentValidator = SignedDocumentValidator.fromDocument(InMemoryDocument(signOutput.value, signOutput.name))
-        documentValidator.setCertificateVerifier(CommonCertificateVerifier())
+        val documentValidator = PDFDocumentValidator(
+            InMemoryDocument(
+                signOutput.value,
+                signOutput.name
+            )
+        ) //.fromDocument(InMemoryDocument(signOutput.value, signOutput.name))
+        documentValidator.setValidationLevel(ValidationLevel.BASIC_SIGNATURES)
+
+
+        documentValidator.setValidationLevel(ValidationLevel.BASIC_SIGNATURES)
+//        documentValidator.setSignaturePolicyProvider(SignaturePolicyProvider())
+        documentValidator.setTokenExtractionStrategy(TokenExtractionStrategy.EXTRACT_CERTIFICATES_AND_REVOCATION_DATA)
+        documentValidator.setIncludeSemantics(true)
+        documentValidator.setEnableEtsiValidationReport(true)
+
+        val certVerifier = CommonCertificateVerifier()
+        certVerifier.defaultDigestAlgorithm = DigestAlgorithm.SHA256
+//        certVerifier.trustedCertSources = ListCertificateSource()
+
+        // Capability to download resources from AIA
+//        certVerifier.aiaSource = DefaultAIASource()
+
+// Capability to request OCSP Responders
+        certVerifier.ocspSource = OnlineOCSPSource()
+
+// Capability to download CRL
+        certVerifier.crlSource = OnlineCRLSource()
+
+// Create an instance of a trusted certificate source
+        val trustedCertSource = CommonTrustedCertificateSource()
+//        trustedCertSource.addCertificate(CertificateToken(signature.certificate!!.toX509Certificate()))
+        signature.certificateChain!!.map { trustedCertSource.addCertificate(CertificateToken(it.toX509Certificate())) }
+
+
+// Add trust anchors (trusted list, keystore,...) to a list of trusted certificate sources
+// Hint : use method {@code CertificateVerifier.setTrustedCertSources(certSources)} in order to overwrite the existing list
+
+// Add trust anchors (trusted list, keystore,...) to a list of trusted certificate sources
+// Hint : use method {@code CertificateVerifier.setTrustedCertSources(certSources)} in order to overwrite the existing list
+        certVerifier.addTrustedCertSources(trustedCertSource)
+        documentValidator.setCertificateVerifier(certVerifier)
+
 
         assertEquals(1, documentValidator.signatures.size)
+        val validateDocument = documentValidator.validateDocument()
         val diagData = documentValidator.diagnosticData
         assertEquals(1, diagData.signatures.size)
         assertEquals(4, diagData.usedCertificates.size)
