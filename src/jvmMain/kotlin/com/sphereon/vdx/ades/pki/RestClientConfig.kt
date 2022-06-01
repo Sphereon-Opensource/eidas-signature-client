@@ -8,7 +8,7 @@ data class RestClientConfig(
     val connectTimeoutInMS: Int? = 5000,
     val readTimeoutInMS: Int? = 10000,
     val oAuth2: OAuth2Config? = null,
-    val bearerToken: BearerTokenConfig? = null
+    val bearerAuth: BearerTokenConfig? = null
 )
 
 @kotlinx.serialization.Serializable

@@ -88,7 +88,6 @@ data class SignatureParameters(
     val timestampParameters: TimestampParameters? = null
 
 
-
 //    /**
 //     * This variable defines an Id of a signature to be counter-signed
 //     * Used only for `getDataToBeCounterSigned()` and `counterSignSignature()` methods
@@ -235,6 +234,12 @@ enum class PdfSignatureMode {
 
 @kotlinx.serialization.Serializable
 data class PadesSignatureFormParameters(
+    /**
+     * This attribute allows to explicitly specify the SignerName (name for the Signature).
+     * The person or authority signing the document.
+     */
+    val signerName: String? = null,
+
     /** The signature creation reason  */
     val reason: String? = null,
 
@@ -265,11 +270,6 @@ data class PadesSignatureFormParameters(
      */
     val signatureSubFilter: String? = PdfSignatureSubFilter.ETSI_CADES_DETACHED.specName,
 
-    /**
-     * This attribute allows to explicitly specify the SignerName (name for the Signature).
-     * The person or authority signing the document.
-     */
-    val signerName: String? = null,
 
     /**
      * This attribute is used to create visible signature in PAdES form
