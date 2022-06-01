@@ -1,5 +1,6 @@
-package com.sphereon.vdx.pkcs.v7
+package com.sphereon.vdx.pkcs7
 
+import com.sphereon.vdx.ades.model.PdfSignatureMode
 import eu.europa.esig.dss.cades.CAdESSignatureParameters
 import eu.europa.esig.dss.enumerations.CertificationPermission
 import eu.europa.esig.dss.enumerations.SignatureForm
@@ -12,15 +13,17 @@ import java.util.TimeZone
 
 class PKCS7SignatureParameters : CAdESSignatureParameters(), PAdESCommonParameters {
 
-    private val reason: String? = null
-    private val contactInfo: String? = null
-    private val location: String? = null
+    var reason: String? = null
+    var contactInfo: String? = null
+    var location: String? = null
+    var signerName: String? = null
+    var permission: CertificationPermission? = null
+    var signatureMode: PdfSignatureMode = PdfSignatureMode.APPROVAL
+
     private val signatureSize = 9472
     private val signatureFilter = PDSignature.FILTER_ADOBE_PPKLITE
     private val signatureSubFilter = PDSignature.SUBFILTER_ADBE_PKCS7_DETACHED
-    private val signerName: String? = null
     private var signatureImageParameters: SignatureImageParameters? = null
-    private val permission: CertificationPermission? = null
     private val passwordProtection: String? = null
     private val signingTimeZone = TimeZone.getDefault()
 

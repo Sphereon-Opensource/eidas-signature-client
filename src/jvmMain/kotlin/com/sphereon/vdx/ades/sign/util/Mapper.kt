@@ -2,12 +2,31 @@ package com.sphereon.vdx.ades.sign.util
 
 import com.sphereon.vdx.ades.SignClientException
 import com.sphereon.vdx.ades.SigningException
-import com.sphereon.vdx.ades.enums.*
-import com.sphereon.vdx.ades.model.*
+import com.sphereon.vdx.ades.enums.CryptoAlg
+import com.sphereon.vdx.ades.enums.DigestAlg
+import com.sphereon.vdx.ades.enums.MaskGenFunction
+import com.sphereon.vdx.ades.enums.SignMode
+import com.sphereon.vdx.ades.enums.SignatureAlg
+import com.sphereon.vdx.ades.enums.SignatureForm
+import com.sphereon.vdx.ades.enums.SignatureLevel
+import com.sphereon.vdx.ades.enums.SignaturePackaging
+import com.sphereon.vdx.ades.model.Certificate
+import com.sphereon.vdx.ades.model.IKeyEntry
+import com.sphereon.vdx.ades.model.IPrivateKeyEntry
+import com.sphereon.vdx.ades.model.Key
+import com.sphereon.vdx.ades.model.KeyEntry
+import com.sphereon.vdx.ades.model.KeystoreParameters
+import com.sphereon.vdx.ades.model.PasswordInputCallback
+import com.sphereon.vdx.ades.model.Pkcs11Parameters
+import com.sphereon.vdx.ades.model.PrivateKeyEntry
+import com.sphereon.vdx.ades.model.SignInput
+import com.sphereon.vdx.ades.model.Signature
+import com.sphereon.vdx.ades.model.SignatureParameters
 import com.sphereon.vdx.ades.pki.AzureKeyvaultClientConfig
 import com.sphereon.vdx.ades.pki.AzureKeyvaultTokenConnection
 import com.sphereon.vdx.ades.pki.DSSWrappedKeyEntry
-import com.sphereon.vdx.pkcs.v7.PKCS7Service
+import com.sphereon.vdx.pkcs7.PKCS7Service
+import com.sphereon.vdx.pkcs7.PKCS7SignatureParameters
 import eu.europa.esig.dss.AbstractSignatureParameters
 import eu.europa.esig.dss.cades.CAdESSignatureParameters
 import eu.europa.esig.dss.cades.signature.CAdESService
@@ -17,8 +36,11 @@ import eu.europa.esig.dss.enumerations.EncryptionAlgorithm
 import eu.europa.esig.dss.enumerations.MaskGenerationFunction
 import eu.europa.esig.dss.enumerations.SignatureAlgorithm
 import eu.europa.esig.dss.jades.signature.JAdESService
-import eu.europa.esig.dss.model.*
+import eu.europa.esig.dss.model.Digest
+import eu.europa.esig.dss.model.SerializableTimestampParameters
+import eu.europa.esig.dss.model.SignatureValue
 import eu.europa.esig.dss.model.TimestampParameters
+import eu.europa.esig.dss.model.ToBeSigned
 import eu.europa.esig.dss.model.x509.CertificateToken
 import eu.europa.esig.dss.pades.PAdESSignatureParameters
 import eu.europa.esig.dss.pades.PAdESTimestampParameters
@@ -227,6 +249,7 @@ fun SignatureParameters.toDSS(
     return when (signatureForm()) {
         SignatureForm.CAdES -> toCades(certificate, certificateChain)
         SignatureForm.PAdES -> toPades(certificate, certificateChain)
+        SignatureForm.PKCS7 -> toPKCS7(certificate, certificateChain)
         else -> throw SigningException("Encryption algorithm $encryptionAlgorithm not supported yet")
     }
 }
@@ -340,6 +363,44 @@ fun mapTimestampParams(
             signatureParameters.timestampParameters.signatureTimestampParameters.digestAlgorithm.toDSS()
     }
 
+}
+
+fun SignatureParameters.toPKCS7(
+    certificate: Certificate? = null,
+    certificateChain: List<Certificate>? = null
+): PKCS7SignatureParameters {
+    if (signatureForm() != SignatureForm.PKCS7) throw SigningException("Cannot convert to PKCS7 signature parameters when signature form is ${signatureForm()}")
+    return mapPKCSSignatureParams(this, certificate, certificateChain)
+}
+
+fun mapPKCSSignatureParams(
+    signatureParameters: SignatureParameters,
+    certificate: Certificate? = null,
+    certificateChain: List<Certificate>? = null
+): PKCS7SignatureParameters {
+    val dssParams = PKCS7SignatureParameters()
+    dssParams.contentTimestampParameters = PAdESTimestampParameters()
+    dssParams.signatureTimestampParameters = PAdESTimestampParameters()
+    dssParams.archiveTimestampParameters = PAdESTimestampParameters()
+
+    mapTimestampParams(dssParams, signatureParameters)
+    mapGenericSignatureParams(dssParams, signatureParameters, certificate, certificateChain)
+
+    signatureParameters.signatureFormParameters?.let {
+        it.pkcs7SignatureFormParameters?.let { formParameters ->
+            dssParams.contactInfo = formParameters.contactInfo
+            dssParams.location = formParameters.location
+            dssParams.permission =
+                if (formParameters.permission != null) eu.europa.esig.dss.enumerations.CertificationPermission.valueOf(
+                    formParameters.permission.name
+                ) else null
+            dssParams.reason = formParameters.reason
+            dssParams.signerName = formParameters.signerName
+            dssParams.signatureMode = formParameters.mode
+            // dssParams.signingTimeZone = signatureParameters.signatureFormParameters?.pkcs7SignatureFormParameters?.
+        }
+    }
+    return dssParams
 }
 
 fun CertificateToken.toCertificate(): Certificate {

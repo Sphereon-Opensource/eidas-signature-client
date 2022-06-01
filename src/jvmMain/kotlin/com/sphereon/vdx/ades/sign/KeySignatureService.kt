@@ -5,6 +5,7 @@ import com.sphereon.vdx.ades.enums.*
 import com.sphereon.vdx.ades.model.*
 import com.sphereon.vdx.ades.pki.ICertificateProviderService
 import com.sphereon.vdx.ades.sign.util.*
+import com.sphereon.vdx.pkcs7.PKCS7SignatureParameters
 import eu.europa.esig.dss.cades.CAdESSignatureParameters
 import eu.europa.esig.dss.enumerations.SignatureAlgorithm
 import eu.europa.esig.dss.model.InMemoryDocument
@@ -65,6 +66,7 @@ open class KeySignatureService(val certificateProvider: ICertificateProviderServ
         val toBeSigned = when (signatureConfiguration.signatureParameters.signatureForm()) {
             SignatureForm.CAdES -> adESService.toCAdESService().getDataToSign(toSign, signatureParameters as CAdESSignatureParameters)
             SignatureForm.PAdES -> adESService.toPAdESService().getDataToSign(toSign, signatureParameters as PAdESSignatureParameters)
+            SignatureForm.PKCS7 -> adESService.toPKCS7Service().getDataToSign(toSign, signatureParameters as PKCS7SignatureParameters)
             SignatureForm.DIGEST -> ToBeSigned(origData.value)
             else -> throw SigningException("Determining sign input using signature form ${signatureConfiguration.signatureParameters.signatureForm()} not support")
         }
@@ -93,7 +95,7 @@ open class KeySignatureService(val certificateProvider: ICertificateProviderServ
             SignatureForm.PAdES -> adESService.toPAdESService()
                 .signDocument(toSign, signatureParameters as PAdESSignatureParameters, signature.toDSS())
             SignatureForm.PKCS7 -> adESService.toPKCS7Service()
-                .signDocument(toSign, signatureParameters as PAdESSignatureParameters, signature.toDSS())
+                .signDocument(toSign, signatureParameters as PKCS7SignatureParameters, signature.toDSS())
             else -> throw SigningException("Signing using signature form ${signatureConfiguration.signatureParameters.signatureForm()} not support")
         }
 
