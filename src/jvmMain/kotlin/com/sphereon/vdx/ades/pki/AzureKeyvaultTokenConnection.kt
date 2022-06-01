@@ -41,6 +41,6 @@ class AzureKeyvaultTokenConnection(private val keyvaultConfig: AzureKeyvaultClie
         bytes: ByteArray, javaSignatureAlgorithm: String, param: AlgorithmParameterSpec?,
         keyEntry: DSSPrivateKeyEntry
     ): ByteArray {
-        return cryptoClient.sign(SignatureAlgorithm.RS256, bytes).signature
+        return cryptoClient.signData(SignatureAlgorithm.RS256, bytes).signature
     }
 }

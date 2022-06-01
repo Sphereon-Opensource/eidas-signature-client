@@ -82,8 +82,8 @@ private fun InteractiveBrowserCredentialOpts.toInteractiveBrowserCredential(tena
 fun KeyVaultCertificate.toKeyEntry(): IKeyEntry {
     val x509Certificate = CertificateUtil.toX509Certificate(cer)
     val x509Chain: MutableList<X509Certificate> = mutableListOf()// mutableListOf(/*x509Certificate*/)
-    x509Chain.addAll(CertificateUtil.downloadExtraCertificates(x509Certificate))
     x509Chain.add(x509Certificate)
+    x509Chain.addAll(CertificateUtil.downloadExtraCertificates(x509Certificate))
 
     return KeyEntry(
         alias = "${properties.name}:${properties.version}",

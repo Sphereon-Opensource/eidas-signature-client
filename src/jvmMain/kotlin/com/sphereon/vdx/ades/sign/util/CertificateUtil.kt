@@ -161,10 +161,10 @@ object CertificateUtil {
                         }
                         logger.info("x509 subjectDN: ${altCert.subjectDN}")
 
+                        downloadedCerts.add(altCert)
                         if (recursive == true) {
                             downloadedCerts.addAll(downloadExtraCertificates(altCert, recursive))
                         }
-                        downloadedCerts.add(altCert)
                     }
                 }
                 logger.info("CA issuers URL: ${altCerts.size} certificate(s) downloaded")

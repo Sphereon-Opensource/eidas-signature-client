@@ -365,7 +365,7 @@ data class TimestampParameters(
 
 @kotlinx.serialization.Serializable
 data class BLevelParams(
-    private val trustAnchorBPPolicy: Boolean? = true,
+    val trustAnchorBPPolicy: Boolean? = true,
 
     /** The claimed signing time  */
     val signingDate: Instant? = null /*Clock.System.now()*/,

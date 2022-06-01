@@ -20,13 +20,13 @@ import eu.europa.esig.dss.model.*
 import eu.europa.esig.dss.model.TimestampParameters
 import eu.europa.esig.dss.model.x509.CertificateToken
 import eu.europa.esig.dss.pades.PAdESSignatureParameters
-import eu.europa.esig.dss.pades.PAdESTimestampParameters
 import eu.europa.esig.dss.pades.signature.PAdESService
 import eu.europa.esig.dss.signature.AbstractSignatureService
 import eu.europa.esig.dss.token.DSSPrivateKeyEntry
 import eu.europa.esig.dss.token.KSPrivateKeyEntry
 import eu.europa.esig.dss.token.Pkcs11SignatureToken
 import eu.europa.esig.dss.token.Pkcs12SignatureToken
+import kotlinx.datetime.toJavaInstant
 import java.security.KeyFactory
 import java.security.KeyStore
 import java.security.KeyStore.PasswordProtection
@@ -36,6 +36,7 @@ import java.security.cert.X509Certificate
 import java.security.spec.AlgorithmParameterSpec
 import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
+import java.util.*
 
 
 fun DigestAlg.toDSS(): DigestAlgorithm {
@@ -252,11 +253,12 @@ fun mapPadesSignatureParams(
     signedData: ByteArray?
 ): PAdESSignatureParameters {
     val dssParams = PAdESSignatureParameters()
-    dssParams.contentTimestampParameters = PAdESTimestampParameters()
-    dssParams.signatureTimestampParameters = PAdESTimestampParameters()
-    dssParams.archiveTimestampParameters = PAdESTimestampParameters()
+//    dssParams.contentTimestampParameters = PAdESTimestampParameters()
+//    dssParams.signatureTimestampParameters = PAdESTimestampParameters()
+//    dssParams.archiveTimestampParameters = PAdESTimestampParameters()
 
-    mapTimestampParams(dssParams, signatureParameters)
+//    mapTimestampParams(dssParams, signatureParameters)
+    mapBlevelParams(dssParams.bLevel(), signatureParameters)
     mapGenericSignatureParams(dssParams, signatureParameters, certificate, certificateChain, signedData)
     dssParams.isEn319122 = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.en319122 ?: true
     dssParams.contentHintsDescription = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.contentHintsDescription
@@ -279,6 +281,32 @@ fun mapPadesSignatureParams(
     return dssParams
 }
 
+fun mapBlevelParams(dssbLevelParams: BLevelParameters, signatureParameters: SignatureParameters) {
+    val bLevelParameters = signatureParameters.signatureLevelParameters?.bLevelParameters ?: return
+    with(dssbLevelParams) {
+        signingDate = if (bLevelParameters.signingDate != null) Date.from(bLevelParameters.signingDate.toJavaInstant()) else null
+        isTrustAnchorBPPolicy = bLevelParameters.trustAnchorBPPolicy == true
+        claimedSignerRoles = bLevelParameters.claimedSignerRoles
+        if (bLevelParameters.signerLocationCountry != null || bLevelParameters.signerLocationLocality != null || bLevelParameters.signerLocationStreet != null ||
+            bLevelParameters.signerLocationPostalAddress != null || bLevelParameters.signerLocationPostalCode != null || bLevelParameters.signerLocationStateOrProvince != null
+        ) {
+            val location = SignerLocation()
+            with(location) {
+                country = bLevelParameters.signerLocationCountry
+                locality = bLevelParameters.signerLocationLocality
+                streetAddress = bLevelParameters.signerLocationStreet
+                postalAddress = bLevelParameters.signerLocationPostalAddress
+                postalCode = bLevelParameters.signerLocationPostalCode
+                stateOrProvince = bLevelParameters.signerLocationStateOrProvince
+
+            }
+            signerLocation = location
+        }
+    }
+
+    // FXIME: Finish params
+}
+
 fun mapCadesSignatureParams(
     signatureParameters: SignatureParameters,
     certificate: Certificate? = null,
@@ -292,6 +320,7 @@ fun mapCadesSignatureParams(
 
     mapTimestampParams(dssParams, signatureParameters)
     mapGenericSignatureParams(dssParams, signatureParameters, certificate, certificateChain, signedData)
+    mapBlevelParams(dssParams.bLevel(), signatureParameters)
     dssParams.isEn319122 = signatureParameters.signatureFormParameters?.cadesSignatureFormParameters?.en319122 ?: true
     dssParams.contentHintsDescription = signatureParameters.signatureFormParameters?.cadesSignatureFormParameters?.contentHintsDescription
     dssParams.contentHintsType = signatureParameters.signatureFormParameters?.cadesSignatureFormParameters?.contentHintsType

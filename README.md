@@ -1,12 +1,7 @@
 <!--suppress HtmlDeprecatedAttribute -->
-<h1 align="center">
-  <br>
-  <a href="https://www.sphereon.com"><img src="https://sphereon.com/content/themes/sphereon/assets/img/logo.svg" alt="Sphereon" width="400"></a>
-  <br>eIDAS Advanced Electronic Signature Client<br>
-  <br>
-</h1>
+[![Sphereon](./resources/sphereon.png)](https://sphereon.com)
 
-[![CI](https://github.com/Sphereon-Opensource/eidas-signature-client/actions/workflows/ci.yml/badge.svg)](https://github.com/Sphereon-Opensource/eidas-signature-client/actions/workflows/ci.yml)
+**eIDAS Advanced Electronic Signature Client**
 
 The eIDAS Advanced Electronic Signature (AdES) client, allows to sign documents and digests (hashes), using CAdES (CMS, binary data), JAdES (JSON),
 PAdES (PDF), XAdES (XML) signatures, as defined by the European Telecommunications Standards Institute (ETSI). These signatures are part of the eIDAS
