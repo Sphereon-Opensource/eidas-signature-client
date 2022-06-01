@@ -21,24 +21,23 @@ signature to merge with the original document. This means you are not sending th
 privacy and security perspective.
 
 # Table of Contents
-
 - [Multiplatform library and REST API](#multiplatform-library-and-rest-api)
 - [License](#license)
 - [Signature flow](#signature-flow)
 - [Certificate Provider Service](#certificate-provider-service)
-    * [PKCS#12 Keystore Certificate Provider Service](#pkcs-12-keystore-certificate-provider-service)
-        + [Use existing tooling to create a certificate and PKCS#12 keystore](#use-existing-tooling-to-create-a-certificate-and-pkcs-12-keystore)
-            - [Creating a PKCS#12 keystore using OpenSSL](#creating-a-pkcs-12-keystore-using-openssl)
-    * [PKCS#11 Hardware Security Module and Card based Certificate Provider Service](#pkcs-11-hardware-security-module-and-card-based-certificate-provider-service)
+    * [PKCS\#12 Keystore Certificate Provider Service](#pkcs--12-keystore-certificate-provider-service)
+        + [Use existing tooling to create a certificate and PKCS\#12 keystore](#use-existing-tooling-to-create-a-certificate-and-pkcs--12-keystore)
+            - [Creating a PKCS\#12 keystore using OpenSSL](#creating-a-pkcs--12-keystore-using-openssl)
+    * [PKCS\#11 Hardware Security Module and Card based Certificate Provider Service](#pkcs--11-hardware-security-module-and-card-based-certificate-provider-service)
     * [Azure Keyvault or Managed HSM Certificate Provider Service](#azure-keyvault-or-managed-hsm-certificate-provider-service)
     * [REST Certificate Provider](#rest-certificate-provider)
         + [Authentication and Authorization support](#authentication-and-authorization-support)
             - [OAuth2 support](#oauth2-support)
-            - [Bearer Token / JWT support](#bearer-token---jwt-support)
-            - [OAuth2/OpenID Scopes](#oauth2-openid-scopes)
+            - [Bearer Token and JWT support](#bearer-token-and-jwt-support)
+            - [OAuth2, OpenID Scopes](#oauth2--openid-scopes)
             - [Roles support](#roles-support)
-    * [List keys/certificates](#list-keys-certificates)
     * [Certificate Provider caching](#certificate-provider-caching)
+    * [List keys, certificates](#list-keys--certificates)
     * [Get a key/certificate by alias](#get-a-key-certificate-by-alias)
     * [Create the signature](#create-the-signature)
 - [Signature Service](#signature-service)
@@ -49,18 +48,19 @@ privacy and security perspective.
     * [Signing the original data, merging the signature](#signing-the-original-data--merging-the-signature)
     * [Check whether a signature is valid](#check-whether-a-signature-is-valid)
 - [PDF Signatures](#pdf-signatures)
-    * [Default PKCS#7 PDF signature](#default-pkcs-7-pdf-signature)
-        + [PKCS#7 configuration options](#pkcs-7-configuration-options)
-        + [Example PKCS#7 flow](#example-pkcs-7-flow)
+    * [Default PKCS\#7 PDF signature](#default-pkcs--7-pdf-signature)
+        + [PKCS\#7 configuration options](#pkcs--7-configuration-options)
+        + [Example PKCS\#7 flow](#example-pkcs--7-flow)
     * [ETSI eIDAS PAdES detached PDF signature](#etsi-eidas-pades-detached-pdf-signature)
         + [PAdES configuration options](#pades-configuration-options)
         + [Example PAdES flow](#example-pades-flow)
-    * [Visual PKCS#7 and PAdES signatures](#visual-pkcs-7-and-pades-signatures)
+    * [Visual PKCS\#7 and PAdES signatures](#visual-pkcs--7-and-pades-signatures)
 - [Verifiable Credentials and SSI](#verifiable-credentials-and-ssi)
 - [Building and running the source code](#building-and-running-the-source-code)
     * [Requirements](#requirements)
     * [Adding as Maven dependency](#adding-as-maven-dependency)
     * [Gradle build (local maven repo)](#gradle-build--local-maven-repo-)
+
 
 # Multiplatform library and REST API
 
@@ -136,7 +136,7 @@ Provider. A Single Certificate Provider can be shared by different Signature Ser
 Given the wide range of supported import/creation methods, this library does not create or
 import certificates. Please use your method of choice (see [below](#use-existing-tooling-to-create-a-certificate-and-keystore) for some pointers).
 
-## PKCS#12 Keystore Certificate Provider Service
+## PKCS\#12 Keystore Certificate Provider Service
 
 The below example in Kotlin sets up a certificate service using a PKCS#12 keystore file at a certain path
 
@@ -156,12 +156,12 @@ val certProvider = CertificateProviderService(
 )
 ````
 
-### Use existing tooling to create a certificate and PKCS#12 keystore
+### Use existing tooling to create a certificate and PKCS\#12 keystore
 
 How to generate and/or import X.509 certificates and PKCS#12 keystores is out of scope of this project, but we provide some hints below. There are
 numerous resources on the internet to create X.509 certificates and PKCS#12 keystores.
 
-#### Creating a PKCS#12 keystore using OpenSSL
+#### Creating a PKCS\#12 keystore using OpenSSL
 
 The private key and certificate must be in Privacy Enhanced Mail (PEM) format (for example, base64-encoded
 with ``----BEGIN CERTIFICATE---- and ----END CERTIFICATE----`` headers and footers).
@@ -185,7 +185,7 @@ openssl pkcs12 -export -in cert-chain.txt -inkey <private_key_filename> -name â€
 
 When prompted, provide a password for the new keystore.
 
-## PKCS#11 Hardware Security Module and Card based Certificate Provider Service
+## PKCS\#11 Hardware Security Module and Card based Certificate Provider Service
 
 The PKCS#11 Certificate Provider allows you to use Hardware Security Based solutions that can interact using a PKCS#11 interface. It needs access to
 the driver library in order to operate.
@@ -320,7 +320,7 @@ restCertificateProvider.oauth().renewAccessToken()
 // From this point on requests will use the new token
 ````
 
-#### Bearer Token / JWT support
+#### Bearer Token and JWT support
 
 The REST Certificate Provider client has support to include bearer tokens (JWTs) in the authentication header. Access to the JWT functionality can be
 achieved by
@@ -351,7 +351,7 @@ restCertificateProvider.bearerAuth().bearerToken = "ey.....<updated.bearer.token
 // From this point on requests will use the new token
 ````
 
-#### OAuth2/OpenID Scopes
+#### OAuth2, OpenID Scopes
 
 The REST Microservice can be configured to support scopes. It is supported for both OAuth2 and OpenID Connect. Scopes are optional and when enabled,
 protect the API endpoints from users not having access to a certain scope at an endpoint level.
@@ -402,7 +402,7 @@ CertProviderConfig(
 )
 ````
 
-## List keys/certificates
+## List keys, certificates
 
 To list all available certificates of the provider one can use the getKeys() method. A list of IKeyEntry objects is being returned. The interface does
 not expose private keys, as developers typically should not access the private key directly and not every supported implementation gives access to
@@ -706,7 +706,7 @@ signature types are:
   signature
 - **ETSI.PAdES/ETSI.CAdES.detached**, which is ETSI/eIDAS compliant (needs special Certificates provided by eIDAS Trust Service Providers!)
 
-## Default PKCS#7 PDF signature
+## Default PKCS\#7 PDF signature
 
 This is the default PDF Signature type, typically used with Certificates provided by an organization on the Adobe Approved Trusted List (AATL).
 
@@ -725,7 +725,7 @@ There are 2 types of signatures possible:
     - The signature shows the name and additional information.
     - Optionally showing an image of the signature. Clickable to show more information
 
-### PKCS#7 configuration options
+### PKCS\#7 configuration options
 
 The below options are part of a configuration, but can typically also be provided on every invocation. This allows to use the same certificate for
 instance for signing by multiple people by changing the signerName and related properties.
@@ -797,7 +797,7 @@ class Pkcs7SignatureFormParameters(
 )
 ````
 
-### Example PKCS#7 flow
+### Example PKCS\#7 flow
 
 Below an example is provided where a local Signing Service and a Local Azure Keyvault Certificate Provider is being used to sign with a certificate on
 the AATL list, resulting in "blue-bar" signatures. The example key vault settings can be
@@ -1004,7 +1004,7 @@ val signOutput = signingService.sign(origData, signature, signatureConfiguration
 
 ````
 
-## Visual PKCS#7 and PAdES signatures
+## Visual PKCS\#7 and PAdES signatures
 
 It is possible to create visual signatures. These signatures show an image of a 'wet signature' by providing an image file, or alternatively they are
 created from provided text. These visual signatures will show up in the document, and can be clicked upon to show more information.
