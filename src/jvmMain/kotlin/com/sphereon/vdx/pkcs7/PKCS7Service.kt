@@ -1,9 +1,9 @@
 package com.sphereon.vdx.pkcs7
 
-import com.sphereon.vdx.ades.model.PdfSignatureMode
 import com.sphereon.vdx.pkcs7.support.SigUtils
 import eu.europa.esig.dss.cades.CMSUtils
 import eu.europa.esig.dss.cades.signature.CustomContentSigner
+import eu.europa.esig.dss.enumerations.SignatureLevel
 import eu.europa.esig.dss.enumerations.TimestampType
 import eu.europa.esig.dss.model.DSSDocument
 import eu.europa.esig.dss.model.DSSException
@@ -12,7 +12,10 @@ import eu.europa.esig.dss.model.SignatureValue
 import eu.europa.esig.dss.model.TimestampParameters
 import eu.europa.esig.dss.model.ToBeSigned
 import eu.europa.esig.dss.pdf.IPdfObjFactory
+import eu.europa.esig.dss.pdf.PDFServiceMode
 import eu.europa.esig.dss.pdf.ServiceLoaderPdfObjFactory
+import eu.europa.esig.dss.pdf.pdfbox.PdfBoxSignatureService
+import eu.europa.esig.dss.pdf.pdfbox.visible.nativedrawer.PdfBoxNativeSignatureDrawerFactory
 import eu.europa.esig.dss.signature.AbstractSignatureService
 import eu.europa.esig.dss.signature.SigningOperation
 import eu.europa.esig.dss.spi.DSSASN1Utils
@@ -27,9 +30,7 @@ import org.bouncycastle.cms.CMSSignedData
 import org.bouncycastle.cms.CMSSignedDataGenerator
 import org.bouncycastle.cms.SignerInfoGeneratorBuilder
 import org.bouncycastle.tsp.TSPException
-import java.io.ByteArrayOutputStream
 import java.io.IOException
-import java.util.Calendar
 import java.util.Objects
 
 class PKCS7Service(
@@ -45,6 +46,29 @@ class PKCS7Service(
         private val logger = KotlinLogging.logger {}
     }
 
+    @Throws(DSSException::class)
+    override fun getDataToSign(toSignDocument: DSSDocument, parameters: PKCS7SignatureParameters): ToBeSigned {
+        Objects.requireNonNull(toSignDocument, "toSignDocument cannot be null!")
+        Objects.requireNonNull(parameters, "SignatureParameters cannot be null!")
+        assertSignaturePossible(toSignDocument)
+        assertSigningCertificateValid(parameters)
+        val signatureAlgorithm = parameters.signatureAlgorithm
+        val customContentSigner = CustomContentSigner(signatureAlgorithm.jceId)
+        val messageDigest = computeDocumentDigest(toSignDocument, parameters)
+        val signerInfoGeneratorBuilder: SignerInfoGeneratorBuilder =
+            this.pkcs7CMSSignedDataBuilder.getSignerInfoGeneratorBuilder(parameters, messageDigest)
+        val generator: CMSSignedDataGenerator = this.pkcs7CMSSignedDataBuilder.createCMSSignedDataGenerator(
+            parameters,
+            customContentSigner,
+            signerInfoGeneratorBuilder,
+            null as CMSSignedData?
+        )
+        val content = CMSProcessableByteArray(messageDigest)
+        CMSUtils.generateDetachedCMSSignedData(generator, content)
+        val dataToSign = customContentSigner.outputStream.toByteArray()
+        return ToBeSigned(dataToSign)
+    }
+/*
     override fun getDataToSign(toSignDocument: DSSDocument, parameters: PKCS7SignatureParameters): ToBeSigned {
         val dataToSign = PDDocument.load(toSignDocument.openStream()).use { document ->
             val accessPermissions = validateAndGetAccessPermissions(document)
@@ -68,7 +92,7 @@ class PKCS7Service(
             outputStream.toByteArray()
         }
         return ToBeSigned(dataToSign)
-    }
+    }*/
 
     private fun tryEnableCertification(
         accessPermissions: Int,
@@ -94,7 +118,7 @@ class PKCS7Service(
         }
     }
 
-    private fun validateAndGetAccessPermissions(document: PDDocument?): Int {
+    private fun validateAndGetAccessPermissions(document: PDDocument): Int {
         val accessPermissions: Int = SigUtils.getMDPPermission(document)
         if (accessPermissions == 1) {
             throw UnsupportedOperationException(
@@ -109,10 +133,13 @@ class PKCS7Service(
         val signatureValueChecked = ensureSignatureValue(parameters.signatureAlgorithm, signatureValue)
         val encodedData: ByteArray = generateSignedData(toSignDocument, parameters, signatureValueChecked)
         val pdfSignatureService = pdfObjFactory.newPAdESSignatureService()
-        var signature = pdfSignatureService.sign(toSignDocument, encodedData, parameters)
+        val pAdESSignatureParameters = parameters.toPAdESSignatureParameters()
+        var signature = pdfSignatureService.sign(toSignDocument, encodedData, pAdESSignatureParameters)
         // TODO extendSignatures?
         parameters.reinit()
-        signature.name = this.getFinalFileName(toSignDocument, SigningOperation.SIGN, parameters.signatureLevel)
+        signature.name = this.getFinalFileName(toSignDocument, SigningOperation.SIGN, SignatureLevel.CAdES_A)
+            .replace("-cades-a", "")
+            .plus(".pdf")
         return signature
     }
 
@@ -146,12 +173,13 @@ class PKCS7Service(
 
 
     override fun extendDocument(dssDocument: DSSDocument, parameters: PKCS7SignatureParameters): DSSDocument {
-        TODO("Not yet implemented")
+        throw java.lang.UnsupportedOperationException(String.format("Unsupported signature format '%s' for extension.", parameters.signatureLevel))
     }
 
     private fun computeDocumentDigest(toSignDocument: DSSDocument, parameters: PKCS7SignatureParameters): ByteArray {
+        PdfBoxSignatureService(PDFServiceMode.SIGNATURE, PdfBoxNativeSignatureDrawerFactory())
         val pdfSignatureService = pdfObjFactory.newPAdESSignatureService()
-        return pdfSignatureService.digest(toSignDocument, parameters)
+        return pdfSignatureService.digest(toSignDocument, parameters.toPAdESSignatureParameters())
     }
 
     override fun getContentTimestamp(toSignDocument: DSSDocument, parameters: PKCS7SignatureParameters): TimestampToken {

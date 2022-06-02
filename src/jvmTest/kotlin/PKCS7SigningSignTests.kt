@@ -1,5 +1,16 @@
-import com.sphereon.vdx.ades.enums.*
-import com.sphereon.vdx.ades.model.*
+import com.sphereon.vdx.ades.enums.CryptoAlg
+import com.sphereon.vdx.ades.enums.DigestAlg
+import com.sphereon.vdx.ades.enums.SignMode
+import com.sphereon.vdx.ades.enums.SignatureAlg
+import com.sphereon.vdx.ades.enums.SignatureLevel
+import com.sphereon.vdx.ades.enums.SignaturePackaging
+import com.sphereon.vdx.ades.model.OrigData
+import com.sphereon.vdx.ades.model.Pkcs7SignatureFormParameters
+import com.sphereon.vdx.ades.model.SignatureConfiguration
+import com.sphereon.vdx.ades.model.SignatureFormParameters
+import com.sphereon.vdx.ades.model.SignatureLevelParameters
+import com.sphereon.vdx.ades.model.SignatureParameters
+import com.sphereon.vdx.ades.model.serializers
 import eu.europa.esig.dss.model.InMemoryDocument
 import eu.europa.esig.dss.validation.CommonCertificateVerifier
 import eu.europa.esig.dss.validation.SignedDocumentValidator
@@ -7,6 +18,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
+import java.io.FileOutputStream
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -66,6 +78,10 @@ class PKCS7SigningSignTests : AbstractAdESTest() {
         val documentValidator = SignedDocumentValidator.fromDocument(InMemoryDocument(signOutput.value, signOutput.name))
         documentValidator.setCertificateVerifier(CommonCertificateVerifier())
 
+        FileOutputStream("C:\\temp\\${signOutput.name}").use { fos ->
+            fos.write(signOutput.value)
+        }
+
         assertEquals(1, documentValidator.signatures.size)
         val diagData = documentValidator.diagnosticData
         assertEquals(1, diagData.signatures.size)
@@ -77,7 +93,6 @@ class PKCS7SigningSignTests : AbstractAdESTest() {
             origDoc.writeTo(baos)
             assertContentEquals(origData.value, baos.toByteArray())
         }
-
     }
 
 }
