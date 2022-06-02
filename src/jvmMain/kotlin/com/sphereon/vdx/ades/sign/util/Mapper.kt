@@ -36,13 +36,16 @@ import eu.europa.esig.dss.enumerations.EncryptionAlgorithm
 import eu.europa.esig.dss.enumerations.MaskGenerationFunction
 import eu.europa.esig.dss.enumerations.SignatureAlgorithm
 import eu.europa.esig.dss.jades.signature.JAdESService
+import eu.europa.esig.dss.model.BLevelParameters
 import eu.europa.esig.dss.model.Digest
 import eu.europa.esig.dss.model.SerializableTimestampParameters
 import eu.europa.esig.dss.model.SignatureValue
+import eu.europa.esig.dss.model.SignerLocation
 import eu.europa.esig.dss.model.TimestampParameters
 import eu.europa.esig.dss.model.ToBeSigned
 import eu.europa.esig.dss.model.x509.CertificateToken
 import eu.europa.esig.dss.pades.PAdESSignatureParameters
+import eu.europa.esig.dss.pades.PAdESTimestampParameters
 import eu.europa.esig.dss.pades.signature.PAdESService
 import eu.europa.esig.dss.signature.AbstractSignatureService
 import eu.europa.esig.dss.token.DSSPrivateKeyEntry
@@ -434,7 +437,9 @@ fun mapPKCSSignatureParams(
                 ) else null
             dssParams.reason = formParameters.reason
             dssParams.signerName = formParameters.signerName
-            dssParams.signatureMode = formParameters.mode
+            formParameters.mode?.let {
+                dssParams.signatureMode = it
+            }
             // dssParams.signingTimeZone = signatureParameters.signatureFormParameters?.pkcs7SignatureFormParameters?.
         }
     }
