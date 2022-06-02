@@ -40,7 +40,7 @@ data class Pkcs11Parameters(
     val pkcs11LibraryPath: String? = null,
 
     /** The callback to enter a password/pincode  */
-//    val callback: PasswordInputCallback? = null,
+    val callback: PasswordInputCallback? = null,
 
     /** The slot Id to use  */
     val slotId: Int? = 0,

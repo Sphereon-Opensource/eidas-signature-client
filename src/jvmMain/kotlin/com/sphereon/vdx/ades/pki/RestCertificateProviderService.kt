@@ -11,7 +11,6 @@ import com.sphereon.vdx.ades.rest.client.api.CertificatesApi
 import com.sphereon.vdx.ades.rest.client.api.SigningApi
 import com.sphereon.vdx.ades.rest.client.auth.HttpBearerAuth
 import com.sphereon.vdx.ades.rest.client.auth.OAuth
-import com.sphereon.vdx.ades.rest.client.model.CreateSignature
 import com.sphereon.vdx.ades.sign.util.CertificateUtil
 import com.sphereon.vdx.ades.sign.util.toCertificate
 import com.sphereon.vdx.ades.sign.util.toKey
@@ -115,9 +114,9 @@ open class RestCertificateProviderService(settings: CertificateProviderSettings,
             auth.setAccessToken(restClientConfig.oAuth2.accessToken)
             apiClient.authentications[OAUTH2_LITERAL] = auth
         }
-        if (restClientConfig.bearerToken != null) {
-            val auth = HttpBearerAuth(restClientConfig.bearerToken.schema)
-            auth.bearerToken = restClientConfig.bearerToken.bearerToken
+        if (restClientConfig.bearerAuth != null) {
+            val auth = HttpBearerAuth(restClientConfig.bearerAuth.schema)
+            auth.bearerToken = restClientConfig.bearerAuth.bearerToken
             apiClient.authentications[BEARER_LITERAL] = auth
         }
     }

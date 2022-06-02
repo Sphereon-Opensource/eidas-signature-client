@@ -141,7 +141,7 @@ object CertificateUtil {
             // AccessDescription
             val obj = objects.nextElement() as ASN1Sequence
             val oid = obj.getObjectAt(0)
-            if (!X509ObjectIdentifiers.id_ad_caIssuers.equals(oid)) {
+            if (!X509ObjectIdentifiers.id_ad.equals(oid) && !X509ObjectIdentifiers.id_ad_caIssuers.equals(oid)) {
                 continue
             }
             val location = obj.getObjectAt(1) as ASN1TaggedObject
@@ -160,6 +160,7 @@ object CertificateUtil {
                             continue
                         }
                         logger.info("x509 subjectDN: ${altCert.subjectDN}")
+
                         downloadedCerts.add(altCert)
                         if (recursive == true) {
                             downloadedCerts.addAll(downloadExtraCertificates(altCert, recursive))

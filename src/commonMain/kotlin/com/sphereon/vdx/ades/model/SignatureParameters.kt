@@ -2,7 +2,6 @@ package com.sphereon.vdx.ades.model
 
 import com.sphereon.vdx.ades.Base64Serializer
 import com.sphereon.vdx.ades.enums.*
-import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 
 @kotlinx.serialization.Serializable
@@ -90,11 +89,6 @@ data class SignatureParameters(
 
 
 //    /**
-//     * PAdES: The image information to be included.
-//     */
-//    private val imageParameters: RemoteSignatureImageParameters? = null
-//
-//    /**
 //     * This variable defines an Id of a signature to be counter-signed
 //     * Used only for `getDataToBeCounterSigned()` and `counterSignSignature()` methods
 //     */
@@ -162,12 +156,17 @@ data class JadesSignatureFormParameters(
 @kotlinx.serialization.Serializable
 data class Pkcs7SignatureFormParameters(
     /**
-     * The signature mode, according to the PDF spec
+     * The signature mode, according to the PDF spec. Either needs to be APPROVAL or CERTIFICATION.
+     *
+     * - CERTIFICATION can only be applied once to a PDF document. It acts like a seal, which typically is organization or department wide.
+     * A blue bar will appear with name of the signer, the company and the CA that issued the Certificate
+     * - APPROVAL can be applied multiple times. This is what typically is being used for people signing the document. It is comparable to a user signing a paper based document.
+     * The signature shows the name and additional information. Optionally showing an image of the signature. Clickable to show more information
      */
     val mode: PdfSignatureMode? = PdfSignatureMode.APPROVAL,
 
     /**
-     * This attribute allows to explicitly specify the SignerName (name for the Signature).
+     * This attribute allows to explicitly specify the SignerName (name for the entity signing).
      * The person or authority signing the document.
      */
     val signerName: String? = null,
@@ -183,7 +182,7 @@ data class Pkcs7SignatureFormParameters(
     val location: String? = null,
 
     /**
-     * Defines the preserved space for a signature context
+     * Defines the preserved space for a signature context. Only change if you know what you are doing
      *
      * Default : 9472 (default value in pdfbox)
      */
@@ -194,22 +193,22 @@ data class Pkcs7SignatureFormParameters(
      *
      * Default value is Adobe.PPKLite
      */
-    val signatureFilter: String? = "Adobe.PPKLite",
+    val signatureFilter: String? = PdfSignatureFilter.ADOBE_PPKLITE.specName,
 
     /**
      * This attribute allows to override the used subFilter for a Signature.
      *
      * Default value is adbe.pkcs7.detached
      */
-    val signatureSubFilter: String? = "adbe.pkcs7.detached",
+    val signatureSubFilter: String? = PdfSignatureSubFilter.ADBE_PKCS7_DETACHED.specName,
 
     /**
-     * This attribute is used to create visible signature in PAdES form
+     * This attribute is used to create visible signature
      */
-//    val signatureImageParameters?: SignatureImageParameters = null,
+    val signatureImageParameters: SignatureImageParameters? = null,
 
     /**
-     * This attribute allows to create a "certification signature". That allows to remove permission(s) in case of
+     * This attribute allows to set permissions in case of a "certification signature". That allows to protect for
      * future change(s).
      */
     val permission: CertificationPermission? = null,
@@ -235,6 +234,12 @@ enum class PdfSignatureMode {
 
 @kotlinx.serialization.Serializable
 data class PadesSignatureFormParameters(
+    /**
+     * This attribute allows to explicitly specify the SignerName (name for the Signature).
+     * The person or authority signing the document.
+     */
+    val signerName: String? = null,
+
     /** The signature creation reason  */
     val reason: String? = null,
 
@@ -256,25 +261,20 @@ data class PadesSignatureFormParameters(
      *
      * Default value is Adobe.PPKLite
      */
-    val signatureFilter: String? = "Adobe.PPKLite",
+    val signatureFilter: String? = PdfSignatureFilter.ADOBE_PPKLITE.specName,
 
     /**
      * This attribute allows to override the used subFilter for a Signature.
      *
      * Default value is ETSI.CAdES.detached
      */
-    val signatureSubFilter: String? = "ETSI.CAdES.detached",
+    val signatureSubFilter: String? = PdfSignatureSubFilter.ETSI_CADES_DETACHED.specName,
 
-    /**
-     * This attribute allows to explicitly specify the SignerName (name for the Signature).
-     * The person or authority signing the document.
-     */
-    val signerName: String? = null,
 
     /**
      * This attribute is used to create visible signature in PAdES form
      */
-//    val signatureImageParameters?: SignatureImageParameters = null,
+    val signatureImageParameters: SignatureImageParameters? = null,
 
     /**
      * This attribute allows to create a "certification signature". That allows to remove permission(s) in case of
@@ -365,10 +365,10 @@ data class TimestampParameters(
 
 @kotlinx.serialization.Serializable
 data class BLevelParams(
-    private val trustAnchorBPPolicy: Boolean? = true,
+    val trustAnchorBPPolicy: Boolean? = true,
 
     /** The claimed signing time  */
-    val signingDate: Instant? = Clock.System.now(),
+    val signingDate: Instant? = null /*Clock.System.now()*/,
 
     /** The claimed signer roles  */
     val claimedSignerRoles: List<String>? = null,
@@ -455,3 +455,193 @@ data class BLevelParams(
         return result
     }
 }
+
+
+@kotlinx.serialization.Serializable
+data class SignatureImageParameters(
+
+    /**
+     * This variable contains the image to use (company logo,...)
+     */
+    val image: ByteArray? = null,
+
+    /**
+     * This variable defines a `SignatureFieldParameters` like field positions and dimensions
+     */
+    val fieldParameters: SignatureFieldParameters? = null,
+
+    /**
+     * This variable defines a percent to zoom the image (100% means no scaling).
+     * Note: This does not touch zooming of the text representation.
+     */
+    val zoom: Int = NO_SCALING,
+
+    /**
+     * This variable defines the color of the image
+     */
+    val backgroundColor: String? = null,
+
+    /**
+     * This variable defines the DPI of the image
+     */
+    val dpi: Int? = null,
+
+    /**
+     * Use rotation on the PDF page, where the visual signature will be
+     */
+    val rotation: VisualSignatureRotation? = null,
+
+    /**
+     * Horizontal alignment of the visual signature on the pdf page
+     */
+
+    val alignmentHorizontal: VisualSignatureAlignmentHorizontal? = VisualSignatureAlignmentHorizontal.NONE,
+
+    /**
+     * Vertical alignment of the visual signature on the pdf page
+     */
+    val alignmentVertical: VisualSignatureAlignmentVertical? = VisualSignatureAlignmentVertical.NONE,
+
+    /**
+     * Defines the image scaling behavior within a signature field with a fixed size
+     *
+     * DEFAULT : ImageScaling.STRETCH (stretches the image in both directions to fill the signature field)
+     */
+    val imageScaling: ImageScaling? = ImageScaling.STRETCH,
+
+    /**
+     * This variable is use to defines the text to generate on the image
+     */
+    val textParameters: SignatureImageTextParameters? = null
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as SignatureImageParameters
+
+        if (image != null) {
+            if (other.image == null) return false
+            if (!image.contentEquals(other.image)) return false
+        } else if (other.image != null) return false
+        if (fieldParameters != other.fieldParameters) return false
+        if (zoom != other.zoom) return false
+        if (backgroundColor != other.backgroundColor) return false
+        if (dpi != other.dpi) return false
+        if (rotation != other.rotation) return false
+        if (alignmentHorizontal != other.alignmentHorizontal) return false
+        if (alignmentVertical != other.alignmentVertical) return false
+        if (imageScaling != other.imageScaling) return false
+        if (textParameters != other.textParameters) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = image?.contentHashCode() ?: 0
+        result = 31 * result + (fieldParameters?.hashCode() ?: 0)
+        result = 31 * result + zoom
+        result = 31 * result + (backgroundColor?.hashCode() ?: 0)
+        result = 31 * result + (dpi ?: 0)
+        result = 31 * result + (rotation?.hashCode() ?: 0)
+        result = 31 * result + (alignmentHorizontal?.hashCode() ?: 0)
+        result = 31 * result + (alignmentVertical?.hashCode() ?: 0)
+        result = 31 * result + (imageScaling?.hashCode() ?: 0)
+        result = 31 * result + (textParameters?.hashCode() ?: 0)
+        return result
+    }
+}
+
+@kotlinx.serialization.Serializable
+data class SignatureFieldParameters(
+    /** Signature field id/name (optional)  */
+    val fieldId: String? = null,
+
+    /** Page number where the signature field is added  */
+    val page: Int = DEFAULT_FIRST_PAGE,
+
+    /** Coordinate X where to add the signature field (origin is top/left corner)  */
+    val originX: Float = 0f,
+
+    /** Coordinate Y where to add the signature field (origin is top/left corner)  */
+    val originY: Float = 0f,
+
+    /** Signature field width  */
+    val width: Float = 0f,
+
+    /** Signature field height  */
+    val height: Float = 0f
+)
+
+/**
+ * This class allows to custom text generation in the PAdES visible signature
+ *
+ */
+@kotlinx.serialization.Serializable
+data class SignatureImageTextParameters(
+    /**
+     * This variable allows to add signer name on the image (by default, LEFT)
+     */
+    val signerTextPosition: SignerTextPosition = SignerTextPosition.LEFT,
+
+    /**
+     * This variable defines the image from text vertical alignment in connection
+     * with the image<br></br>
+     * <br></br>
+     * It has effect when the [SignerPosition][SignerTextPosition] is
+     * [LEFT][SignerTextPosition.LEFT] or [ RIGHT][SignerTextPosition.RIGHT]
+     */
+    val signerTextVerticalAlignment: SignerTextVerticalAlignment = SignerTextVerticalAlignment.MIDDLE,
+
+    /**
+     * This variable set the more line text horizontal alignment
+     */
+    val signerTextHorizontalAlignment: SignerTextHorizontalAlignment = SignerTextHorizontalAlignment.LEFT,
+
+    /**
+     * This variable defines the text to sign
+     */
+    val text: String? = null,
+
+    /**
+     * This variable defines the font to use
+     * (default is PTSerifRegular)
+     */
+    val font: String? = null,
+
+    /**
+     * This variable defines how the given text should be wrapped within the signature field's box
+     *
+     * Default : TextWrapping.FONT_BASED - the text is computed based on the `dssFont` configuration
+     */
+    val textWrapping: TextWrapping = TextWrapping.FONT_BASED,
+
+    /**
+     * This variable defines a padding in pixels to bound text around
+     * (default is 5)
+     */
+    val padding: Float = DEFAULT_PADDING,
+
+    /**
+     * This variable defines the text color to use
+     * (default is BLACK)
+     * (PAdES visual appearance: allow null as text color, preventing graphic operators)
+     */
+    val textColor: String? = DEFAULT_TEXT_COLOR,
+
+    /**
+     * This variable defines the background of a text bounding box
+     */
+    val backgroundColor: String? = DEFAULT_BACKGROUND_COLOR
+)
+
+const val DEFAULT_BACKGROUND_COLOR: String = "WHITE"
+
+/** The default padding (5 pixels)  */
+const val DEFAULT_PADDING = 5f
+
+/** The default text color (black)  */
+const val DEFAULT_TEXT_COLOR: String = "BLACK"
+const val NO_SCALING: Int = 100
+const val DEFAULT_DPI = 96
+const val DEFAULT_FIRST_PAGE = 1

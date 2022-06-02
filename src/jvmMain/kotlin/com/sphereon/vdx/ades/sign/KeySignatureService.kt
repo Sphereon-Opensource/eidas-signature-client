@@ -99,7 +99,7 @@ open class KeySignatureService(val certificateProvider: ICertificateProviderServ
             else -> throw SigningException("Signing using signature form ${signatureConfiguration.signatureParameters.signatureForm()} not support")
         }
 
-        dssDocument.save("" + System.currentTimeMillis() + "-" + dssDocument.name)
+//        dssDocument.save("" + System.currentTimeMillis() + "-" + dssDocument.name)
         ByteArrayOutputStream().use { baos ->
 
             dssDocument.writeTo(baos)
