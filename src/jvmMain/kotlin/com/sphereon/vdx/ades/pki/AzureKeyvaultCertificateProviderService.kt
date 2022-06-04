@@ -10,9 +10,11 @@ import com.azure.security.keyvault.keys.KeyClientBuilder
 import com.azure.security.keyvault.keys.KeyServiceVersion
 import com.sphereon.vdx.ades.SignClientException
 import com.sphereon.vdx.ades.SigningException
-import com.sphereon.vdx.ades.enums.*
+import com.sphereon.vdx.ades.enums.CertificateProviderType
+import com.sphereon.vdx.ades.enums.MaskGenFunction
 import com.sphereon.vdx.ades.model.*
 import com.sphereon.vdx.ades.sign.util.*
+import java.util.*
 
 private const val KEY_NAME_VERSION_SEP = ":"
 
@@ -77,6 +79,21 @@ open class AzureKeyvaultCertificateProviderService(
         return key
     }
 
+    override fun isValidSignature(signInput: SignInput, signature: Signature, publicKey: Key): Boolean {
+        Objects.requireNonNull(signInput, "signInput cannot be null!")
+        Objects.requireNonNull(signature, "Signature cannot be null!")
+        Objects.requireNonNull(publicKey, "Public key cannot be null!")
+        // Let's try using the public key first
+        return super.isValidSignature(signInput, signature, publicKey) ||
+
+                // In case we have a RAW digest we need Azure. Let's check for any digest type anyway though
+                (ConnectionFactory.connection(
+                    settings = settings,
+                    alias = signature.keyEntry.alias,
+                    keyvaultConfig = keyvaultConfig
+                ) as AzureKeyvaultTokenConnection).isValidSignature(signInput, signature)
+    }
+
     private fun aliasToKVKeyName(alias: String): Pair<String, String> {
         var pair = alias.split(KEY_NAME_VERSION_SEP).let { Pair(it[0], it.getOrNull(1) ?: "") }
         if (pair.second.lowercase() == "latest") {
@@ -98,11 +115,13 @@ open class AzureKeyvaultCertificateProviderService(
 
         val tokenConnection = ConnectionFactory.connection(settings = settings, alias = keyEntry.alias, keyvaultConfig = keyvaultConfig)
 
-        return if (signInput.signMode == SignMode.DIGEST && signInput.digestAlgorithm != DigestAlg.NONE) {
-            tokenConnection.signDigest(signInput.toDigest(), mgf?.toDSS(), keyEntry.toDSS()).fromDSS(signMode = signInput.signMode, keyEntry)
+        return if (isDigestMode(signInput)) {
+            tokenConnection.signDigest(signInput.toDigest(), mgf?.toDSS(), keyEntry.toDSS()).toRaw().fromDSS(signMode = signInput.signMode, keyEntry)
         } else {
             tokenConnection.sign(signInput.toBeSigned(), signInput.digestAlgorithm.toDSS(), mgf?.toDSS(), keyEntry.toDSS())
                 .fromDSS(signMode = signInput.signMode, keyEntry)
         }
     }
+
+
 }

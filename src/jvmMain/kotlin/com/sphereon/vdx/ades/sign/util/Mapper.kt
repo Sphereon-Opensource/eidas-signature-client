@@ -175,22 +175,27 @@ fun SignInput.toDigest(): Digest {
 }
 
 
-fun Signature.toDSS(): SignatureValue {
-    return SignatureValue(algorithm.toDSS(), value)
+fun Signature.toDSS(signatureAlgorithm: SignatureAlg?): SignatureValue {
+    return SignatureValue(signatureAlgorithm?.toDSS() ?: algorithm.toDSS(), value)
 }
 
-fun SignatureValue.fromDSS(signMode: SignMode, keyEntry: IKeyEntry?): Signature {
-    return this.fromDSS(signMode, keyEntry?.publicKey, keyEntry?.certificate, keyEntry?.certificateChain)
+fun SignatureValue.toRaw(): SignatureValue {
+    val rawSigAlg = when (algorithm.encryptionAlgorithm) {
+        EncryptionAlgorithm.RSA -> SignatureAlgorithm.RSA_RAW
+        EncryptionAlgorithm.ECDSA -> SignatureAlgorithm.ECDSA_RAW
+        EncryptionAlgorithm.DSA -> SignatureAlgorithm.DSA_RAW
+        else -> algorithm
+    }
+
+    return SignatureValue(rawSigAlg, value)
 }
 
-fun SignatureValue.fromDSS(signMode: SignMode, publicKey: Key?, certificate: Certificate?, certificateChain: List<Certificate>?): Signature {
+fun SignatureValue.fromDSS(signMode: SignMode, keyEntry: IKeyEntry): Signature {
     return Signature(
         value = this.value,
         signMode = signMode,
         algorithm = this.algorithm.fromDSS(),
-        publicKey = publicKey ?: certificate?.toX509Certificate()!!.toPublicKey(),
-        certificate = certificate,
-        certificateChain = certificateChain
+        keyEntry = keyEntry
     )
 }
 
@@ -217,40 +222,40 @@ fun AbstractSignatureService<out AbstractSignatureParameters<out TimestampParame
 
 
 fun SignatureParameters.toDSS(
-    certificate: Certificate? = null,
-    certificateChain: List<Certificate>? = null,
-    signedData: ByteArray? = null
+    key: IKeyEntry,
+    signedData: ByteArray? = null,
+    signatureAlg: SignatureAlg? = null
 ): AbstractSignatureParameters<out SerializableTimestampParameters> {
     return when (signatureForm()) {
-        SignatureForm.CAdES -> toCades(certificate, certificateChain, signedData)
-        SignatureForm.PAdES -> toPades(certificate, certificateChain, signedData)
+        SignatureForm.CAdES -> toCades(key, signedData, signatureAlg)
+        SignatureForm.PAdES -> toPades(key, signedData, signatureAlg)
         else -> throw SigningException("Encryption algorithm $encryptionAlgorithm not supported yet")
     }
 }
 
 fun SignatureParameters.toCades(
-    certificate: Certificate? = null,
-    certificateChain: List<Certificate>? = null,
-    signedData: ByteArray? = null
+    key: IKeyEntry,
+    signedData: ByteArray? = null,
+    signatureAlg: SignatureAlg? = null
 ): CAdESSignatureParameters {
     if (signatureForm() != SignatureForm.CAdES) throw SigningException("Cannot convert to cades signature parameters when signature form is ${signatureForm()}")
-    return mapCadesSignatureParams(this, certificate, certificateChain, signedData)
+    return mapCadesSignatureParams(this, key, signedData, signatureAlg)
 }
 
 fun SignatureParameters.toPades(
-    certificate: Certificate? = null,
-    certificateChain: List<Certificate>? = null,
-    signedData: ByteArray?
+    key: IKeyEntry,
+    signedData: ByteArray? = null,
+    signatureAlg: SignatureAlg? = null
 ): PAdESSignatureParameters {
     if (signatureForm() != SignatureForm.PAdES) throw SigningException("Cannot convert to pades signature parameters when signature form is ${signatureForm()}")
-    return mapPadesSignatureParams(this, certificate, certificateChain, signedData)
+    return mapPadesSignatureParams(this, key, signedData, signatureAlg)
 }
 
 fun mapPadesSignatureParams(
     signatureParameters: SignatureParameters,
-    certificate: Certificate? = null,
-    certificateChain: List<Certificate>? = null,
-    signedData: ByteArray?
+    key: IKeyEntry,
+    signedData: ByteArray? = null,
+    signatureAlg: SignatureAlg? = null
 ): PAdESSignatureParameters {
     val dssParams = PAdESSignatureParameters()
 //    dssParams.contentTimestampParameters = PAdESTimestampParameters()
@@ -259,7 +264,7 @@ fun mapPadesSignatureParams(
 
 //    mapTimestampParams(dssParams, signatureParameters)
     mapBlevelParams(dssParams.bLevel(), signatureParameters)
-    mapGenericSignatureParams(dssParams, signatureParameters, certificate, certificateChain, signedData)
+    mapGenericSignatureParams(dssParams, signatureParameters, key, signedData, signatureAlg)
     dssParams.isEn319122 = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.en319122 ?: true
     dssParams.contentHintsDescription = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.contentHintsDescription
     dssParams.contentHintsType = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.contentHintsType
@@ -309,9 +314,9 @@ fun mapBlevelParams(dssbLevelParams: BLevelParameters, signatureParameters: Sign
 
 fun mapCadesSignatureParams(
     signatureParameters: SignatureParameters,
-    certificate: Certificate? = null,
-    certificateChain: List<Certificate>? = null,
-    signedData: ByteArray? = null
+    key: IKeyEntry,
+    signedData: ByteArray? = null,
+    signatureAlg: SignatureAlg? = null
 ): CAdESSignatureParameters {
     val dssParams = CAdESSignatureParameters()
     dssParams.contentTimestampParameters = CAdESTimestampParameters()
@@ -319,7 +324,7 @@ fun mapCadesSignatureParams(
     dssParams.archiveTimestampParameters = CAdESTimestampParameters()
 
     mapTimestampParams(dssParams, signatureParameters)
-    mapGenericSignatureParams(dssParams, signatureParameters, certificate, certificateChain, signedData)
+    mapGenericSignatureParams(dssParams, signatureParameters, key, signedData, signatureAlg)
     mapBlevelParams(dssParams.bLevel(), signatureParameters)
     dssParams.isEn319122 = signatureParameters.signatureFormParameters?.cadesSignatureFormParameters?.en319122 ?: true
     dssParams.contentHintsDescription = signatureParameters.signatureFormParameters?.cadesSignatureFormParameters?.contentHintsDescription
@@ -334,26 +339,40 @@ fun mapCadesSignatureParams(
 fun mapGenericSignatureParams(
     dssParams: AbstractSignatureParameters<out SerializableTimestampParameters>,
     signatureParameters: SignatureParameters,
-    certificate: Certificate? = null,
-    certificateChain: List<Certificate>? = null,
-    signedData: ByteArray? = null
+    key: IKeyEntry,
+    signedData: ByteArray? = null,
+    signatureAlg: SignatureAlg? = null
 ) {
-    dssParams.signaturePackaging = signatureParameters.signaturePackaging?.toDSS()
-    dssParams.signatureLevel = signatureParameters.signatureLevelParameters?.signatureLevel?.toDSS()
-    dssParams.digestAlgorithm = signatureParameters.digestAlgorithm.toDSS()
-    dssParams.encryptionAlgorithm = signatureParameters.encryptionAlgorithm?.toDSS()
-    dssParams.maskGenerationFunction = signatureParameters.maskGenerationFunction?.toDSS()
-    dssParams.isCheckCertificateRevocation = signatureParameters.checkCertificateRevocation ?: false
-    dssParams.isSignWithExpiredCertificate = signatureParameters.signWithExpiredCertificate ?: false
-    dssParams.isSignWithNotYetValidCertificate = signatureParameters.signWithNotYetValidCertificate ?: false
 
-    if (signatureParameters.signingCertificate == null && certificate != null) {
-        dssParams.signingCertificate = CertificateToken(certificate.toX509Certificate())
+    with(dssParams) {
+        signaturePackaging = signatureParameters.signaturePackaging?.toDSS()
+        signatureLevel = signatureParameters.signatureLevelParameters?.signatureLevel?.toDSS()
+        /*if (signatureAlg != null) {
+            if (signatureAlg.digestAlgorithm != null) {
+                digestAlgorithm = signatureAlg.digestAlgorithm.toDSS()
+            } // No else, since the sig alg setter has a null check, whilst RAW sigs need this value to be null
+        } else {
+            digestAlgorithm = signatureParameters.digestAlgorithm?.toDSS()
+        }
+        signatureAlgorithm = SignatureAlgorithm.RSA_RAW*/
+        digestAlgorithm =
+            if (signatureAlg?.digestAlgorithm != null) signatureAlg.digestAlgorithm?.toDSS() else signatureParameters.digestAlgorithm?.toDSS()
+        encryptionAlgorithm =
+            if (signatureAlg?.encryptionAlgorithm != null) signatureAlg.encryptionAlgorithm.toDSS() else signatureParameters.encryptionAlgorithm?.toDSS()
+        maskGenerationFunction =
+            if (signatureAlg != null) signatureAlg.maskGenFunction?.toDSS() else signatureParameters.maskGenerationFunction?.toDSS()
+        isCheckCertificateRevocation = signatureParameters.checkCertificateRevocation ?: false
+        isSignWithExpiredCertificate = signatureParameters.signWithExpiredCertificate ?: false
+        isSignWithNotYetValidCertificate = signatureParameters.signWithNotYetValidCertificate ?: false
+
+        if (signatureParameters.signingCertificate == null && key.certificate != null) {
+            this.signingCertificate = CertificateToken(key.certificate!!.toX509Certificate())
+        }
+        if ((signatureParameters.certificateChain == null || signatureParameters.certificateChain.isEmpty()) && key.certificateChain != null) {
+            this.certificateChain = key.certificateChain!!.map { CertificateToken(it.toX509Certificate()) }
+        }
+        this.signedData = signedData
     }
-    if ((signatureParameters.certificateChain == null || signatureParameters.certificateChain.isEmpty()) && certificateChain != null) {
-        dssParams.certificateChain = certificateChain.map { CertificateToken(it.toX509Certificate()) }
-    }
-    dssParams.signedData = signedData
 }
 
 fun mapTimestampParams(

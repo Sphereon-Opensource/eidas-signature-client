@@ -12,9 +12,9 @@ enum class SignatureAlg(val encryptionAlgorithm: CryptoAlg, val digestAlgorithm:
 
     RSA_SHA3_512(CryptoAlg.RSA, DigestAlg.SHA3_512),
 
-    DSA_SHA256(CryptoAlg.DSA, DigestAlg.SHA256),
+/*    DSA_SHA256(CryptoAlg.DSA, DigestAlg.SHA256),
 
-    DSA_SHA512(CryptoAlg.DSA, DigestAlg.SHA512),
+    DSA_SHA512(CryptoAlg.DSA, DigestAlg.SHA512),*/
 
     RSA_SSA_PSS_RAW_MGF1(CryptoAlg.RSA, null, MaskGenFunction.MGF1),
     RSA_SSA_PSS_SHA256_MGF1(CryptoAlg.RSA, DigestAlg.SHA256, MaskGenFunction.MGF1),

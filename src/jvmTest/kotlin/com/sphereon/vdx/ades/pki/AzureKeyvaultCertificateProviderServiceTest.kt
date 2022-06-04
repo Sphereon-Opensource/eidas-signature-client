@@ -4,29 +4,14 @@ import AbstractAdESTest
 import com.sphereon.vdx.ades.enums.*
 import com.sphereon.vdx.ades.model.*
 import com.sphereon.vdx.ades.sign.AliasSignatureService
-import com.sphereon.vdx.ades.sign.util.toDSS
 import com.sphereon.vdx.ades.sign.util.toX509Certificate
-import eu.europa.esig.dss.enumerations.DigestAlgorithm
-import eu.europa.esig.dss.enumerations.EncryptionAlgorithm
 import eu.europa.esig.dss.enumerations.TokenExtractionStrategy
-import eu.europa.esig.dss.model.BLevelParameters
 import eu.europa.esig.dss.model.InMemoryDocument
 import eu.europa.esig.dss.model.x509.CertificateToken
-import eu.europa.esig.dss.pades.PAdESSignatureParameters
-import eu.europa.esig.dss.pades.signature.PAdESService
 import eu.europa.esig.dss.pades.validation.PDFDocumentValidator
-import eu.europa.esig.dss.service.crl.OnlineCRLSource
-import eu.europa.esig.dss.service.ocsp.OnlineOCSPSource
-import eu.europa.esig.dss.spi.x509.CommonCertificateSource
 import eu.europa.esig.dss.spi.x509.CommonTrustedCertificateSource
-import eu.europa.esig.dss.spi.x509.ListCertificateSource
-import eu.europa.esig.dss.spi.x509.aia.DefaultAIASource
-import eu.europa.esig.dss.token.SignatureTokenConnection
 import eu.europa.esig.dss.validation.CommonCertificateVerifier
-import eu.europa.esig.dss.validation.SignaturePolicyProvider
-import eu.europa.esig.dss.validation.SignedDocumentValidator
 import eu.europa.esig.dss.validation.executor.ValidationLevel
-import io.mockk.InternalPlatformDsl.toArray
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -35,7 +20,6 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
-import java.util.*
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -73,17 +57,18 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
         assertEquals(LocalDateTime.parse("2021-08-31T00:00:00").toInstant(TimeZone.UTC), key.certificate?.notBefore)
         assertEquals(LocalDateTime.parse("2024-08-30T23:59:59").toInstant(TimeZone.UTC), key.certificate?.notAfter)
 
-        /*   assertNotNull(key.certificateChain)
-           assertEquals(3, key.certificateChain!!.size)
-           // We already tested a certificate above. So we only test for proper order of the cert chain here
-           assertEquals("1A485229434026D47F47ADE3BDCA499253F588C0", key.certificateChain!![0].fingerPrint)
-           assertEquals("9198F0B98F86315152C2B27D74112D422D111BF0", key.certificateChain!![1].fingerPrint)
-           assertEquals("F013A0FD6D5B45D2DD1792879545AAB1CA6117EA", key.certificateChain!![2].fingerPrint)*/
+        assertNotNull(key.certificateChain)
+        assertEquals(4, key.certificateChain!!.size)
+        // We already tested a certificate above. So we only test for proper order of the cert chain here
+        assertEquals("59F815EF01229B27147BB84F2F412C16C5BD6BE0", key.certificateChain!![0].fingerPrint)
+        assertEquals("2F8E604EBE9CD29F08C3EA5BCE79B9D85CC5091D", key.certificateChain!![1].fingerPrint)
+        assertEquals("EF6C68DDE05896655EF293CF05331F86FB17D8E6", key.certificateChain!![2].fingerPrint)
+        assertEquals("D89E3BD43D5D909B47A18977AA9D5CE36CEE184C", key.certificateChain!![3].fingerPrint)
 
     }
 
     @Test
-    fun `Given an input with signmode DOCUMENT the sign method should sign the document`() {
+    fun `Given an input with signmode DOCUMENT and DIGEST the sign method should sign the document`() {
         val pdfDocInput = this::class.java.classLoader.getResource("test-unsigned.pdf")
         val origData = OrigData(value = pdfDocInput.readBytes(), name = "test-unsigned.pdf")
 
@@ -113,8 +98,6 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
                         contactInfo = "support@sphereon.com",
                         reason = "Test",
                         location = "Online",
-
-//                        signatureSubFilter = "adbe.pkcs7.detached"
                     )
                 )
             ),
@@ -128,74 +111,70 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
 
         println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(signInput))
 
-        /* val digestInput = signingService.digest(signInput)
-         println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(digestInput))
- */
-        println("Data to sign hashcode: ${signInput.input.hashCode()}")
-        val signature = signingService.createSignature(signInput, alias)
-        println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(signature))
+        // Let's first create a signature of the document/data without creating a digest
+        val signatureData = signingService.createSignature(signInput, alias)
+        assertNotNull(signatureData)
+        assertEquals(SignMode.DOCUMENT, signatureData.signMode)
+        assertEquals(SignatureAlg.RSA_SHA256, signatureData.algorithm)
 
-        val signOutput = signingService.sign(origData, signature, signatureConfiguration)
-        println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(signOutput))
-        assertNotNull(signOutput)
+        // Let's create a digest ourselves and sign that as well
+        val digestInput = signingService.digest(signInput)
+        val signatureDigest = signingService.createSignature(digestInput, alias)
+        assertNotNull(signatureDigest)
+        assertEquals(SignMode.DIGEST, signatureDigest.signMode)
+        assertEquals(SignatureAlg.RSA_RAW, signatureDigest.algorithm)
 
-        InMemoryDocument(signOutput.value, signOutput.name).save("" + System.currentTimeMillis() + "-sphereon-signed.pdf")
+        assertContentEquals(signatureData.value, signatureDigest.value)
+        assertEquals(signatureData.keyEntry.certificate!!.fingerPrint, signatureDigest.keyEntry.certificate!!.fingerPrint)
+        assertEquals(signatureData.keyEntry.certificateChain!![3].fingerPrint, signatureDigest.keyEntry.certificateChain!![3].fingerPrint)
 
-        val validSignature = signingService.isValidSignature(signInput, signature, alias)
-        assertTrue(validSignature)
+        val signOutputData = signingService.sign(origData, signatureData, signatureConfiguration)
+        assertNotNull(signOutputData)
 
-//        assertTrue(signingService.isValidSignature(digestInput, signature, signature.publicKey!!))
-//        assertTrue(signingService.isValidSignature(signInput, signature, signature.certificate!!))
+        val signOutputDigest = signingService.sign(origData, signatureDigest, signatureConfiguration)
+        assertNotNull(signOutputDigest)
+
+
+
+        InMemoryDocument(signOutputDigest.value, signOutputData.name).save("" + System.currentTimeMillis() + "-sphereon-signed.pdf")
+
+        val validSignatureData = signingService.isValidSignature(signInput, signatureData, alias)
+        assertTrue(validSignatureData)
+
+        val validSignatureDigest = signingService.isValidSignature(digestInput, signatureDigest, alias)
+        assertTrue(validSignatureDigest)
+
+        assertTrue(signingService.isValidSignature(signInput, signatureData, signatureData.keyEntry.publicKey))
+        assertTrue(signingService.isValidSignature(digestInput, signatureDigest, signatureDigest.keyEntry.publicKey))
         val documentValidator = PDFDocumentValidator(
             InMemoryDocument(
-                signOutput.value,
-                signOutput.name
+                signOutputData.value,
+                signOutputData.name
             )
-        ) //.fromDocument(InMemoryDocument(signOutput.value, signOutput.name))
+        )
         documentValidator.setValidationLevel(ValidationLevel.BASIC_SIGNATURES)
-
-
-        documentValidator.setValidationLevel(ValidationLevel.BASIC_SIGNATURES)
-//        documentValidator.setSignaturePolicyProvider(SignaturePolicyProvider())
         documentValidator.setTokenExtractionStrategy(TokenExtractionStrategy.EXTRACT_CERTIFICATES_AND_REVOCATION_DATA)
-        documentValidator.setIncludeSemantics(true)
-        documentValidator.setEnableEtsiValidationReport(true)
 
         val certVerifier = CommonCertificateVerifier()
-        certVerifier.defaultDigestAlgorithm = DigestAlgorithm.SHA256
-//        certVerifier.trustedCertSources = ListCertificateSource()
 
-        // Capability to download resources from AIA
-//        certVerifier.aiaSource = DefaultAIASource()
-
-// Capability to request OCSP Responders
-        certVerifier.ocspSource = OnlineOCSPSource()
-
-// Capability to download CRL
-        certVerifier.crlSource = OnlineCRLSource()
-
-// Create an instance of a trusted certificate source
+        // Create an instance of a trusted certificate source
         val trustedCertSource = CommonTrustedCertificateSource()
-//        trustedCertSource.addCertificate(CertificateToken(signature.certificate!!.toX509Certificate()))
-        signature.certificateChain!!.map { trustedCertSource.addCertificate(CertificateToken(it.toX509Certificate())) }
-
-
-// Add trust anchors (trusted list, keystore,...) to a list of trusted certificate sources
-// Hint : use method {@code CertificateVerifier.setTrustedCertSources(certSources)} in order to overwrite the existing list
-
-// Add trust anchors (trusted list, keystore,...) to a list of trusted certificate sources
-// Hint : use method {@code CertificateVerifier.setTrustedCertSources(certSources)} in order to overwrite the existing list
+        // Include the chain, but not the signing cert itself
+        signatureDigest.keyEntry.certificateChain!!.subList(1, 3).map { trustedCertSource.addCertificate(CertificateToken(it.toX509Certificate())) }
+        // Add trust anchors (trusted list, keystore,...) to a list of trusted certificate sources
         certVerifier.addTrustedCertSources(trustedCertSource)
         documentValidator.setCertificateVerifier(certVerifier)
 
-
         assertEquals(1, documentValidator.signatures.size)
-        val validateDocument = documentValidator.validateDocument()
+
+        val validatedDocument = documentValidator.validateDocument()
+        assertEquals(1, validatedDocument.simpleReport.validSignaturesCount)
+
         val diagData = documentValidator.diagnosticData
         assertEquals(1, diagData.signatures.size)
         assertEquals(4, diagData.usedCertificates.size)
 
-        assertContentEquals(signature.value, documentValidator.signatures.first().signatureValue)
+        assertContentEquals(signatureDigest.value, documentValidator.signatures.first().signatureValue)
         val origDoc = documentValidator.getOriginalDocuments(documentValidator.signatures.first()).first()
         ByteArrayOutputStream().use { baos ->
             origDoc.writeTo(baos)
@@ -205,65 +184,65 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
     }
 
 
-    @Test
-    fun `DSS direct test`() {
-        val pdfDocInput = this::class.java.classLoader.getResource("test-unsigned.pdf")
-        val origData = OrigData(value = pdfDocInput.readBytes(), name = "test-unsigned.pdf")
+    /*  @Test
+      fun `DSS direct test`() {
+          val pdfDocInput = this::class.java.classLoader.getResource("test-unsigned.pdf")
+          val origData = OrigData(value = pdfDocInput.readBytes(), name = "test-unsigned.pdf")
 
-        val certProvider = CertificateProviderServiceFactory.createFromConfig(
-            constructCertificateProviderSettings(false),
-            azureKeyvaultClientConfig = constructKeyvaultClientConfig()
-        )
-        val alias = "esignum:3f98a9a740fb41b79e3679cce7a34ba6"
-        val keyEntry = certProvider.getKey(alias)
-        val dssPrivateKeyEntry = keyEntry?.toDSS()
+          val certProvider = CertificateProviderServiceFactory.createFromConfig(
+              constructCertificateProviderSettings(false),
+              azureKeyvaultClientConfig = constructKeyvaultClientConfig()
+          )
+          val alias = "esignum:3f98a9a740fb41b79e3679cce7a34ba6"
+          val keyEntry = certProvider.getKey(alias)
+          val dssPrivateKeyEntry = keyEntry?.toDSS()
 
-        val padesService = PAdESService(CommonCertificateVerifier())
+          val padesService = PAdESService(CommonCertificateVerifier())
 
-        val padesSigParameters = PAdESSignatureParameters()
-        with(padesSigParameters) {
-            signaturePackaging = eu.europa.esig.dss.enumerations.SignaturePackaging.ENVELOPED
-            digestAlgorithm = DigestAlgorithm.SHA256
-            encryptionAlgorithm = EncryptionAlgorithm.RSA
-            signatureLevel = eu.europa.esig.dss.enumerations.SignatureLevel.PAdES_BASELINE_B
-            signerName = "Test Case"
-            contactInfo = "support@sphereon.com"
-            reason = "Test"
-            location = "Online"
-            signingCertificate = dssPrivateKeyEntry?.certificate
-            certificateChain = dssPrivateKeyEntry?.certificateChain?.toList()
-
-
-        }
-        padesSigParameters.bLevel().signingDate = Date.from(java.time.Instant.parse(SIGDATE))
-
-        val toSignDoc = InMemoryDocument(pdfDocInput.readBytes(), "test-unsigned.pdf")
-        val dataToSign = padesService.getDataToSign(toSignDoc, padesSigParameters)
-        println("Data to sign hashcode: ${dataToSign.bytes.hashCode()}")
-        val signingToken: SignatureTokenConnection = AzureKeyvaultTokenConnection(constructKeyvaultClientConfig(), alias)
-
-        val signature = signingToken.sign(dataToSign, DigestAlgorithm.SHA256, dssPrivateKeyEntry)
-        val signedDocument = padesService.signDocument(toSignDoc, padesSigParameters, signature)
-        signedDocument.save("" + System.currentTimeMillis() + "-DSS-signed.pdf")
+          val padesSigParameters = PAdESSignatureParameters()
+          with(padesSigParameters) {
+              signaturePackaging = eu.europa.esig.dss.enumerations.SignaturePackaging.ENVELOPED
+              digestAlgorithm = DigestAlgorithm.SHA256
+              encryptionAlgorithm = EncryptionAlgorithm.RSA
+              signatureLevel = eu.europa.esig.dss.enumerations.SignatureLevel.PAdES_BASELINE_B
+              signerName = "Test Case"
+              contactInfo = "support@sphereon.com"
+              reason = "Test"
+              location = "Online"
+              signingCertificate = dssPrivateKeyEntry?.certificate
+              certificateChain = dssPrivateKeyEntry?.certificateChain?.toList()
 
 
-        val documentValidator = SignedDocumentValidator.fromDocument(signedDocument)
-        documentValidator.setCertificateVerifier(CommonCertificateVerifier())
+          }
+          padesSigParameters.bLevel().signingDate = Date.from(java.time.Instant.parse(SIGDATE))
 
-        assertEquals(1, documentValidator.signatures.size)
-        val diagData = documentValidator.diagnosticData
-        assertEquals(1, diagData.signatures.size)
-        assertEquals(4, diagData.usedCertificates.size)
+          val toSignDoc = InMemoryDocument(pdfDocInput.readBytes(), "test-unsigned.pdf")
+          val dataToSign = padesService.getDataToSign(toSignDoc, padesSigParameters)
+          println("Data to sign hashcode: ${dataToSign.bytes.hashCode()}")
+          val signingToken: SignatureTokenConnection = AzureKeyvaultTokenConnection(constructKeyvaultClientConfig(), alias)
 
-        assertContentEquals(signature.value, documentValidator.signatures.first().signatureValue)
-        val origDoc = documentValidator.getOriginalDocuments(documentValidator.signatures.first()).first()
-        ByteArrayOutputStream().use { baos ->
-            origDoc.writeTo(baos)
-            assertContentEquals(origData.value, baos.toByteArray())
-        }
+          val signature = signingToken.sign(dataToSign, DigestAlgorithm.SHA256, dssPrivateKeyEntry)
+          val signedDocument = padesService.signDocument(toSignDoc, padesSigParameters, signature)
+          signedDocument.save("" + System.currentTimeMillis() + "-DSS-signed.pdf")
 
-    }
 
+          val documentValidator = SignedDocumentValidator.fromDocument(signedDocument)
+          documentValidator.setCertificateVerifier(CommonCertificateVerifier())
+
+          assertEquals(1, documentValidator.signatures.size)
+          val diagData = documentValidator.diagnosticData
+          assertEquals(1, diagData.signatures.size)
+          assertEquals(4, diagData.usedCertificates.size)
+
+          assertContentEquals(signature.value, documentValidator.signatures.first().signatureValue)
+          val origDoc = documentValidator.getOriginalDocuments(documentValidator.signatures.first()).first()
+          ByteArrayOutputStream().use { baos ->
+              origDoc.writeTo(baos)
+              assertContentEquals(origData.value, baos.toByteArray())
+          }
+
+      }
+  */
 
     private fun constructKeyvaultClientConfig(): AzureKeyvaultClientConfig {
         return AzureKeyvaultClientConfig(

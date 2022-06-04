@@ -6,8 +6,10 @@ import com.azure.core.util.ClientOptions
 import com.azure.core.util.Header
 import com.azure.identity.*
 import com.azure.security.keyvault.certificates.models.KeyVaultCertificate
+import com.azure.security.keyvault.keys.cryptography.models.SignatureAlgorithm
 import com.azure.security.keyvault.keys.models.KeyVaultKey
 import com.sphereon.vdx.ades.SignClientException
+import com.sphereon.vdx.ades.SigningException
 import com.sphereon.vdx.ades.enums.CryptoAlg
 import com.sphereon.vdx.ades.model.IKeyEntry
 import com.sphereon.vdx.ades.model.KeyEntry
@@ -78,7 +80,6 @@ private fun InteractiveBrowserCredentialOpts.toInteractiveBrowserCredential(tena
         .build()
 }
 
-
 fun KeyVaultCertificate.toKeyEntry(): IKeyEntry {
     val x509Certificate = CertificateUtil.toX509Certificate(cer)
     val x509Chain: MutableList<X509Certificate> = mutableListOf()// mutableListOf(/*x509Certificate*/)
@@ -109,4 +110,27 @@ fun KeyVaultKey.toKeyEntry(): IKeyEntry {
         encryptionAlgorithm = CryptoAlg.valueOf(keyType.toString().replace("-HSM", "")),
         publicKey = this.key.toRsa().public.toKey()
     )
+}
+
+
+fun eu.europa.esig.dss.enumerations.SignatureAlgorithm.toAzureSignatureAlgorithm(): SignatureAlgorithm {
+    return when (this) {
+        eu.europa.esig.dss.enumerations.SignatureAlgorithm.RSA_RAW -> SignatureAlgorithm.RS256 // null  todo: Doublecheck. This is a raw signature. We use the signData method of keyvault. Hopefully the hash algo doesn't matter
+        eu.europa.esig.dss.enumerations.SignatureAlgorithm.RSA_SHA256 -> SignatureAlgorithm.RS256
+        eu.europa.esig.dss.enumerations.SignatureAlgorithm.RSA_SHA384 -> SignatureAlgorithm.RS384
+        eu.europa.esig.dss.enumerations.SignatureAlgorithm.RSA_SHA512 -> SignatureAlgorithm.RS512
+        eu.europa.esig.dss.enumerations.SignatureAlgorithm.RSA_SSA_PSS_SHA256_MGF1 -> SignatureAlgorithm.PS256
+        eu.europa.esig.dss.enumerations.SignatureAlgorithm.RSA_SSA_PSS_SHA384_MGF1 -> SignatureAlgorithm.PS384
+        eu.europa.esig.dss.enumerations.SignatureAlgorithm.RSA_SSA_PSS_SHA512_MGF1 -> SignatureAlgorithm.PS512
+        eu.europa.esig.dss.enumerations.SignatureAlgorithm.ECDSA_RAW -> SignatureAlgorithm.ES256 // null  todo: Doublecheck. This is a raw signature. We use the signData method of keyvault. Hopefully the hash algo doesn't matter
+        eu.europa.esig.dss.enumerations.SignatureAlgorithm.ECDSA_SHA256,
+        eu.europa.esig.dss.enumerations.SignatureAlgorithm.PLAIN_ECDSA_SHA256 -> SignatureAlgorithm.ES256
+        eu.europa.esig.dss.enumerations.SignatureAlgorithm.ECDSA_SHA384,
+        eu.europa.esig.dss.enumerations.SignatureAlgorithm.PLAIN_ECDSA_SHA384 -> SignatureAlgorithm.ES384
+        eu.europa.esig.dss.enumerations.SignatureAlgorithm.ECDSA_SHA512,
+        eu.europa.esig.dss.enumerations.SignatureAlgorithm.PLAIN_ECDSA_SHA512 -> SignatureAlgorithm.ES256
+
+        else -> throw SigningException("Cannot map ${this.name} to azure signature algorithm")
+    }
+
 }

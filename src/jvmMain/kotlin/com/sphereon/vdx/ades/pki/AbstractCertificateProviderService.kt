@@ -1,9 +1,6 @@
 package com.sphereon.vdx.ades.pki
 
-import com.sphereon.vdx.ades.enums.CryptoAlg
-import com.sphereon.vdx.ades.enums.MaskGenFunction
-import com.sphereon.vdx.ades.enums.SignMode
-import com.sphereon.vdx.ades.enums.SignatureAlg
+import com.sphereon.vdx.ades.enums.*
 import com.sphereon.vdx.ades.model.*
 import com.sphereon.vdx.ades.sign.util.toDSS
 import com.sphereon.vdx.ades.sign.util.toJavaPublicKey
@@ -61,9 +58,12 @@ abstract class AbstractCertificateProviderService(override val settings: Certifi
             javaSig.update(signInput.input)
             javaSig.verify(signature.value)
         } catch (e: GeneralSecurityException) {
+            println(e)
             false
         }
     }
 
     protected abstract fun createSignatureImpl(signInput: SignInput, keyEntry: IKeyEntry, mgf: MaskGenFunction? = null): Signature
+    protected fun isDigestMode(signInput: SignInput) =
+        signInput.signMode == SignMode.DIGEST && signInput.digestAlgorithm != DigestAlg.NONE
 }

@@ -58,12 +58,12 @@ data class SignatureParameters(
     /**
      * XAdES: The ds:SignatureMethod indicates the algorithms used to sign ds:SignedInfo.
      */
-    private val signatureAlgorithm: SignatureAlg = SignatureAlg.RSA_SHA256,
+    private val signatureAlgorithm: SignatureAlg? = SignatureAlg.RSA_SHA256,
 
     /**
      * XAdES: The digest algorithm used to hash ds:SignedInfo.
      */
-    val digestAlgorithm: DigestAlg = signatureAlgorithm.digestAlgorithm!!,
+    val digestAlgorithm: DigestAlg? = signatureAlgorithm?.digestAlgorithm ?: DigestAlg.SHA256,
 
     /**
      * XAdES: The digest algorithm used to hash ds:Reference.
@@ -73,13 +73,13 @@ data class SignatureParameters(
     /**
      * The encryption algorithm shall be automatically extracted from the signing token.
      */
-    val encryptionAlgorithm: CryptoAlg? = signatureAlgorithm.encryptionAlgorithm,
+    val encryptionAlgorithm: CryptoAlg? = signatureAlgorithm?.encryptionAlgorithm ?: CryptoAlg.RSA,
 
 
     /**
      * The mask generation function
      */
-    val maskGenerationFunction: MaskGenFunction? = signatureAlgorithm.maskGenFunction,
+    val maskGenerationFunction: MaskGenFunction? = signatureAlgorithm?.maskGenFunction,
 
     val signatureLevelParameters: SignatureLevelParameters? = null,
 
@@ -94,7 +94,11 @@ data class SignatureParameters(
 //     */
 //    private val signatureIdToCounterSign: String? = null
 
-)
+) {
+    fun getSignatureAlgorithm(): SignatureAlg? {
+        return signatureAlgorithm
+    }
+}
 
 @kotlinx.serialization.Serializable
 data class SignatureLevelParameters(
@@ -368,7 +372,7 @@ data class BLevelParams(
     val trustAnchorBPPolicy: Boolean? = true,
 
     /** The claimed signing time  */
-    val signingDate: Instant? = null /*Clock.System.now()*/,
+    val signingDate: Instant,
 
     /** The claimed signer roles  */
     val claimedSignerRoles: List<String>? = null,

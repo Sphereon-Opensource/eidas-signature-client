@@ -11,9 +11,10 @@ data class Signature(
     val value: ByteArray,
     val algorithm: SignatureAlg,
     val signMode: SignMode,
-    val publicKey: Key,
-    val certificate: Certificate?,
-    val certificateChain: List<Certificate>?
+    val keyEntry: IKeyEntry
+//    val publicKey: Key,
+//    val certificate: Certificate?,
+//    val certificateChain: List<Certificate>?
 ) {
 
     override fun equals(other: Any?): Boolean {
@@ -25,9 +26,7 @@ data class Signature(
         if (!value.contentEquals(other.value)) return false
         if (algorithm != other.algorithm) return false
         if (signMode != other.signMode) return false
-        if (publicKey != other.publicKey) return false
-        if (certificate != other.certificate) return false
-        if (certificateChain != other.certificateChain) return false
+        if (keyEntry != other.keyEntry) return false
 
         return true
     }
@@ -36,9 +35,7 @@ data class Signature(
         var result = value.contentHashCode()
         result = 31 * result + algorithm.hashCode()
         result = 31 * result + signMode.hashCode()
-        result = 31 * result + publicKey.hashCode()
-        result = 31 * result + (certificate?.hashCode() ?: 0)
-        result = 31 * result + (certificateChain?.hashCode() ?: 0)
+        result = 31 * result + keyEntry.hashCode()
         return result
     }
 }

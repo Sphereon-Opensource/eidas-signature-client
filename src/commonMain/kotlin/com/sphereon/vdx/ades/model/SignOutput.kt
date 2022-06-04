@@ -9,7 +9,7 @@ data class SignOutput(
     @kotlinx.serialization.Serializable(with = Base64Serializer::class)
     val value: ByteArray,
     val signMode: SignMode,
-    val digestAlgorithm: DigestAlg,
+    val digestAlgorithm: DigestAlg?,
     val name: String? = "document",
     val mimeType: String?,
     val signature: Signature

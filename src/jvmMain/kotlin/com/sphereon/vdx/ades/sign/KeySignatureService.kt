@@ -6,17 +6,11 @@ import com.sphereon.vdx.ades.model.*
 import com.sphereon.vdx.ades.pki.ICertificateProviderService
 import com.sphereon.vdx.ades.sign.util.*
 import eu.europa.esig.dss.cades.CAdESSignatureParameters
-import eu.europa.esig.dss.enumerations.SignatureAlgorithm
 import eu.europa.esig.dss.model.InMemoryDocument
 import eu.europa.esig.dss.model.ToBeSigned
 import eu.europa.esig.dss.pades.PAdESSignatureParameters
-import eu.europa.esig.dss.spi.DSSSecurityProvider
 import eu.europa.esig.dss.spi.DSSUtils
 import java.io.ByteArrayOutputStream
-import java.security.GeneralSecurityException
-import java.security.spec.MGF1ParameterSpec
-import java.security.spec.PSSParameterSpec
-import java.util.*
 
 
 open class KeySignatureService(val certificateProvider: ICertificateProviderService) : IKeySignatureService {
@@ -60,7 +54,9 @@ open class KeySignatureService(val certificateProvider: ICertificateProviderServ
         val adESService = AdESServiceFactory.getService(signatureConfiguration)
         val toSign = InMemoryDocument(origData.value, origData.name)
         val signatureParameters =
-            signatureConfiguration.signatureParameters.toDSS(certificate = keyEntry.certificate, certificateChain = keyEntry.certificateChain)
+            signatureConfiguration.signatureParameters.toDSS(
+                key = keyEntry
+            )
 
         val toBeSigned = when (signatureConfiguration.signatureParameters.signatureForm()) {
             SignatureForm.CAdES -> adESService.toCAdESService().getDataToSign(toSign, signatureParameters as CAdESSignatureParameters)
@@ -84,14 +80,21 @@ open class KeySignatureService(val certificateProvider: ICertificateProviderServ
     override fun sign(origData: OrigData, signature: Signature, signatureConfiguration: SignatureConfiguration): SignOutput {
         val adESService = AdESServiceFactory.getService(signatureConfiguration)
         val signatureParameters =
-            signatureConfiguration.signatureParameters.toDSS(certificate = signature.certificate, certificateChain = signature.certificateChain)
+            signatureConfiguration.signatureParameters.toDSS(key = signature.keyEntry, signatureAlg = signature.algorithm)
 
         val toSign = InMemoryDocument(origData.value, origData.name)
         val dssDocument = when (signatureConfiguration.signatureParameters.signatureForm()) {
             SignatureForm.CAdES -> adESService.toCAdESService()
-                .signDocument(toSign, signatureParameters as CAdESSignatureParameters, signature.toDSS())
-            SignatureForm.PAdES -> adESService.toPAdESService()
-                .signDocument(toSign, signatureParameters as PAdESSignatureParameters, signature.toDSS())
+                .signDocument(
+                    toSign,
+                    signatureParameters as CAdESSignatureParameters,
+                    signature.toDSS(signatureConfiguration.signatureParameters.getSignatureAlgorithm())
+                )
+            SignatureForm.PAdES -> {
+                val padesParams = signatureParameters as PAdESSignatureParameters
+                adESService.toPAdESService()
+                    .signDocument(toSign, padesParams, signature.toDSS(signatureConfiguration.signatureParameters.getSignatureAlgorithm()))
+            }
             else -> throw SigningException("Signing using signature form ${signatureConfiguration.signatureParameters.signatureForm()} not support")
         }
 
