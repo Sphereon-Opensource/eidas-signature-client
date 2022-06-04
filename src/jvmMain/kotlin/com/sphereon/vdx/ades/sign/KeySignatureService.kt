@@ -1,10 +1,26 @@
 package com.sphereon.vdx.ades.sign
 
 import com.sphereon.vdx.ades.SigningException
-import com.sphereon.vdx.ades.enums.*
-import com.sphereon.vdx.ades.model.*
+import com.sphereon.vdx.ades.enums.DigestAlg
+import com.sphereon.vdx.ades.enums.MaskGenFunction
+import com.sphereon.vdx.ades.enums.SignMode
+import com.sphereon.vdx.ades.enums.SignatureAlg
+import com.sphereon.vdx.ades.enums.SignatureForm
+import com.sphereon.vdx.ades.model.IKeyEntry
+import com.sphereon.vdx.ades.model.Key
+import com.sphereon.vdx.ades.model.OrigData
+import com.sphereon.vdx.ades.model.SignInput
+import com.sphereon.vdx.ades.model.SignOutput
+import com.sphereon.vdx.ades.model.Signature
+import com.sphereon.vdx.ades.model.SignatureConfiguration
 import com.sphereon.vdx.ades.pki.ICertificateProviderService
-import com.sphereon.vdx.ades.sign.util.*
+import com.sphereon.vdx.ades.sign.util.AdESServiceFactory
+import com.sphereon.vdx.ades.sign.util.signatureForm
+import com.sphereon.vdx.ades.sign.util.toCAdESService
+import com.sphereon.vdx.ades.sign.util.toDSS
+import com.sphereon.vdx.ades.sign.util.toPAdESService
+import com.sphereon.vdx.ades.sign.util.toPKCS7Service
+import com.sphereon.vdx.pkcs7.PKCS7SignatureParameters
 import eu.europa.esig.dss.cades.CAdESSignatureParameters
 import eu.europa.esig.dss.model.InMemoryDocument
 import eu.europa.esig.dss.model.ToBeSigned
@@ -61,6 +77,7 @@ open class KeySignatureService(val certificateProvider: ICertificateProviderServ
         val toBeSigned = when (signatureConfiguration.signatureParameters.signatureForm()) {
             SignatureForm.CAdES -> adESService.toCAdESService().getDataToSign(toSign, signatureParameters as CAdESSignatureParameters)
             SignatureForm.PAdES -> adESService.toPAdESService().getDataToSign(toSign, signatureParameters as PAdESSignatureParameters)
+            SignatureForm.PKCS7 -> adESService.toPKCS7Service().getDataToSign(toSign, signatureParameters as PKCS7SignatureParameters)
             SignatureForm.DIGEST -> ToBeSigned(origData.value)
             else -> throw SigningException("Determining sign input using signature form ${signatureConfiguration.signatureParameters.signatureForm()} not support")
         }
@@ -85,16 +102,11 @@ open class KeySignatureService(val certificateProvider: ICertificateProviderServ
         val toSign = InMemoryDocument(origData.value, origData.name)
         val dssDocument = when (signatureConfiguration.signatureParameters.signatureForm()) {
             SignatureForm.CAdES -> adESService.toCAdESService()
-                .signDocument(
-                    toSign,
-                    signatureParameters as CAdESSignatureParameters,
-                    signature.toDSS(signatureConfiguration.signatureParameters.getSignatureAlgorithm())
-                )
-            SignatureForm.PAdES -> {
-                val padesParams = signatureParameters as PAdESSignatureParameters
-                adESService.toPAdESService()
-                    .signDocument(toSign, padesParams, signature.toDSS(signatureConfiguration.signatureParameters.getSignatureAlgorithm()))
-            }
+                .signDocument(toSign, signatureParameters as CAdESSignatureParameters, signature.toDSS())
+            SignatureForm.PAdES -> adESService.toPAdESService()
+                .signDocument(toSign, signatureParameters as PAdESSignatureParameters, signature.toDSS())
+            SignatureForm.PKCS7 -> adESService.toPKCS7Service()
+                .signDocument(toSign, signatureParameters as PKCS7SignatureParameters, signature.toDSS())
             else -> throw SigningException("Signing using signature form ${signatureConfiguration.signatureParameters.signatureForm()} not support")
         }
 
@@ -113,7 +125,6 @@ open class KeySignatureService(val certificateProvider: ICertificateProviderServ
         }
 
     }
-
 
 
 }

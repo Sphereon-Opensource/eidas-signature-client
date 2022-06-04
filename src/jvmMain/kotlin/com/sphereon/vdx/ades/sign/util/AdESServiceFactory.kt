@@ -2,6 +2,7 @@ package com.sphereon.vdx.ades.sign.util
 
 import com.sphereon.vdx.ades.enums.SignatureForm
 import com.sphereon.vdx.ades.model.SignatureConfiguration
+import com.sphereon.vdx.pkcs7.PKCS7Service
 import eu.europa.esig.dss.AbstractSignatureParameters
 import eu.europa.esig.dss.cades.signature.CAdESService
 import eu.europa.esig.dss.jades.signature.JAdESService
@@ -21,6 +22,7 @@ class AdESServiceFactory {
                 SignatureForm.CAdES -> CAdESService(certificateVerifier)
                 SignatureForm.PAdES -> PAdESService(certificateVerifier)
                 SignatureForm.JAdES -> JAdESService(certificateVerifier)
+                SignatureForm.PKCS7 -> PKCS7Service(certificateVerifier)
                 else -> throw RuntimeException("Cannot create service for signature form " + signatureForm.name)
             }
 

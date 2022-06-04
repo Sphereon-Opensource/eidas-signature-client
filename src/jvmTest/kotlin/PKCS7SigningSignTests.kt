@@ -5,7 +5,7 @@ import com.sphereon.vdx.ades.enums.SignatureAlg
 import com.sphereon.vdx.ades.enums.SignatureLevel
 import com.sphereon.vdx.ades.enums.SignaturePackaging
 import com.sphereon.vdx.ades.model.OrigData
-import com.sphereon.vdx.ades.model.PadesSignatureFormParameters
+import com.sphereon.vdx.ades.model.Pkcs7SignatureFormParameters
 import com.sphereon.vdx.ades.model.SignatureConfiguration
 import com.sphereon.vdx.ades.model.SignatureFormParameters
 import com.sphereon.vdx.ades.model.SignatureLevelParameters
@@ -24,7 +24,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-class PAdESSigningSignTests : AbstractAdESTest() {
+class PKCS7SigningSignTests : AbstractAdESTest() {
 
     @Test
     fun `Given an input with signmode DOCUMENT the sign method should sign the document`() {
@@ -41,10 +41,10 @@ class PAdESSigningSignTests : AbstractAdESTest() {
                 encryptionAlgorithm = CryptoAlg.RSA,
                 signatureAlgorithm = SignatureAlg.RSA_SHA256,
                 signatureLevelParameters = SignatureLevelParameters(
-                    signatureLevel = SignatureLevel.PAdES_BASELINE_B,
+                    signatureLevel = SignatureLevel.PKCS7_B,
                 ),
                 signatureFormParameters = SignatureFormParameters(
-                    padesSignatureFormParameters = PadesSignatureFormParameters(
+                    pkcs7SignatureFormParameters = Pkcs7SignatureFormParameters(
                         signerName = "Test Case",
                         contactInfo = "support@sphereon.com",
                         reason = "Test",
@@ -73,7 +73,7 @@ class PAdESSigningSignTests : AbstractAdESTest() {
         assertNotNull(signOutput)
 
 
-        assertTrue(signingService.isValidSignature(digestInput, signature, keyEntry))
+        assertTrue(signingService.isValidSignature(digestInput, signature, signature.publicKey!!))
 //        assertTrue(signingService.isValidSignature(signInput, signature, signature.certificate!!))
         val documentValidator = SignedDocumentValidator.fromDocument(InMemoryDocument(signOutput.value, signOutput.name))
         documentValidator.setCertificateVerifier(CommonCertificateVerifier())
@@ -93,8 +93,6 @@ class PAdESSigningSignTests : AbstractAdESTest() {
             origDoc.writeTo(baos)
             assertContentEquals(origData.value, baos.toByteArray())
         }
-
     }
-
 
 }
