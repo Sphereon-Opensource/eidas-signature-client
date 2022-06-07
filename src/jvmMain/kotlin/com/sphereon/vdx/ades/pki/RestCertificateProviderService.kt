@@ -5,15 +5,21 @@ import com.sphereon.vdx.ades.SignClientException
 import com.sphereon.vdx.ades.enums.CertificateProviderType
 import com.sphereon.vdx.ades.enums.CryptoAlg
 import com.sphereon.vdx.ades.enums.MaskGenFunction
+import com.sphereon.vdx.ades.enums.SignatureAlg
 import com.sphereon.vdx.ades.model.*
 import com.sphereon.vdx.ades.rest.client.ApiClient
 import com.sphereon.vdx.ades.rest.client.api.CertificatesApi
 import com.sphereon.vdx.ades.rest.client.api.SigningApi
 import com.sphereon.vdx.ades.rest.client.auth.HttpBearerAuth
 import com.sphereon.vdx.ades.rest.client.auth.OAuth
+import com.sphereon.vdx.ades.rest.client.model.ConfigCertificateBinding
+import com.sphereon.vdx.ades.rest.client.model.CreateSignature
+import com.sphereon.vdx.ades.rest.client.model.OrigData
+import com.sphereon.vdx.ades.rest.client.model.SignMode
 import com.sphereon.vdx.ades.sign.util.CertificateUtil
 import com.sphereon.vdx.ades.sign.util.toCertificate
 import com.sphereon.vdx.ades.sign.util.toKey
+import io.matthewnelson.component.base64.Base64
 
 
 private const val BEARER_LITERAL = "bearer"
@@ -31,9 +37,32 @@ open class RestCertificateProviderService(settings: CertificateProviderSettings,
     }
 
     override fun createSignatureImpl(signInput: SignInput, keyEntry: IKeyEntry, mgf: MaskGenFunction?): Signature {
-        TODO()
-//        val signingClient = newSigningApi()
-//        signingClient.createSignature(CreateSignature().signInput(com.sphereon.vdx.ades.rest.client.model.SignInput().))
+        val signingClient = newSigningApi()
+        val signature = signingClient.createSignature(
+            CreateSignature()
+                .binding(
+                    ConfigCertificateBinding()
+                        .certificateProviderId(settings.id)
+                        .certificateAlias(keyEntry.alias)
+                        .signatureConfigId(null)
+                )
+                .signInput(
+                    com.sphereon.vdx.ades.rest.client.model.SignInput()
+                        .signMode(SignMode.valueOf(signInput.signMode.name))
+                        .origData(
+                            OrigData()
+                                .name(signInput.name)
+                                .content(java.util.Base64.getEncoder().encodeToString(signInput.input))
+                        )
+                )
+        )
+        return Signature(
+            value = java.util.Base64.getDecoder().decode(signature.signature.value),
+            // FIXME
+            algorithm = SignatureAlg.RSA_SHA256,
+            signMode = signInput.signMode,
+            keyEntry = keyEntry
+        )
     }
 
     override fun getKeys(): List<IKeyEntry> {
@@ -47,7 +76,7 @@ open class RestCertificateProviderService(settings: CertificateProviderSettings,
         }
 
         val certApi = newCertApi()
-        val certResponse = certApi.getCertificateWithHttpInfo(alias)
+        val certResponse = certApi.getCertificateWithHttpInfo(settings.id, alias)
         if (certResponse.statusCode == 404) {
             return null
         }

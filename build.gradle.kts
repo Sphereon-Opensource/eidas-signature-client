@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.sphereon.vdx"
-version = "0.9.0-SNAPSHOT"
+version = "0.9.1-SNAPSHOT"
 
 
 kotlin {
@@ -49,9 +49,9 @@ kotlin {
 
         val commonMain by getting {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinSerializationVersion")
-                implementation("org.jetbrains.kotlinx:kotlinx-datetime:$kotlinDateTimeVersion")
-                implementation("io.matthewnelson.kotlin-components:encoding-base64:1.1.1")
+                api("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinSerializationVersion")
+                api("org.jetbrains.kotlinx:kotlinx-datetime:$kotlinDateTimeVersion")
+                api("io.matthewnelson.kotlin-components:encoding-base64:1.1.1")
             }
         }
         val commonTest by getting {
@@ -61,27 +61,27 @@ kotlin {
         }
         val jvmMain by getting {
             dependencies {
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinSerializationVersion")
-                implementation("eu.europa.ec.joinup.sd-dss:dss-model:$dssVersion")
-                implementation("eu.europa.ec.joinup.sd-dss:dss-document:$dssVersion")
-                implementation("eu.europa.ec.joinup.sd-dss:dss-cades:$dssVersion")
-                implementation("eu.europa.ec.joinup.sd-dss:dss-pades:$dssVersion")
-                implementation("eu.europa.ec.joinup.sd-dss:dss-jades:$dssVersion")
-                implementation("eu.europa.ec.joinup.sd-dss:dss-utils-apache-commons:$dssVersion")
-                implementation("eu.europa.ec.joinup.sd-dss:dss-token:$dssVersion")
-                implementation("eu.europa.ec.joinup.sd-dss:dss-service:$dssVersion")
-                implementation("eu.europa.ec.joinup.sd-dss:dss-signature-rest:$dssVersion")
-                implementation("eu.europa.ec.joinup.sd-dss:dss-enumerations:$dssVersion")
-                implementation("eu.europa.ec.joinup.sd-dss:dss-pades-pdfbox:$dssVersion")
-                implementation("org.bouncycastle:bcprov-debug-jdk18on:$bcVersion")
-                implementation("javax.cache:cache-api:1.1.1")
-                implementation("jakarta.xml.bind:jakarta.xml.bind-api:3.0.1")
-                implementation("org.glassfish.jaxb:jaxb-runtime:2.3.3")
+                api("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinSerializationVersion")
+                api("eu.europa.ec.joinup.sd-dss:dss-model:$dssVersion")
+                api("eu.europa.ec.joinup.sd-dss:dss-document:$dssVersion")
+                api("eu.europa.ec.joinup.sd-dss:dss-cades:$dssVersion")
+                api("eu.europa.ec.joinup.sd-dss:dss-pades:$dssVersion")
+                api("eu.europa.ec.joinup.sd-dss:dss-jades:$dssVersion")
+                api("eu.europa.ec.joinup.sd-dss:dss-utils-apache-commons:$dssVersion")
+                api("eu.europa.ec.joinup.sd-dss:dss-token:$dssVersion")
+                api("eu.europa.ec.joinup.sd-dss:dss-service:$dssVersion")
+                api("eu.europa.ec.joinup.sd-dss:dss-signature-rest:$dssVersion")
+                api("eu.europa.ec.joinup.sd-dss:dss-enumerations:$dssVersion")
+                api("eu.europa.ec.joinup.sd-dss:dss-pades-pdfbox:$dssVersion")
+                api("org.bouncycastle:bcprov-debug-jdk18on:$bcVersion")
+                api("javax.cache:cache-api:1.1.1")
+                api("jakarta.xml.bind:jakarta.xml.bind-api:3.0.1")
+                api("org.glassfish.jaxb:jaxb-runtime:2.3.3")
 
-                implementation("io.github.microutils:kotlin-logging-jvm:2.1.23")
+                api("io.github.microutils:kotlin-logging-jvm:2.1.23")
 
                 // todo separate into separate project probably
-                implementation("com.sphereon.vdx:eidas-signature-client-rest-jersey3:0.1.0")
+                api("com.sphereon.vdx:eidas-signature-client-rest-jersey3:0.9.1-SNAPSHOT")
 
                 implementation(project.dependencies.platform("com.azure:azure-sdk-bom:1.2.2"))
                 implementation("com.azure:azure-identity")
