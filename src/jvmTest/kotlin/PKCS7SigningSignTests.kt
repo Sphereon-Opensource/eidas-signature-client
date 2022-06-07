@@ -78,7 +78,7 @@ class PKCS7SigningSignTests : AbstractAdESTest() {
         val documentValidator = SignedDocumentValidator.fromDocument(InMemoryDocument(signOutput.value, signOutput.name))
         documentValidator.setCertificateVerifier(CommonCertificateVerifier())
 
-        FileOutputStream("C:\\temp\\${signOutput.name}").use { fos ->
+        FileOutputStream("C:\\temp\\${signOutput.name}").use { fos -> // TODO remove
             fos.write(signOutput.value)
         }
 
