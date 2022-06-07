@@ -6,6 +6,7 @@ import com.sphereon.vdx.ades.sign.util.toDSS
 import com.sphereon.vdx.ades.sign.util.toJavaPublicKey
 import eu.europa.esig.dss.enumerations.SignatureAlgorithm
 import eu.europa.esig.dss.spi.DSSSecurityProvider
+import eu.europa.esig.dss.spi.DSSUtils
 import java.security.GeneralSecurityException
 import java.security.spec.MGF1ParameterSpec
 import java.security.spec.PSSParameterSpec
@@ -54,7 +55,13 @@ abstract class AbstractCertificateProviderService(override val settings: Certifi
                 )
                 javaSig.setParameter(parameterSpec)
             }
+
             javaSig.initVerify(publicKey.toJavaPublicKey())
+            /*val digest = if (signInput.signMode == SignMode.DIGEST || signature.algorithm.digestAlgorithm == null) {
+                signInput.input
+            } else {
+                DSSUtils.digest(signature.algorithm.digestAlgorithm.toDSS(), signInput.input)
+            }*/
             javaSig.update(signInput.input)
             javaSig.verify(signature.value)
         } catch (e: GeneralSecurityException) {

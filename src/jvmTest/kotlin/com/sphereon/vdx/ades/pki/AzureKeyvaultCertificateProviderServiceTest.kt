@@ -70,7 +70,9 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
     @Test
     fun `Given an input with signmode DOCUMENT and DIGEST the sign method should sign the document`() {
         val pdfDocInput = this::class.java.classLoader.getResource("test-unsigned.pdf")
-        val origData = OrigData(value = pdfDocInput.readBytes(), name = "test-unsigned.pdf")
+        val logo = this::class.java.classLoader.getResource("logo.png")
+        val pdfData = OrigData(value = pdfDocInput.readBytes(), name = "test-unsigned.pdf")
+        val logoData = OrigData(value = logo.readBytes(), name = "sphereon.png", mimeType = "image/png")
 
 
         val certProvider = CertificateProviderServiceFactory.createFromConfig(
@@ -87,23 +89,48 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
                 encryptionAlgorithm = CryptoAlg.RSA,
                 signatureAlgorithm = SignatureAlg.RSA_SHA256,
                 signatureLevelParameters = SignatureLevelParameters(
-                    signatureLevel = SignatureLevel.PAdES_BASELINE_B,
+                    signatureLevel = SignatureLevel.PAdES_BASELINE_LTA,
                     bLevelParameters = BLevelParams(
-                        signingDate = Instant.parse(SIGDATE)
+//                        signingDate = Instant.parse(SIGDATE)
                     )
                 ),
                 signatureFormParameters = SignatureFormParameters(
                     padesSignatureFormParameters = PadesSignatureFormParameters(
+                        mode = PdfSignatureMode.CERTIFICATION,
                         signerName = "Test Case",
                         contactInfo = "support@sphereon.com",
                         reason = "Test",
                         location = "Online",
+                        signatureSize = 15000,
+                        signatureSubFilter = PdfSignatureSubFilter.ETSI_CADES_DETACHED.specName,
+                        signingTimeZone = "GMT-3",
+                        visualSignatureParameters = VisualSignatureParameters(
+                            fieldParameters = VisualSignatureFieldParameters(
+//                                fieldId = "SigNK",
+                                originX = 50f,
+                                originY = 400f,
+                            ),
+                            image = logoData,
+//                            rotation = VisualSignatureRotation.ROTATE_90,
+                            textParameters = VisualSignatureTextParameters(
+                                text = "Niels Klomp\r\nCTO",
+                                signerTextPosition = SignerTextPosition.TOP
+                            )
+
+                        )
+
                     )
                 )
             ),
+            timestampParameters = TimestampParameters(
+                tsaUrl = "http://timestamping.ensuredca.com/",
+                baselineLTAArchiveTimestampParameters = TimestampParameterSettings(
+                    digestAlgorithm = DigestAlg.SHA256
+                )
+            )
         )
         val signInput = signingService.determineSignInput(
-            origData = origData,
+            origData = pdfData,
             alias = alias,
             signMode = SignMode.DOCUMENT,
             signatureConfiguration = signatureConfiguration
@@ -128,10 +155,10 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
         assertEquals(signatureData.keyEntry.certificate!!.fingerPrint, signatureDigest.keyEntry.certificate!!.fingerPrint)
         assertEquals(signatureData.keyEntry.certificateChain!![3].fingerPrint, signatureDigest.keyEntry.certificateChain!![3].fingerPrint)
 
-        val signOutputData = signingService.sign(origData, signatureData, signatureConfiguration)
+        val signOutputData = signingService.sign(pdfData, signatureData, signatureConfiguration)
         assertNotNull(signOutputData)
 
-        val signOutputDigest = signingService.sign(origData, signatureDigest, signatureConfiguration)
+        val signOutputDigest = signingService.sign(pdfData, signatureDigest, signatureConfiguration)
         assertNotNull(signOutputDigest)
 
 
@@ -172,13 +199,13 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
 
         val diagData = documentValidator.diagnosticData
         assertEquals(1, diagData.signatures.size)
-        assertEquals(4, diagData.usedCertificates.size)
+        assertEquals(6, diagData.usedCertificates.size)
 
         assertContentEquals(signatureDigest.value, documentValidator.signatures.first().signatureValue)
         val origDoc = documentValidator.getOriginalDocuments(documentValidator.signatures.first()).first()
         ByteArrayOutputStream().use { baos ->
             origDoc.writeTo(baos)
-            assertContentEquals(origData.value, baos.toByteArray())
+            assertContentEquals(pdfData.value, baos.toByteArray())
         }
 
     }

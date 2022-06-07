@@ -71,12 +71,13 @@ open class KeySignatureService(val certificateProvider: ICertificateProviderServ
         val toSign = InMemoryDocument(origData.value, origData.name)
         val signatureParameters =
             signatureConfiguration.signatureParameters.toDSS(
+                timestampParameters = signatureConfiguration.timestampParameters,
                 key = keyEntry
             )
 
         val toBeSigned = when (signatureConfiguration.signatureParameters.signatureForm()) {
             SignatureForm.CAdES -> adESService.toCAdESService().getDataToSign(toSign, signatureParameters as CAdESSignatureParameters)
-            SignatureForm.PAdES -> adESService.toPAdESService().getDataToSign(toSign, signatureParameters as PAdESSignatureParameters)
+            SignatureForm.PAdES -> adESService.toPAdESService(signatureConfiguration.timestampParameters).getDataToSign(toSign, signatureParameters as PAdESSignatureParameters)
             SignatureForm.PKCS7 -> adESService.toPKCS7Service().getDataToSign(toSign, signatureParameters as PKCS7SignatureParameters)
             SignatureForm.DIGEST -> ToBeSigned(origData.value)
             else -> throw SigningException("Determining sign input using signature form ${signatureConfiguration.signatureParameters.signatureForm()} not support")
@@ -97,16 +98,21 @@ open class KeySignatureService(val certificateProvider: ICertificateProviderServ
     override fun sign(origData: OrigData, signature: Signature, signatureConfiguration: SignatureConfiguration): SignOutput {
         val adESService = AdESServiceFactory.getService(signatureConfiguration)
         val signatureParameters =
-            signatureConfiguration.signatureParameters.toDSS(key = signature.keyEntry, signatureAlg = signature.algorithm)
+            signatureConfiguration.signatureParameters.toDSS(
+                key = signature.keyEntry,
+                signatureAlg = signature.algorithm,
+                timestampParameters = signatureConfiguration.timestampParameters
+            )
 
         val toSign = InMemoryDocument(origData.value, origData.name)
+        val signatureAlgorithm = signatureConfiguration.signatureParameters.getSignatureAlgorithm()
         val dssDocument = when (signatureConfiguration.signatureParameters.signatureForm()) {
             SignatureForm.CAdES -> adESService.toCAdESService()
-                .signDocument(toSign, signatureParameters as CAdESSignatureParameters, signature.toDSS())
-            SignatureForm.PAdES -> adESService.toPAdESService()
-                .signDocument(toSign, signatureParameters as PAdESSignatureParameters, signature.toDSS())
+                .signDocument(toSign, signatureParameters as CAdESSignatureParameters, signature.toDSS(signatureAlgorithm))
+            SignatureForm.PAdES -> adESService.toPAdESService(signatureConfiguration.timestampParameters)
+                .signDocument(toSign, signatureParameters as PAdESSignatureParameters, signature.toDSS(signatureAlgorithm))
             SignatureForm.PKCS7 -> adESService.toPKCS7Service()
-                .signDocument(toSign, signatureParameters as PKCS7SignatureParameters, signature.toDSS())
+                .signDocument(toSign, signatureParameters as PKCS7SignatureParameters, signature.toDSS(signatureAlgorithm))
             else -> throw SigningException("Signing using signature form ${signatureConfiguration.signatureParameters.signatureForm()} not support")
         }
 

@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "com.sphereon.vdx"
-version = "0.2.0-SNAPSHOT"
+version = "0.9.0-SNAPSHOT"
 
 
 kotlin {
@@ -75,7 +75,7 @@ kotlin {
                 implementation("eu.europa.ec.joinup.sd-dss:dss-pades-pdfbox:$dssVersion")
                 implementation("org.bouncycastle:bcprov-debug-jdk18on:$bcVersion")
                 implementation("javax.cache:cache-api:1.1.1")
-                implementation("jakarta.xml.bind:jakarta.xml.bind-api:2.3.3")
+                implementation("jakarta.xml.bind:jakarta.xml.bind-api:3.0.1")
                 implementation("org.glassfish.jaxb:jaxb-runtime:2.3.3")
 
                 implementation("io.github.microutils:kotlin-logging-jvm:2.1.23")

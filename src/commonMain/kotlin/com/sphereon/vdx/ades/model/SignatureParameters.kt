@@ -2,6 +2,7 @@ package com.sphereon.vdx.ades.model
 
 import com.sphereon.vdx.ades.Base64Serializer
 import com.sphereon.vdx.ades.enums.*
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 
 @kotlinx.serialization.Serializable
@@ -85,7 +86,7 @@ data class SignatureParameters(
 
     val signatureFormParameters: SignatureFormParameters? = null,
 
-    val timestampParameters: TimestampParameters? = null
+//    val timestampParameters: TimestampParameters? = null
 
 
 //    /**
@@ -167,7 +168,7 @@ data class Pkcs7SignatureFormParameters(
      * - APPROVAL can be applied multiple times. This is what typically is being used for people signing the document. It is comparable to a user signing a paper based document.
      * The signature shows the name and additional information. Optionally showing an image of the signature. Clickable to show more information
      */
-    val mode: PdfSignatureMode? = PdfSignatureMode.APPROVAL,
+    val mode: PdfSignatureMode = PdfSignatureMode.APPROVAL,
 
     /**
      * This attribute allows to explicitly specify the SignerName (name for the entity signing).
@@ -209,13 +210,13 @@ data class Pkcs7SignatureFormParameters(
     /**
      * This attribute is used to create visible signature
      */
-    val signatureImageParameters: SignatureImageParameters? = null,
+    val visualSignatureParameters: VisualSignatureParameters? = null,
 
     /**
      * This attribute allows to set permissions in case of a "certification signature". That allows to protect for
      * future change(s).
      */
-    val permission: CertificationPermission? = null,
+    val certificationPermission: CertificationPermission? = null,
 
     /**
      * Password used to encrypt a PDF
@@ -225,9 +226,9 @@ data class Pkcs7SignatureFormParameters(
     /**
      * The time-zone used for signature creation
      *
-     * Default: TimeZone.getDefault()
+     * Default: Default timezone of the system
      */
-//    val signingTimeZone: java.util.TimeZone =        java.util.TimeZone.getDefault(),
+    val signingTimeZone: String? = null
 
 
 )
@@ -238,6 +239,16 @@ enum class PdfSignatureMode {
 
 @kotlinx.serialization.Serializable
 data class PadesSignatureFormParameters(
+    /**
+     * The signature mode, according to the PDF spec. Either needs to be APPROVAL or CERTIFICATION.
+     *
+     * - CERTIFICATION can only be applied once to a PDF document. It acts like a seal, which typically is organization or department wide.
+     * A blue bar will appear with name of the signer, the company and the CA that issued the Certificate
+     * - APPROVAL can be applied multiple times. This is what typically is being used for people signing the document. It is comparable to a user signing a paper based document.
+     * The signature shows the name and additional information. Optionally showing an image of the signature. Clickable to show more information
+     */
+    val mode: PdfSignatureMode = PdfSignatureMode.APPROVAL,
+
     /**
      * This attribute allows to explicitly specify the SignerName (name for the Signature).
      * The person or authority signing the document.
@@ -278,13 +289,13 @@ data class PadesSignatureFormParameters(
     /**
      * This attribute is used to create visible signature in PAdES form
      */
-    val signatureImageParameters: SignatureImageParameters? = null,
+    val visualSignatureParameters: VisualSignatureParameters? = null,
 
     /**
      * This attribute allows to create a "certification signature". That allows to remove permission(s) in case of
      * future change(s).
      */
-    val permission: CertificationPermission? = null,
+    val certificationPermission: CertificationPermission? = null,
 
     /**
      * Password used to encrypt a PDF
@@ -294,25 +305,25 @@ data class PadesSignatureFormParameters(
     /**
      * The time-zone used for signature creation
      *
-     * Default: TimeZone.getDefault()
+     * Default: Timezone of the signing system
      */
-//    val signingTimeZone: java.util.TimeZone =        java.util.TimeZone.getDefault(),
+    val signingTimeZone: String? = null,
 
 
     /** Defines if the signature shall be created according ti ETSI EN 319 122  */
     val en319122: Boolean? = true,
 
-    /** Content Hints type  */
+  /*  *//** Content Hints type  *//*
     val contentHintsType: String? = null,
 
-    /** Content Hints description  */
+    *//** Content Hints description  *//*
     val contentHintsDescription: String? = null,
 
-    /** Content identifier prefix  */
+    *//** Content identifier prefix  *//*
     val contentIdentifierPrefix: String? = null,
 
-    /** Content identifier suffix  */
-    val contentIdentifierSuffix: String? = null
+    *//** Content identifier suffix  *//*
+    val contentIdentifierSuffix: String? = null*/
 
 )
 
@@ -346,6 +357,7 @@ data class XadesSignatureFormParameters(
 
 @kotlinx.serialization.Serializable
 data class TimestampParameters(
+    val tsaUrl: String,
     /**
      * This object represents the list of content timestamps to be added into the signature.
      */
@@ -354,17 +366,17 @@ data class TimestampParameters(
     /**
      * The object represents the parameters related to the content timestamp (Baseline-B)
      */
-    val contentTimestampParameters: TimestampParameterSettings? = null,
+    val baselineBContentTimestampParameters: TimestampParameterSettings? = null,
 
     /**
      * The object represents the parameters related to the signature timestamp (Baseline-T)
      */
-    val signatureTimestampParameters: TimestampParameterSettings? = null,
+    val baselineTSignatureTimestampParameters: TimestampParameterSettings? = null,
 
     /**
      * The object represents the parameters related to the archive timestamp (Baseline-LTA)
      */
-    val archiveTimestampParameters: TimestampParameterSettings? = null,
+    val baselineLTAArchiveTimestampParameters: TimestampParameterSettings? = null,
 )
 
 @kotlinx.serialization.Serializable
@@ -372,7 +384,7 @@ data class BLevelParams(
     val trustAnchorBPPolicy: Boolean? = true,
 
     /** The claimed signing time  */
-    val signingDate: Instant,
+    val signingDate: Instant? = Clock.System.now(),
 
     /** The claimed signer roles  */
     val claimedSignerRoles: List<String>? = null,
@@ -462,17 +474,17 @@ data class BLevelParams(
 
 
 @kotlinx.serialization.Serializable
-data class SignatureImageParameters(
+data class VisualSignatureParameters(
 
     /**
      * This variable contains the image to use (company logo,...)
      */
-    val image: ByteArray? = null,
+    val image: OrigData? = null,
 
     /**
      * This variable defines a `SignatureFieldParameters` like field positions and dimensions
      */
-    val fieldParameters: SignatureFieldParameters? = null,
+    val fieldParameters: VisualSignatureFieldParameters? = null,
 
     /**
      * This variable defines a percent to zoom the image (100% means no scaling).
@@ -516,18 +528,15 @@ data class SignatureImageParameters(
     /**
      * This variable is use to defines the text to generate on the image
      */
-    val textParameters: SignatureImageTextParameters? = null
+    val textParameters: VisualSignatureTextParameters? = null
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
 
-        other as SignatureImageParameters
+        other as VisualSignatureParameters
 
-        if (image != null) {
-            if (other.image == null) return false
-            if (!image.contentEquals(other.image)) return false
-        } else if (other.image != null) return false
+        if (image != other.image) return false
         if (fieldParameters != other.fieldParameters) return false
         if (zoom != other.zoom) return false
         if (backgroundColor != other.backgroundColor) return false
@@ -542,7 +551,7 @@ data class SignatureImageParameters(
     }
 
     override fun hashCode(): Int {
-        var result = image?.contentHashCode() ?: 0
+        var result = image?.hashCode() ?: 0
         result = 31 * result + (fieldParameters?.hashCode() ?: 0)
         result = 31 * result + zoom
         result = 31 * result + (backgroundColor?.hashCode() ?: 0)
@@ -557,7 +566,7 @@ data class SignatureImageParameters(
 }
 
 @kotlinx.serialization.Serializable
-data class SignatureFieldParameters(
+data class VisualSignatureFieldParameters(
     /** Signature field id/name (optional)  */
     val fieldId: String? = null,
 
@@ -582,7 +591,7 @@ data class SignatureFieldParameters(
  *
  */
 @kotlinx.serialization.Serializable
-data class SignatureImageTextParameters(
+data class VisualSignatureTextParameters(
     /**
      * This variable allows to add signer name on the image (by default, LEFT)
      */
@@ -605,7 +614,7 @@ data class SignatureImageTextParameters(
     /**
      * This variable defines the text to sign
      */
-    val text: String? = null,
+    val text: String,
 
     /**
      * This variable defines the font to use

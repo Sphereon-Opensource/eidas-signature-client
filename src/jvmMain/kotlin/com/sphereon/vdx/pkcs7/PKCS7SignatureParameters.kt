@@ -13,21 +13,21 @@ import org.apache.pdfbox.pdmodel.interactive.digitalsignature.PDSignature
 import java.util.Date
 import java.util.TimeZone
 
-class PKCS7SignatureParameters : CAdESSignatureParameters(), PAdESCommonParameters {
+class PKCS7SignatureParameters() : CAdESSignatureParameters(), PAdESCommonParameters {
 
     var reason: String? = null
     var contactInfo: String? = null
     var location: String? = null
     var signerName: String? = null
     var permission: CertificationPermission? = null
-    var signatureMode: PdfSignatureMode = PdfSignatureMode.APPROVAL
+    var signatureMode: PdfSignatureMode? = PdfSignatureMode.APPROVAL
+    var signingTimeZone :TimeZone? = TimeZone.getDefault()
 
+    var signatureImageParameters: SignatureImageParameters? = null
+    private var passwordProtection: String? = null
     private val signatureSize = 9472
     private val signatureFilter = PDSignature.FILTER_ADOBE_PPKLITE
     private val signatureSubFilter = PDSignature.SUBFILTER_ADBE_PKCS7_DETACHED
-    private var signatureImageParameters: SignatureImageParameters? = null
-    private val passwordProtection: String? = null
-    private val signingTimeZone = TimeZone.getDefault()
 
     override fun setSignatureLevel(signatureLevel: SignatureLevel?) {
         if (signatureLevel != null && SignatureForm.PKCS7 == signatureLevel.signatureForm) {

@@ -2,26 +2,19 @@ package com.sphereon.vdx.ades.sign.util
 
 import com.sphereon.vdx.ades.SignClientException
 import com.sphereon.vdx.ades.SigningException
-import com.sphereon.vdx.ades.enums.CryptoAlg
-import com.sphereon.vdx.ades.enums.DigestAlg
-import com.sphereon.vdx.ades.enums.MaskGenFunction
-import com.sphereon.vdx.ades.enums.SignMode
-import com.sphereon.vdx.ades.enums.SignatureAlg
+import com.sphereon.vdx.ades.enums.*
+import com.sphereon.vdx.ades.enums.ImageScaling
 import com.sphereon.vdx.ades.enums.SignatureForm
 import com.sphereon.vdx.ades.enums.SignatureLevel
 import com.sphereon.vdx.ades.enums.SignaturePackaging
-import com.sphereon.vdx.ades.model.Certificate
-import com.sphereon.vdx.ades.model.IKeyEntry
-import com.sphereon.vdx.ades.model.IPrivateKeyEntry
-import com.sphereon.vdx.ades.model.Key
-import com.sphereon.vdx.ades.model.KeyEntry
-import com.sphereon.vdx.ades.model.KeystoreParameters
-import com.sphereon.vdx.ades.model.PasswordInputCallback
-import com.sphereon.vdx.ades.model.Pkcs11Parameters
-import com.sphereon.vdx.ades.model.PrivateKeyEntry
-import com.sphereon.vdx.ades.model.SignInput
-import com.sphereon.vdx.ades.model.Signature
-import com.sphereon.vdx.ades.model.SignatureParameters
+import com.sphereon.vdx.ades.enums.SignerTextHorizontalAlignment
+import com.sphereon.vdx.ades.enums.SignerTextPosition
+import com.sphereon.vdx.ades.enums.SignerTextVerticalAlignment
+import com.sphereon.vdx.ades.enums.TextWrapping
+import com.sphereon.vdx.ades.enums.VisualSignatureAlignmentHorizontal
+import com.sphereon.vdx.ades.enums.VisualSignatureAlignmentVertical
+import com.sphereon.vdx.ades.enums.VisualSignatureRotation
+import com.sphereon.vdx.ades.model.*
 import com.sphereon.vdx.ades.pki.AzureKeyvaultClientConfig
 import com.sphereon.vdx.ades.pki.AzureKeyvaultTokenConnection
 import com.sphereon.vdx.ades.pki.DSSWrappedKeyEntry
@@ -31,28 +24,23 @@ import eu.europa.esig.dss.AbstractSignatureParameters
 import eu.europa.esig.dss.cades.CAdESSignatureParameters
 import eu.europa.esig.dss.cades.signature.CAdESService
 import eu.europa.esig.dss.cades.signature.CAdESTimestampParameters
-import eu.europa.esig.dss.enumerations.DigestAlgorithm
-import eu.europa.esig.dss.enumerations.EncryptionAlgorithm
-import eu.europa.esig.dss.enumerations.MaskGenerationFunction
-import eu.europa.esig.dss.enumerations.SignatureAlgorithm
+import eu.europa.esig.dss.enumerations.*
+import eu.europa.esig.dss.enumerations.CertificationPermission
 import eu.europa.esig.dss.jades.signature.JAdESService
-import eu.europa.esig.dss.model.BLevelParameters
-import eu.europa.esig.dss.model.Digest
-import eu.europa.esig.dss.model.SerializableTimestampParameters
-import eu.europa.esig.dss.model.SignatureValue
-import eu.europa.esig.dss.model.SignerLocation
+import eu.europa.esig.dss.model.*
 import eu.europa.esig.dss.model.TimestampParameters
-import eu.europa.esig.dss.model.ToBeSigned
 import eu.europa.esig.dss.model.x509.CertificateToken
-import eu.europa.esig.dss.pades.PAdESSignatureParameters
-import eu.europa.esig.dss.pades.PAdESTimestampParameters
+import eu.europa.esig.dss.pades.*
 import eu.europa.esig.dss.pades.signature.PAdESService
+import eu.europa.esig.dss.service.tsp.OnlineTSPSource
 import eu.europa.esig.dss.signature.AbstractSignatureService
 import eu.europa.esig.dss.token.DSSPrivateKeyEntry
 import eu.europa.esig.dss.token.KSPrivateKeyEntry
 import eu.europa.esig.dss.token.Pkcs11SignatureToken
 import eu.europa.esig.dss.token.Pkcs12SignatureToken
 import kotlinx.datetime.toJavaInstant
+import java.awt.Color
+import java.lang.reflect.Field
 import java.security.KeyFactory
 import java.security.KeyStore
 import java.security.KeyStore.PasswordProtection
@@ -183,9 +171,7 @@ fun Pkcs11Parameters.toPkcs11SignatureToken(): Pkcs11SignatureToken {
 
 fun PasswordInputCallback.toDSS(): PasswordProtection {
     return if (this.protectionParameters == null) PasswordProtection(this.password) else PasswordProtection(
-        password,
-        protectionAlgorithm,
-        protectionParameters as AlgorithmParameterSpec?
+        password, protectionAlgorithm, protectionParameters as AlgorithmParameterSpec?
     )
 
 }
@@ -218,10 +204,7 @@ fun SignatureValue.toRaw(): SignatureValue {
 
 fun SignatureValue.fromDSS(signMode: SignMode, keyEntry: IKeyEntry): Signature {
     return Signature(
-        value = this.value,
-        signMode = signMode,
-        algorithm = this.algorithm.fromDSS(),
-        keyEntry = keyEntry
+        value = this.value, signMode = signMode, algorithm = this.algorithm.fromDSS(), keyEntry = keyEntry
     )
 }
 
@@ -242,69 +225,171 @@ fun AbstractSignatureService<out AbstractSignatureParameters<out TimestampParame
     return this as JAdESService
 }
 
-fun AbstractSignatureService<out AbstractSignatureParameters<out TimestampParameters>, out TimestampParameters>.toPAdESService(): PAdESService {
-    return this as PAdESService
+fun AbstractSignatureService<out AbstractSignatureParameters<out TimestampParameters>, out TimestampParameters>.toPAdESService(
+    timestampParameters: com.sphereon.vdx.ades.model.TimestampParameters?
+): PAdESService {
+    val padesService = this as PAdESService
+    if (timestampParameters != null) {
+        padesService.setTspSource(OnlineTSPSource(timestampParameters.tsaUrl))
+    }
+
+    return padesService
 }
 
 fun AbstractSignatureService<out AbstractSignatureParameters<out TimestampParameters>, out TimestampParameters>.toPKCS7Service(): PKCS7Service {
     return this as PKCS7Service
 }
 
+fun OrigData.toDSSDocument(): DSSDocument {
+    return InMemoryDocument(this.value, name, MimeType.fromMimeTypeString(mimeType))
+}
+
+fun VisualSignatureParameters.toDSS(): SignatureImageParameters {
+    val parameters = SignatureImageParameters()
+
+    parameters.image = image?.toDSSDocument()
+    parameters.fieldParameters = fieldParameters?.toDSS()
+    parameters.textParameters = textParameters?.toDSS()
+    parameters.dpi = dpi
+    parameters.textParameters = textParameters?.toDSS()
+    parameters.imageScaling = imageScaling?.toDSS()
+    parameters.backgroundColor = stringToColor(backgroundColor, Color.WHITE)
+    parameters.rotation = rotation?.toDSS()
+    parameters.zoom = zoom
+    if (alignmentHorizontal != null) {
+        parameters.setAlignmentHorizontal(alignmentHorizontal.toDSS())
+    }
+    if (alignmentVertical != null) {
+        parameters.setAlignmentVertical(alignmentVertical.toDSS())
+    }
+    return parameters
+}
+
+
+fun VisualSignatureTextParameters.toDSS(): SignatureImageTextParameters {
+    val parameters = SignatureImageTextParameters()
+    parameters.text = text
+
+    // TODO: font!
+    parameters.backgroundColor = stringToColor(backgroundColor, Color.WHITE)
+    parameters.padding = padding
+    parameters.signerTextHorizontalAlignment = signerTextHorizontalAlignment.toDSS()
+    parameters.signerTextVerticalAlignment = signerTextVerticalAlignment.toDSS()
+    parameters.signerTextPosition = signerTextPosition.toDSS()
+    parameters.textColor = stringToColor(textColor, Color.BLACK)
+    parameters.textWrapping = textWrapping.toDSS()
+
+    return parameters
+}
+
+private fun stringToColor(value: String?, defaultValue: Color): Color? {
+    return if (value == null) {
+        defaultValue
+    } else try {
+        // get color by hex or octal value
+        Color.decode(value)
+    } catch (nfe: NumberFormatException) {
+        // if we can't decode lets try to get it by name
+        try {
+            // try to get a color by name using reflection
+            val f: Field = Color::class.java.getField(value.lowercase())
+            f.get(null) as Color
+        } catch (ce: Exception) {
+            // if we can't get any color return black
+            defaultValue
+        }
+    }
+}
+
+fun VisualSignatureFieldParameters.toDSS(): SignatureFieldParameters {
+    val parameters = SignatureFieldParameters()
+    parameters.height = height
+    parameters.width = width
+    parameters.fieldId = fieldId
+    parameters.originX = originX
+    parameters.originY = originY
+    parameters.page = page
+    return parameters
+}
+
+fun ImageScaling.toDSS(): eu.europa.esig.dss.enumerations.ImageScaling {
+    return eu.europa.esig.dss.enumerations.ImageScaling.valueOf(this.name)
+}
+
+fun VisualSignatureRotation.toDSS(): eu.europa.esig.dss.enumerations.VisualSignatureRotation {
+    return eu.europa.esig.dss.enumerations.VisualSignatureRotation.valueOf(name)
+}
+
+fun VisualSignatureAlignmentHorizontal.toDSS(): eu.europa.esig.dss.enumerations.VisualSignatureAlignmentHorizontal {
+    return eu.europa.esig.dss.enumerations.VisualSignatureAlignmentHorizontal.valueOf(name)
+}
+
+fun VisualSignatureAlignmentVertical.toDSS(): eu.europa.esig.dss.enumerations.VisualSignatureAlignmentVertical {
+    return eu.europa.esig.dss.enumerations.VisualSignatureAlignmentVertical.valueOf(name)
+}
+
+fun SignerTextHorizontalAlignment.toDSS(): eu.europa.esig.dss.enumerations.SignerTextHorizontalAlignment {
+    return eu.europa.esig.dss.enumerations.SignerTextHorizontalAlignment.valueOf(name)
+}
+
+fun SignerTextVerticalAlignment.toDSS(): eu.europa.esig.dss.enumerations.SignerTextVerticalAlignment {
+    return eu.europa.esig.dss.enumerations.SignerTextVerticalAlignment.valueOf(name)
+}
+
+fun SignerTextPosition.toDSS(): eu.europa.esig.dss.enumerations.SignerTextPosition {
+    return eu.europa.esig.dss.enumerations.SignerTextPosition.valueOf(name)
+}
+
+fun TextWrapping.toDSS(): eu.europa.esig.dss.enumerations.TextWrapping {
+    return eu.europa.esig.dss.enumerations.TextWrapping.valueOf(name)
+}
 
 fun SignatureParameters.toDSS(
-    key: IKeyEntry,
-    signedData: ByteArray? = null,
-    signatureAlg: SignatureAlg? = null
+    key: IKeyEntry, signedData: ByteArray? = null, signatureAlg: SignatureAlg? = null, timestampParameters: com.sphereon.vdx.ades.model.TimestampParameters?
 ): AbstractSignatureParameters<out SerializableTimestampParameters> {
     return when (signatureForm()) {
-        SignatureForm.CAdES -> toCades(key, signedData, signatureAlg)
-        SignatureForm.PAdES -> toPades(key, signedData, signatureAlg)
-        SignatureForm.PKCS7 -> toPKCS7(certificate, certificateChain)
+        SignatureForm.CAdES -> toCades(key, signedData, signatureAlg, timestampParameters)
+        SignatureForm.PAdES -> toPades(key, signedData, signatureAlg, timestampParameters)
+        SignatureForm.PKCS7 -> toPKCS7(key, signedData, signatureAlg, timestampParameters)
         else -> throw SigningException("Encryption algorithm $encryptionAlgorithm not supported yet")
     }
 }
 
 fun SignatureParameters.toCades(
-    key: IKeyEntry,
-    signedData: ByteArray? = null,
-    signatureAlg: SignatureAlg? = null
+    key: IKeyEntry, signedData: ByteArray? = null, signatureAlg: SignatureAlg? = null, timestampParameters: com.sphereon.vdx.ades.model.TimestampParameters?
 ): CAdESSignatureParameters {
     if (signatureForm() != SignatureForm.CAdES) throw SigningException("Cannot convert to cades signature parameters when signature form is ${signatureForm()}")
-    return mapCadesSignatureParams(this, key, signedData, signatureAlg)
+    return mapCadesSignatureParams(this, key, signedData, signatureAlg, timestampParameters)
 }
 
 fun SignatureParameters.toPades(
-    key: IKeyEntry,
-    signedData: ByteArray? = null,
-    signatureAlg: SignatureAlg? = null
+    key: IKeyEntry, signedData: ByteArray? = null, signatureAlg: SignatureAlg? = null, timestampParameters: com.sphereon.vdx.ades.model.TimestampParameters?
 ): PAdESSignatureParameters {
     if (signatureForm() != SignatureForm.PAdES) throw SigningException("Cannot convert to pades signature parameters when signature form is ${signatureForm()}")
-    return mapPadesSignatureParams(this, key, signedData, signatureAlg)
+    return mapPadesSignatureParams(this, key, signedData, signatureAlg, timestampParameters)
 }
 
 fun mapPadesSignatureParams(
     signatureParameters: SignatureParameters,
     key: IKeyEntry,
     signedData: ByteArray? = null,
-    signatureAlg: SignatureAlg? = null
+    signatureAlg: SignatureAlg? = null,
+    timestampParameters: com.sphereon.vdx.ades.model.TimestampParameters?
 ): PAdESSignatureParameters {
     val dssParams = PAdESSignatureParameters()
-//    dssParams.contentTimestampParameters = PAdESTimestampParameters()
-//    dssParams.signatureTimestampParameters = PAdESTimestampParameters()
-//    dssParams.archiveTimestampParameters = PAdESTimestampParameters()
 
-//    mapTimestampParams(dssParams, signatureParameters)
+    mapTimestampParams(dssParams, signatureForm = signatureParameters.signatureForm(), timestampParameters = timestampParameters)
     mapBlevelParams(dssParams.bLevel(), signatureParameters)
     mapGenericSignatureParams(dssParams, signatureParameters, key, signedData, signatureAlg)
     dssParams.isEn319122 = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.en319122 ?: true
-    dssParams.contentHintsDescription = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.contentHintsDescription
-    dssParams.contentHintsType = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.contentHintsType
-    dssParams.contentIdentifierPrefix = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.contentIdentifierPrefix
-    dssParams.contentIdentifierSuffix = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.contentIdentifierSuffix
+//    dssParams.contentHintsDescription = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.contentHintsDescription
+//    dssParams.contentHintsType = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.contentHintsType
+//    dssParams.contentIdentifierPrefix = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.contentIdentifierPrefix
+//    dssParams.contentIdentifierSuffix = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.contentIdentifierSuffix
 
     dssParams.permission =
-        if (signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.permission != null) eu.europa.esig.dss.enumerations.CertificationPermission.valueOf(
-            signatureParameters.signatureFormParameters.padesSignatureFormParameters.permission.name
+        if (signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.certificationPermission != null) eu.europa.esig.dss.enumerations.CertificationPermission.valueOf(
+            signatureParameters.signatureFormParameters.padesSignatureFormParameters.certificationPermission.name
         ) else null
     dssParams.signerName = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.signerName
     dssParams.contactInfo = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.contactInfo
@@ -312,7 +397,18 @@ fun mapPadesSignatureParams(
     dssParams.reason = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.reason
     dssParams.filter = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.signatureFilter
     dssParams.subFilter = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.signatureSubFilter
-//    dssParams.signingTimeZone = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.
+    dssParams.contentSize = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.signatureSize ?: 9472
+
+    dssParams.imageParameters = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.visualSignatureParameters?.toDSS()
+
+    if (signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.mode != PdfSignatureMode.CERTIFICATION && dssParams.permission != null) {
+        throw SigningException("Cannot set certification permissions when mode is not set to Certification")
+    } else if (signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.mode == PdfSignatureMode.CERTIFICATION && dssParams.permission == null) {
+        dssParams.permission = CertificationPermission.MINIMAL_CHANGES_PERMITTED
+    }
+    signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.signingTimeZone?.let {
+        dssParams.signingTimeZone = TimeZone.getTimeZone(it)
+    }
 
     return dssParams
 }
@@ -323,9 +419,7 @@ fun mapBlevelParams(dssbLevelParams: BLevelParameters, signatureParameters: Sign
         signingDate = if (bLevelParameters.signingDate != null) Date.from(bLevelParameters.signingDate.toJavaInstant()) else null
         isTrustAnchorBPPolicy = bLevelParameters.trustAnchorBPPolicy == true
         claimedSignerRoles = bLevelParameters.claimedSignerRoles
-        if (bLevelParameters.signerLocationCountry != null || bLevelParameters.signerLocationLocality != null || bLevelParameters.signerLocationStreet != null ||
-            bLevelParameters.signerLocationPostalAddress != null || bLevelParameters.signerLocationPostalCode != null || bLevelParameters.signerLocationStateOrProvince != null
-        ) {
+        if (bLevelParameters.signerLocationCountry != null || bLevelParameters.signerLocationLocality != null || bLevelParameters.signerLocationStreet != null || bLevelParameters.signerLocationPostalAddress != null || bLevelParameters.signerLocationPostalCode != null || bLevelParameters.signerLocationStateOrProvince != null) {
             val location = SignerLocation()
             with(location) {
                 country = bLevelParameters.signerLocationCountry
@@ -344,17 +438,14 @@ fun mapBlevelParams(dssbLevelParams: BLevelParameters, signatureParameters: Sign
 }
 
 fun mapCadesSignatureParams(
-    signatureParameters: SignatureParameters,
-    key: IKeyEntry,
-    signedData: ByteArray? = null,
-    signatureAlg: SignatureAlg? = null
+    signatureParameters: SignatureParameters, key: IKeyEntry, signedData: ByteArray? = null, signatureAlg: SignatureAlg? = null, timestampParameters: com.sphereon.vdx.ades.model.TimestampParameters?
 ): CAdESSignatureParameters {
     val dssParams = CAdESSignatureParameters()
     dssParams.contentTimestampParameters = CAdESTimestampParameters()
     dssParams.signatureTimestampParameters = CAdESTimestampParameters()
     dssParams.archiveTimestampParameters = CAdESTimestampParameters()
 
-    mapTimestampParams(dssParams, signatureParameters)
+    mapTimestampParams(dssParams, signatureParameters.signatureForm(), timestampParameters)
     mapGenericSignatureParams(dssParams, signatureParameters, key, signedData, signatureAlg)
     mapBlevelParams(dssParams.bLevel(), signatureParameters)
     dssParams.isEn319122 = signatureParameters.signatureFormParameters?.cadesSignatureFormParameters?.en319122 ?: true
@@ -408,58 +499,82 @@ fun mapGenericSignatureParams(
 
 fun mapTimestampParams(
     dssParams: AbstractSignatureParameters<out SerializableTimestampParameters>,
-    signatureParameters: SignatureParameters,
+    signatureForm: SignatureForm,
+    timestampParameters: com.sphereon.vdx.ades.model.TimestampParameters?,
 ) {
-    if (signatureParameters.timestampParameters?.contentTimestampParameters != null) {
-        ((dssParams.contentTimestampParameters) as TimestampParameters).digestAlgorithm =
-            signatureParameters.timestampParameters.contentTimestampParameters.digestAlgorithm.toDSS()
+    val pades = signatureForm == SignatureForm.PAdES
+    timestampParameters?.baselineBContentTimestampParameters?.apply {
+        val tsParams = initTimestampParameters(pades)
+        tsParams.digestAlgorithm = timestampParameters.baselineBContentTimestampParameters.digestAlgorithm.toDSS()
+        if (pades && visualSignatureParameters != null)
+            (tsParams as PAdESTimestampParameters).imageParameters = visualSignatureParameters.toDSS()
     }
-    if (signatureParameters.timestampParameters?.archiveTimestampParameters != null) {
-        ((dssParams.archiveTimestampParameters) as TimestampParameters).digestAlgorithm =
-            signatureParameters.timestampParameters.archiveTimestampParameters.digestAlgorithm.toDSS()
+    timestampParameters?.baselineTSignatureTimestampParameters?.apply {
+        val tsParams = initTimestampParameters(pades)
+        tsParams.digestAlgorithm = timestampParameters.baselineTSignatureTimestampParameters.digestAlgorithm.toDSS()
+        dssParams.signatureTimestampParameters = tsParams
     }
-    if (signatureParameters.timestampParameters?.signatureTimestampParameters != null) {
-        ((dssParams.signatureTimestampParameters) as TimestampParameters).digestAlgorithm =
-            signatureParameters.timestampParameters.signatureTimestampParameters.digestAlgorithm.toDSS()
+    timestampParameters?.baselineLTAArchiveTimestampParameters?.apply {
+        val tsParams = initTimestampParameters(pades)
+        tsParams.digestAlgorithm = timestampParameters.baselineLTAArchiveTimestampParameters.digestAlgorithm.toDSS()
+        dssParams.archiveTimestampParameters = tsParams
     }
+    /*dssParams.contentTimestamps
+    if (signatureParameters.timestampParameters?.contentTimestamps?.isNotEmpty() == true) {
+        signatureParameters.timestampParameters.contentTimestamps.map {  }
+
+    }*/
+
 
 }
 
+private fun initTimestampParameters(pades: Boolean) = if (pades) PAdESTimestampParameters().also { it.contentSize = 12314 } else CAdESTimestampParameters()
+
 fun SignatureParameters.toPKCS7(
-    certificate: Certificate? = null,
-    certificateChain: List<Certificate>? = null
+    key: IKeyEntry,
+    signedData: ByteArray?,
+    signatureAlg: SignatureAlg?,
+    timestampParameters: com.sphereon.vdx.ades.model.TimestampParameters?
 ): PKCS7SignatureParameters {
     if (signatureForm() != SignatureForm.PKCS7) throw SigningException("Cannot convert to PKCS7 signature parameters when signature form is ${signatureForm()}")
-    return mapPKCSSignatureParams(this, certificate, certificateChain)
+    return mapPKCSSignatureParams(this, key, signedData, signatureAlg, timestampParameters)
 }
 
 fun mapPKCSSignatureParams(
     signatureParameters: SignatureParameters,
-    certificate: Certificate? = null,
-    certificateChain: List<Certificate>? = null
+    key: IKeyEntry,
+    signedData: ByteArray?,
+    signatureAlg: SignatureAlg?,
+    timestampParameters: com.sphereon.vdx.ades.model.TimestampParameters?
 ): PKCS7SignatureParameters {
     val dssParams = PKCS7SignatureParameters()
     dssParams.contentTimestampParameters = PAdESTimestampParameters()
     dssParams.signatureTimestampParameters = PAdESTimestampParameters()
     dssParams.archiveTimestampParameters = PAdESTimestampParameters()
 
-    mapTimestampParams(dssParams, signatureParameters)
-    mapGenericSignatureParams(dssParams, signatureParameters, certificate, certificateChain)
+    mapTimestampParams(dssParams, signatureParameters.signatureForm(), timestampParameters)
+    mapGenericSignatureParams(dssParams, signatureParameters, key)
 
-    signatureParameters.signatureFormParameters?.let {
+    signatureParameters.signatureFormParameters?.let { it ->
         it.pkcs7SignatureFormParameters?.let { formParameters ->
             dssParams.contactInfo = formParameters.contactInfo
             dssParams.location = formParameters.location
             dssParams.permission =
-                if (formParameters.permission != null) eu.europa.esig.dss.enumerations.CertificationPermission.valueOf(
-                    formParameters.permission.name
+                if (formParameters.certificationPermission != null) eu.europa.esig.dss.enumerations.CertificationPermission.valueOf(
+                    formParameters.certificationPermission.name
                 ) else null
             dssParams.reason = formParameters.reason
             dssParams.signerName = formParameters.signerName
-            formParameters.mode?.let {
-                dssParams.signatureMode = it
+            dssParams.signatureMode = formParameters.mode
+
+            if (dssParams.signatureMode != PdfSignatureMode.CERTIFICATION && dssParams.permission != null) {
+                throw SigningException("Cannot set certification permissions when mode is not set to Certification")
+            } else if (dssParams.signatureMode == PdfSignatureMode.CERTIFICATION && dssParams.permission == null) {
+                dssParams.permission = CertificationPermission.MINIMAL_CHANGES_PERMITTED
             }
-            // dssParams.signingTimeZone = signatureParameters.signatureFormParameters?.pkcs7SignatureFormParameters?.
+            signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.signingTimeZone?.let {
+                dssParams.signingTimeZone = TimeZone.getTimeZone(it)
+            }
         }
     }
     return dssParams
