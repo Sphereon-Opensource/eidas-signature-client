@@ -116,10 +116,11 @@ open class AzureKeyvaultCertificateProviderService(
         val tokenConnection = ConnectionFactory.connection(settings = settings, alias = keyEntry.alias, keyvaultConfig = keyvaultConfig)
 
         return if (isDigestMode(signInput)) {
-            tokenConnection.signDigest(signInput.toDigest(), mgf?.toDSS(), keyEntry.toDSS()).toRaw().fromDSS(signMode = signInput.signMode, keyEntry)
+            tokenConnection.signDigest(signInput.toDigest(), mgf?.toDSS(), keyEntry.toDSS()).toRaw()
+                .fromDSS(signMode = signInput.signMode, keyEntry, settings.id)
         } else {
             tokenConnection.sign(signInput.toBeSigned(), signInput.digestAlgorithm.toDSS(), mgf?.toDSS(), keyEntry.toDSS())
-                .fromDSS(signMode = signInput.signMode, keyEntry)
+                .fromDSS(signMode = signInput.signMode, keyEntry, settings.id)
         }
     }
 

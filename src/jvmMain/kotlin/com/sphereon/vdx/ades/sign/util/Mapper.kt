@@ -202,9 +202,9 @@ fun SignatureValue.toRaw(): SignatureValue {
     return SignatureValue(rawSigAlg, value)
 }
 
-fun SignatureValue.fromDSS(signMode: SignMode, keyEntry: IKeyEntry): Signature {
+fun SignatureValue.fromDSS(signMode: SignMode, keyEntry: IKeyEntry, providerId: String): Signature {
     return Signature(
-        value = this.value, signMode = signMode, algorithm = this.algorithm.fromDSS(), keyEntry = keyEntry
+        value = this.value, signMode = signMode, algorithm = this.algorithm.fromDSS(), keyEntry = keyEntry, providerId = providerId
     )
 }
 

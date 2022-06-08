@@ -40,10 +40,11 @@ class LocalCertificateProviderService(settings: CertificateProviderSettings) : A
         if (signInput.digestAlgorithm == null) throw SigningException("Digest algorithm needs to be specified at this point")
 
         return if (signInput.signMode == SignMode.DIGEST && signInput.digestAlgorithm != DigestAlg.NONE) {
-            tokenConnection.signDigest(signInput.toDigest(), mgf?.toDSS(), keyEntry.toDSS()).fromDSS(signMode = signInput.signMode, keyEntry)
+            tokenConnection.signDigest(signInput.toDigest(), mgf?.toDSS(), keyEntry.toDSS())
+                .fromDSS(signMode = signInput.signMode, keyEntry, settings.id)
         } else {
             tokenConnection.sign(signInput.toBeSigned(), signInput.digestAlgorithm.toDSS(), mgf?.toDSS(), keyEntry.toDSS())
-                .fromDSS(signMode = signInput.signMode, keyEntry)
+                .fromDSS(signMode = signInput.signMode, keyEntry, settings.id)
         }
     }
 }

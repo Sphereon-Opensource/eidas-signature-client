@@ -11,7 +11,8 @@ data class Signature(
     val value: ByteArray,
     val algorithm: SignatureAlg,
     val signMode: SignMode,
-    val keyEntry: IKeyEntry
+    val keyEntry: IKeyEntry,
+    val providerId: String,
 //    val publicKey: Key,
 //    val certificate: Certificate?,
 //    val certificateChain: List<Certificate>?

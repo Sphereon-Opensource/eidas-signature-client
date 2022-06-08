@@ -14,12 +14,11 @@ import com.sphereon.vdx.ades.rest.client.auth.HttpBearerAuth
 import com.sphereon.vdx.ades.rest.client.auth.OAuth
 import com.sphereon.vdx.ades.rest.client.model.ConfigCertificateBinding
 import com.sphereon.vdx.ades.rest.client.model.CreateSignature
-import com.sphereon.vdx.ades.rest.client.model.OrigData
+import com.sphereon.vdx.ades.rest.client.model.DigestAlgorithm
 import com.sphereon.vdx.ades.rest.client.model.SignMode
 import com.sphereon.vdx.ades.sign.util.CertificateUtil
 import com.sphereon.vdx.ades.sign.util.toCertificate
 import com.sphereon.vdx.ades.sign.util.toKey
-import io.matthewnelson.component.base64.Base64
 
 
 private const val BEARER_LITERAL = "bearer"
@@ -49,19 +48,17 @@ open class RestCertificateProviderService(settings: CertificateProviderSettings,
                 .signInput(
                     com.sphereon.vdx.ades.rest.client.model.SignInput()
                         .signMode(SignMode.valueOf(signInput.signMode.name))
-                        .origData(
-                            OrigData()
-                                .name(signInput.name)
-                                .content(java.util.Base64.getEncoder().encodeToString(signInput.input))
-                        )
+                        .input(java.util.Base64.getEncoder().encodeToString(signInput.input))
+                        .name(signInput.name)
+                        .digestAlgorithm(signInput.digestAlgorithm?.name?.let { DigestAlgorithm.valueOf(it) })
                 )
         )
         return Signature(
             value = java.util.Base64.getDecoder().decode(signature.signature.value),
-            // FIXME
-            algorithm = SignatureAlg.RSA_SHA256,
+            algorithm = SignatureAlg.valueOf(signature.signature.algorithm.name),
             signMode = signInput.signMode,
-            keyEntry = keyEntry
+            keyEntry = keyEntry,
+            providerId = signature.signature.binding.certificateProviderId
         )
     }
 
@@ -76,19 +73,19 @@ open class RestCertificateProviderService(settings: CertificateProviderSettings,
         }
 
         val certApi = newCertApi()
-        val certResponse = certApi.getCertificateWithHttpInfo(settings.id, alias)
+        val certResponse = certApi.getKeyWithHttpInfo(settings.id, alias)
         if (certResponse.statusCode == 404) {
             return null
         }
         val certData = certResponse.data
 
-        val x509Certificate = CertificateUtil.toX509Certificate(certData.certificate)
+        val x509Certificate = CertificateUtil.toX509Certificate(certData.keyEntry.certificate.value)
         val key = KeyEntry(
             alias = alias,
             publicKey = x509Certificate.publicKey.toKey(),
             certificate = x509Certificate.toCertificate(),
-            certificateChain = certData.certificateChain?.map {
-                CertificateUtil.toX509Certificate(it).toCertificate()
+            certificateChain = certData.keyEntry.certificateChain?.map {
+                CertificateUtil.toX509Certificate(it.value).toCertificate()
             },
             // fixme: Needs to come from response
             encryptionAlgorithm = CryptoAlg.RSA

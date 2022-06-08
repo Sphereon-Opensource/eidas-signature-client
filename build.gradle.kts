@@ -19,6 +19,7 @@ kotlin {
         }
 
 
+
     }
     /* js(BOTH) {
          browser {
@@ -64,15 +65,15 @@ kotlin {
                 api("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinSerializationVersion")
                 api("eu.europa.ec.joinup.sd-dss:dss-model:$dssVersion")
                 api("eu.europa.ec.joinup.sd-dss:dss-document:$dssVersion")
-                api("eu.europa.ec.joinup.sd-dss:dss-cades:$dssVersion")
-                api("eu.europa.ec.joinup.sd-dss:dss-pades:$dssVersion")
-                api("eu.europa.ec.joinup.sd-dss:dss-jades:$dssVersion")
-                api("eu.europa.ec.joinup.sd-dss:dss-utils-apache-commons:$dssVersion")
-                api("eu.europa.ec.joinup.sd-dss:dss-token:$dssVersion")
-                api("eu.europa.ec.joinup.sd-dss:dss-service:$dssVersion")
-                api("eu.europa.ec.joinup.sd-dss:dss-signature-rest:$dssVersion")
-                api("eu.europa.ec.joinup.sd-dss:dss-enumerations:$dssVersion")
-                api("eu.europa.ec.joinup.sd-dss:dss-pades-pdfbox:$dssVersion")
+                implementation("eu.europa.ec.joinup.sd-dss:dss-cades:$dssVersion")
+                implementation("eu.europa.ec.joinup.sd-dss:dss-pades:$dssVersion")
+                implementation("eu.europa.ec.joinup.sd-dss:dss-jades:$dssVersion")
+                implementation("eu.europa.ec.joinup.sd-dss:dss-utils-apache-commons:$dssVersion")
+                implementation("eu.europa.ec.joinup.sd-dss:dss-token:$dssVersion")
+                implementation("eu.europa.ec.joinup.sd-dss:dss-service:$dssVersion")
+                implementation("eu.europa.ec.joinup.sd-dss:dss-signature-rest:$dssVersion")
+                implementation("eu.europa.ec.joinup.sd-dss:dss-enumerations:$dssVersion")
+                implementation("eu.europa.ec.joinup.sd-dss:dss-pades-pdfbox:$dssVersion")
                 api("org.bouncycastle:bcprov-debug-jdk18on:$bcVersion")
                 api("javax.cache:cache-api:1.1.1")
                 api("jakarta.xml.bind:jakarta.xml.bind-api:3.0.1")
@@ -81,7 +82,7 @@ kotlin {
                 api("io.github.microutils:kotlin-logging-jvm:2.1.23")
 
                 // todo separate into separate project probably
-                api("com.sphereon.vdx:eidas-signature-client-rest-jersey3:0.9.1-SNAPSHOT")
+                api("com.sphereon.vdx:eidas-signature-client-rest-jersey3:1.0.0-SNAPSHOT")
 
                 implementation(project.dependencies.platform("com.azure:azure-sdk-bom:1.2.2"))
                 implementation("com.azure:azure-identity")
@@ -90,6 +91,7 @@ kotlin {
                 implementation("com.azure:azure-security-keyvault-keys")
 
             }
+
         }
         val jvmTest by getting {
             dependencies {
