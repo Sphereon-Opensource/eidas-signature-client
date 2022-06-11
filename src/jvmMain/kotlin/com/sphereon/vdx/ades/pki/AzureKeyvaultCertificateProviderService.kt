@@ -2,10 +2,10 @@ package com.sphereon.vdx.ades.pki
 
 import com.azure.core.http.policy.RetryOptions
 import com.azure.core.http.policy.RetryPolicy
-import com.azure.security.keyvault.certificates.CertificateClient
+import com.azure.security.keyvault.certificates.CertificateAsyncClient
 import com.azure.security.keyvault.certificates.CertificateClientBuilder
 import com.azure.security.keyvault.certificates.CertificateServiceVersion
-import com.azure.security.keyvault.keys.KeyClient
+import com.azure.security.keyvault.keys.KeyAsyncClient
 import com.azure.security.keyvault.keys.KeyClientBuilder
 import com.azure.security.keyvault.keys.KeyServiceVersion
 import com.sphereon.vdx.ades.SignClientException
@@ -23,8 +23,8 @@ open class AzureKeyvaultCertificateProviderService(
     val keyvaultConfig: AzureKeyvaultClientConfig
 ) : AbstractCertificateProviderService(settings) {
 
-    private val keyClient: KeyClient
-    private val certClient: CertificateClient?
+    private val keyClient: KeyAsyncClient
+    private val certClient: CertificateAsyncClient?
 
     private val hasCerts: Boolean
 
@@ -39,7 +39,7 @@ open class AzureKeyvaultCertificateProviderService(
                 else RetryPolicy(RetryOptions(keyvaultConfig.exponentialBackoffRetryOpts.toExponentialBackoffOptions()))
             )
             .credential(keyvaultConfig.credentialOpts.toTokenCredential(keyvaultConfig.tenantId))
-            .buildClient()
+            .buildAsyncClient()
 
 
         // Azure Managed HSM has no Certs API
@@ -56,14 +56,16 @@ open class AzureKeyvaultCertificateProviderService(
                         else RetryPolicy(RetryOptions(keyvaultConfig.exponentialBackoffRetryOpts.toExponentialBackoffOptions()))
                     )
                     .credential(keyvaultConfig.credentialOpts.toTokenCredential(keyvaultConfig.tenantId))
-                    .buildClient()
+                    .buildAsyncClient()
         }
     }
 
     override fun getKeys(): List<IKeyEntry> {
-        return keyClient.listPropertiesOfKeys().filter { it.isEnabled }.map {
+        val res = keyClient.listPropertiesOfKeys().filter { it.isEnabled }.map {
             getKey("${it.id}${KEY_NAME_VERSION_SEP}${it.version}")!!
+
         }
+        return res.toIterable().toList()
     }
 
     override fun getKey(alias: String): IKeyEntry? {
@@ -72,9 +74,13 @@ open class AzureKeyvaultCertificateProviderService(
             return cachedKey
         }
         val kvNames = aliasToKVKeyName(alias)
-        val key = certClient?.getCertificateVersion(kvNames.first, kvNames.second)?.toKeyEntry() ?: keyClient.getKey(kvNames.first, kvNames.second)
-            .toKeyEntry()
+        val certificateVersion = certClient?.getCertificateVersion(kvNames.first, kvNames.second)
+        val keyMono =
+            certificateVersion?.map { it.toKeyEntry() } ?: keyClient.getKey(kvNames.first, kvNames.second).map { it.toKeyEntry() }
 
+        // This is a workaround, since we can be called from a Web(Test)Client, and this library/method is not reactive. Using block() would result in an error
+        // TODO: Make methods reactive and provide a sync client as well
+        val key = keyMono.toFuture().get()
         cacheService.put(key)
         return key
     }
