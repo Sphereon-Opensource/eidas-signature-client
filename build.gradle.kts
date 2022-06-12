@@ -76,6 +76,7 @@ kotlin {
                 implementation("eu.europa.ec.joinup.sd-dss:dss-pades-pdfbox:$dssVersion")
                 api("org.bouncycastle:bcprov-debug-jdk18on:$bcVersion")
                 api("javax.cache:cache-api:1.1.1")
+                implementation("javax.xml.bind:jaxb-api:2.3.0")
                 api("jakarta.xml.bind:jakarta.xml.bind-api:3.0.1")
                 api("org.glassfish.jaxb:jaxb-runtime:2.3.3")
 
@@ -103,7 +104,7 @@ kotlin {
 //                implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
 
                 implementation("org.ehcache:ehcache:3.8.1")
-                implementation("javax.xml.bind:jaxb-api:2.3.0")
+
 
             }
         }

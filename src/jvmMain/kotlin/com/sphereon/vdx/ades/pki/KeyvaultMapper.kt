@@ -91,14 +91,14 @@ fun KeyVaultCertificate.toKeyEntry(): IKeyEntry {
         encryptionAlgorithm = if (x509Certificate.sigAlgName.endsWith("RSA")) CryptoAlg.RSA else CryptoAlg.valueOf(x509Certificate.publicKey.algorithm),
         certificate = x509Certificate.toCertificate(),
         publicKey = x509Certificate.toPublicKey(),
-        certificateChain = x509Chain?.map { it.toCertificate() }
+        certificateChain = x509Chain.map { it.toCertificate() }
     )
 }
 
 fun KeyVaultKey.toKeyEntry(): IKeyEntry {
 
     // TODO: Certificate in case of keyvault (not managed hsm)
-    val keyUsage: Map<String, Boolean>? = CertificateUtil.keyUsage(key.keyOps.map { it.toString() })
+//    val keyUsage: Map<String, Boolean>? = CertificateUtil.keyUsage(key.keyOps.map { it.toString() })
 /*    val cert = Certificate(
         keyUsage = keyUsage,
         notBefore = properties.notBefore.toInstant().toKotlinInstant(),

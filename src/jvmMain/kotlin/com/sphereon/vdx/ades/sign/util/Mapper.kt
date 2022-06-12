@@ -509,7 +509,7 @@ fun mapGenericSignatureParams(
         }
         signatureAlgorithm = SignatureAlgorithm.RSA_RAW*/
         digestAlgorithm =
-            if (signatureAlg?.digestAlgorithm != null) signatureAlg.digestAlgorithm?.toDSS() else signatureParameters.digestAlgorithm?.toDSS()
+            if (signatureAlg?.digestAlgorithm != null) signatureAlg.digestAlgorithm.toDSS() else signatureParameters.digestAlgorithm?.toDSS()
         encryptionAlgorithm =
             if (signatureAlg?.encryptionAlgorithm != null) signatureAlg.encryptionAlgorithm.toDSS() else signatureParameters.encryptionAlgorithm?.toDSS()
         maskGenerationFunction =
@@ -606,7 +606,7 @@ fun mapPKCSSignatureParams(
             } else if (dssParams.signatureMode == PdfSignatureMode.CERTIFICATION && dssParams.permission == null) {
                 dssParams.permission = CertificationPermission.MINIMAL_CHANGES_PERMITTED
             }
-            signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.signingTimeZone?.let {
+            signatureParameters.signatureFormParameters.padesSignatureFormParameters?.signingTimeZone?.let {
                 dssParams.signingTimeZone = TimeZone.getTimeZone(it)
             }
         }

@@ -22,9 +22,9 @@ data class SignInput(
 
         if (!input.contentEquals(other.input)) return false
         if (signMode != other.signMode) return false
+        if (signingDate != other.signingDate) return false
         if (digestAlgorithm != other.digestAlgorithm) return false
         if (name != other.name) return false
-        if (signingDate != other.signingDate) return false
 
         return true
     }
@@ -32,9 +32,9 @@ data class SignInput(
     override fun hashCode(): Int {
         var result = input.contentHashCode()
         result = 31 * result + signMode.hashCode()
+        result = 31 * result + signingDate.hashCode()
         result = 31 * result + (digestAlgorithm?.hashCode() ?: 0)
         result = 31 * result + (name?.hashCode() ?: 0)
-        result = 31 * result + (signingDate?.hashCode() ?: 0)
         return result
     }
 }

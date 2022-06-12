@@ -8,7 +8,7 @@ import com.sphereon.vdx.ades.model.*
 import com.sphereon.vdx.ades.pki.IKeyProviderService
 
 
-open class KidSignatureService(override val keyProvider: IKeyProviderService) : IKidSignatureService {
+open class KidSignatureService(final override val keyProvider: IKeyProviderService) : IKidSignatureService {
 
     private val delegate = KeySignatureService(keyProvider)
 

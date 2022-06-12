@@ -152,9 +152,9 @@ open class RestKeyProviderService(settings: KeyProviderSettings, val restClientC
         if (settings.config.type != KeyProviderType.REST) {
             throw SignClientException("Cannot create a REST certificate Service Provider without mode set to REST. Current mode: ${settings.config.type}")
         }
-        if (restClientConfig == null) {
+        /*if (restClientConfig == null) {
             throw SignClientException("Cannot create a REST certificate Service Provider without a REST config")
-        }
+        }*/
         if (restClientConfig.baseUrl == null) {
             throw SignClientException("Cannot create a REST certificate Service Provider without a base URL")
         }

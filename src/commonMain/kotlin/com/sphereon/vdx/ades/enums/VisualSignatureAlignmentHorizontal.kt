@@ -5,22 +5,22 @@ package com.sphereon.vdx.ades.enums
  */
 enum class VisualSignatureAlignmentHorizontal {
     /**
-     * default, x axis is the x coordinate
+     * default, x-axis is the x-coordinate
      */
     NONE,
 
     /**
-     * x axis is left padding
+     * x-axis is left padding
      */
     LEFT,
 
     /**
-     * x axis automatically calculated
+     * x-axis automatically calculated
      */
     CENTER,
 
     /**
-     * x axis is right padding
+     * x-axis is right padding
      */
     RIGHT
 }
