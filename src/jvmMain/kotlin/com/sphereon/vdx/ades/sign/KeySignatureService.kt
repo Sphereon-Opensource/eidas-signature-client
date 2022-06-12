@@ -13,7 +13,7 @@ import com.sphereon.vdx.ades.model.SignInput
 import com.sphereon.vdx.ades.model.SignOutput
 import com.sphereon.vdx.ades.model.Signature
 import com.sphereon.vdx.ades.model.SignatureConfiguration
-import com.sphereon.vdx.ades.pki.ICertificateProviderService
+import com.sphereon.vdx.ades.pki.IKeyProviderService
 import com.sphereon.vdx.ades.sign.util.AdESServiceFactory
 import com.sphereon.vdx.ades.sign.util.signatureForm
 import com.sphereon.vdx.ades.sign.util.toCAdESService
@@ -30,7 +30,7 @@ import kotlinx.datetime.toKotlinInstant
 import java.io.ByteArrayOutputStream
 
 
-open class KeySignatureService(val certificateProvider: ICertificateProviderService) : IKeySignatureService {
+open class KeySignatureService(val keyProvider: IKeyProviderService) : IKeySignatureService {
 
     override fun digest(signInput: SignInput): SignInput {
 //        if (signInput.signMode == SignMode.DIGEST) throw SigningException("Signing mode must be DOCUMENT when creating a digest!")
@@ -41,24 +41,24 @@ open class KeySignatureService(val certificateProvider: ICertificateProviderServ
     }
 
     override fun createSignature(signInput: SignInput, keyEntry: IKeyEntry): Signature {
-        return certificateProvider.createSignature(signInput, keyEntry)
+        return keyProvider.createSignature(signInput, keyEntry)
     }
 
     override fun createSignature(signInput: SignInput, keyEntry: IKeyEntry, mgf: MaskGenFunction): Signature {
-        return certificateProvider.createSignature(signInput, keyEntry, mgf)
+        return keyProvider.createSignature(signInput, keyEntry, mgf)
     }
 
     override fun createSignature(signInput: SignInput, keyEntry: IKeyEntry, signatureAlgorithm: SignatureAlg): Signature {
-        return certificateProvider.createSignature(signInput, keyEntry, signatureAlgorithm)
+        return keyProvider.createSignature(signInput, keyEntry, signatureAlgorithm)
     }
 
     override fun isValidSignature(signInput: SignInput, signature: Signature, keyEntry: IKeyEntry): Boolean {
-        return certificateProvider.isValidSignature(signInput, signature, keyEntry)
+        return keyProvider.isValidSignature(signInput, signature, keyEntry)
     }
 
 
     override fun isValidSignature(signInput: SignInput, signature: Signature, publicKey: Key): Boolean {
-        return certificateProvider.isValidSignature(signInput, signature, publicKey)
+        return keyProvider.isValidSignature(signInput, signature, publicKey)
     }
 
 

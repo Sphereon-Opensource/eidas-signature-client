@@ -2,7 +2,7 @@ package com.sphereon.vdx.ades.pki
 
 import com.sphereon.vdx.ades.PKIException
 import com.sphereon.vdx.ades.SignClientException
-import com.sphereon.vdx.ades.enums.CertificateProviderType
+import com.sphereon.vdx.ades.enums.KeyProviderType
 import com.sphereon.vdx.ades.enums.CryptoAlg
 import com.sphereon.vdx.ades.enums.MaskGenFunction
 import com.sphereon.vdx.ades.enums.SignatureAlg
@@ -24,8 +24,8 @@ import com.sphereon.vdx.ades.sign.util.toKey
 private const val BEARER_LITERAL = "bearer"
 private const val OAUTH2_LITERAL = "oauth2"
 
-open class RestCertificateProviderService(settings: CertificateProviderSettings, val restClientConfig: RestClientConfig) :
-    AbstractCertificateProviderService(settings) {
+open class RestKeyProviderService(settings: KeyProviderSettings, val restClientConfig: RestClientConfig) :
+    AbstractKeyProviderService(settings) {
 
     private val apiClient: ApiClient
 
@@ -67,14 +67,14 @@ open class RestCertificateProviderService(settings: CertificateProviderSettings,
         throw PKIException("Retrieving multiple certificates using the REST client is not possible currently")
     }
 
-    override fun getKey(alias: String): IKeyEntry? {
-        val cachedKey = cacheService.get(alias)
+    override fun getKey(kid: String): IKeyEntry? {
+        val cachedKey = cacheService.get(kid)
         if (cachedKey != null) {
             return cachedKey
         }
 
         val certApi = newCertApi()
-        val certResponse = certApi.getKeyWithHttpInfo(settings.id, alias)
+        val certResponse = certApi.getKeyWithHttpInfo(settings.id, kid)
         if (certResponse.statusCode == 404) {
             return null
         }
@@ -82,7 +82,7 @@ open class RestCertificateProviderService(settings: CertificateProviderSettings,
 
         val x509Certificate = CertificateUtil.toX509Certificate(certData.keyEntry.certificate.value)
         val key = KeyEntry(
-            kid = alias,
+            kid = kid,
             publicKey = x509Certificate.publicKey.toKey(),
             certificate = x509Certificate.toCertificate(),
             certificateChain = certData.keyEntry.certificateChain?.map {
@@ -149,7 +149,7 @@ open class RestCertificateProviderService(settings: CertificateProviderSettings,
     }
 
     private fun assertRestSettings() {
-        if (settings.config.type != CertificateProviderType.REST) {
+        if (settings.config.type != KeyProviderType.REST) {
             throw SignClientException("Cannot create a REST certificate Service Provider without mode set to REST. Current mode: ${settings.config.type}")
         }
         if (restClientConfig == null) {

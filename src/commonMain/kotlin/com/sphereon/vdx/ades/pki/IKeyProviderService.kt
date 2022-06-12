@@ -1,13 +1,13 @@
 package com.sphereon.vdx.ades.pki
 
 import com.sphereon.vdx.ades.PKIException
-import com.sphereon.vdx.ades.model.CertificateProviderSettings
+import com.sphereon.vdx.ades.model.KeyProviderSettings
 import com.sphereon.vdx.ades.model.IKeyEntry
 import com.sphereon.vdx.ades.sign.ISimpleSignatureService
 
-interface ICertificateProviderService : ISimpleSignatureService {
+interface IKeyProviderService : ISimpleSignatureService {
 
-    val settings: CertificateProviderSettings
+    val settings: KeyProviderSettings
 
     /**
      * Retrieves all the available keys (private keys entries) from the token.
@@ -20,12 +20,13 @@ interface ICertificateProviderService : ISimpleSignatureService {
     fun getKeys(): List<IKeyEntry>
 
     /**
-     * Retrieves a specific key by its alias.
+     * Retrieves a specific key by its kid.
      *
+     * @param kid The key identifier
      * @return The key
      * @throws PKIException
      * If there is any problem during the retrieval process
      */
     @Throws(PKIException::class)
-    fun getKey(alias: String): IKeyEntry?
+    fun getKey(kid: String): IKeyEntry?
 }

@@ -19,10 +19,10 @@ class CAdESSigningSignTests : AbstractAdESTest() {
     fun `Given an input with signmode DOCUMENT the sign method should sign the document`() {
         val origData = OrigData(value = "test".toByteArray())
 
-        val certProvider = constructCertProviderService()
+        val keyProvider = constructKeyProviderService()
 
-        val signingService = KeySignatureService(certProvider)
-        val keyEntry = certProvider.getKey("certificate")!!
+        val signingService = KeySignatureService(keyProvider)
+        val keyEntry = keyProvider.getKey("certificate")!!
 
 
         val signatureConfiguration = SignatureConfiguration(

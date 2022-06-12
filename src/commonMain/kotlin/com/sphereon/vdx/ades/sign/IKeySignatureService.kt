@@ -14,7 +14,7 @@ interface IKeySignatureService : ISimpleSignatureService {
      * Since multiple signature types are supported the configuration and key are required te determine the appropriate mode
      *
      * @param origData The orignal data/file
-     * @param keyEntry The certificate to use
+     * @param keyEntry The key to use
      * @param signMode The signmode to use
      * @param signatureConfiguration The configuration
      *
@@ -48,7 +48,7 @@ interface IKeySignatureService : ISimpleSignatureService {
      * @param origData
      * The data that need to be signed
      * @param keyEntry
-     * The certificate to use
+     * The Key to use
      * @param signMode
      * The signing mode
      * @param signatureConfiguration

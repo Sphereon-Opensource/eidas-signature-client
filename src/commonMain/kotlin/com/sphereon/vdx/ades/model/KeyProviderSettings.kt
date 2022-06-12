@@ -1,8 +1,8 @@
 package com.sphereon.vdx.ades.model
 
 @kotlinx.serialization.Serializable
-data class CertificateProviderSettings(
+data class KeyProviderSettings(
     val id: String,
-    val config: CertificateProviderConfig,
+    val config: KeyProviderConfig,
     val passwordInputCallback: PasswordInputCallback? = null
 )

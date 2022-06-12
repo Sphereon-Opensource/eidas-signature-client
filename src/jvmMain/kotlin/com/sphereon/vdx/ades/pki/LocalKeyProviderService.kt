@@ -4,7 +4,7 @@ import com.sphereon.vdx.ades.SigningException
 import com.sphereon.vdx.ades.enums.DigestAlg
 import com.sphereon.vdx.ades.enums.MaskGenFunction
 import com.sphereon.vdx.ades.enums.SignMode
-import com.sphereon.vdx.ades.model.CertificateProviderSettings
+import com.sphereon.vdx.ades.model.KeyProviderSettings
 import com.sphereon.vdx.ades.model.IKeyEntry
 import com.sphereon.vdx.ades.model.SignInput
 import com.sphereon.vdx.ades.model.Signature
@@ -13,7 +13,7 @@ import eu.europa.esig.dss.token.AbstractKeyStoreTokenConnection
 import eu.europa.esig.dss.token.KSPrivateKeyEntry
 
 
-class LocalCertificateProviderService(settings: CertificateProviderSettings) : AbstractCertificateProviderService(settings) {
+class LocalKeyProviderService(settings: KeyProviderSettings) : AbstractKeyProviderService(settings) {
 
     // TODO: Create provider so we can move this to the abstract class and even move createSignatureImpl there
     private val tokenConnection = ConnectionFactory.connection(settings)

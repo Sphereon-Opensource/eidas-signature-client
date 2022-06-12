@@ -10,7 +10,7 @@ import com.azure.security.keyvault.keys.KeyClientBuilder
 import com.azure.security.keyvault.keys.KeyServiceVersion
 import com.sphereon.vdx.ades.SignClientException
 import com.sphereon.vdx.ades.SigningException
-import com.sphereon.vdx.ades.enums.CertificateProviderType
+import com.sphereon.vdx.ades.enums.KeyProviderType
 import com.sphereon.vdx.ades.enums.MaskGenFunction
 import com.sphereon.vdx.ades.model.*
 import com.sphereon.vdx.ades.sign.util.*
@@ -18,10 +18,10 @@ import java.util.*
 
 private const val KEY_NAME_VERSION_SEP = ":"
 
-open class AzureKeyvaultCertificateProviderService(
-    settings: CertificateProviderSettings,
+open class AzureKeyvaultKeyProviderService(
+    settings: KeyProviderSettings,
     val keyvaultConfig: AzureKeyvaultClientConfig
-) : AbstractCertificateProviderService(settings) {
+) : AbstractKeyProviderService(settings) {
 
     private val keyClient: KeyAsyncClient
     private val certClient: CertificateAsyncClient?
@@ -110,7 +110,7 @@ open class AzureKeyvaultCertificateProviderService(
 
 
     private fun assertKeyvaultSettings() {
-        if (settings.config.type != CertificateProviderType.AZURE_KEYVAULT) {
+        if (settings.config.type != KeyProviderType.AZURE_KEYVAULT) {
             throw SignClientException("Cannot create a Keyvault certificate Service Provider without mode set to Azure Keyvault. Current mode: ${settings.config.type}")
         }
     }

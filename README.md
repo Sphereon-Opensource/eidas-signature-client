@@ -19,21 +19,21 @@ privacy and security perspective.
 - [Multiplatform library and REST API](#multiplatform-library-and-rest-api)
 - [License](#license)
 - [Signature flow](#signature-flow)
-- [Certificate Provider Service](#certificate-provider-service)
-    * [PKCS\#12 Keystore Certificate Provider Service](#pkcs12-keystore-certificate-provider-service)
+- [Key Provider Service](#key-provider-service)
+    * [PKCS\#12 Keystore Key Provider Service](#pkcs12-keystore-key-provider-service)
         + [Use existing tooling to create a certificate and PKCS\#12 keystore](#use-existing-tooling-to-create-a-certificate-and-pkcs12-keystore)
             - [Creating a PKCS\#12 keystore using OpenSSL](#creating-a-pkcs12-keystore-using-openssl)
-    * [PKCS\#11 Hardware Security Module and Card based Certificate Provider Service](#pkcs11-hardware-security-module-and-card-based-certificate-provider-service)
-    * [Azure Keyvault or Managed HSM Certificate Provider Service](#azure-keyvault-or-managed-hsm-certificate-provider-service)
-    * [REST Certificate Provider](#rest-certificate-provider)
+    * [PKCS\#11 Hardware Security Module and Card based Key Provider Service](#pkcs11-hardware-security-module-and-card-based-key-provider-service)
+    * [Azure Keyvault or Managed HSM Key Provider Service](#azure-keyvault-or-managed-hsm-key-provider-service)
+    * [REST Key Provider](#rest-key-provider)
         + [Authentication and Authorization support](#authentication-and-authorization-support)
             - [OAuth2 support](#oauth2-support)
             - [Bearer Token and JWT support](#bearer-token-and-jwt-support)
             - [OAuth2, OpenID Scopes](#oauth2--openid-scopes)
             - [Roles support](#roles-support)
-    * [Certificate Provider caching](#certificate-provider-caching)
+    * [Key Provider caching](#key-provider-caching)
     * [List keys, certificates](#list-keys--certificates)
-    * [Get a key/certificate by alias](#get-a-key-certificate-by-alias)
+    * [Get a key/certificate by kid](#get-a-key-certificate-by-kid)
     * [Create the signature](#create-the-signature)
 - [Signature Service](#signature-service)
     * [Initialize the Signature Service](#initialize-the-signature-service)
@@ -92,7 +92,7 @@ as
 parameter and results in another `SignInput` object, with its sign method set to `DIGEST` instead of the original method of `DOCUMENT`.
 
 The `createSignature` method accepts the `SignInput` object, which the signMode either being `DOCUMENT` or `DIGEST`, depending on which method was
-chosen. It is using the supplied 'KeyEntry' or Key alias string to sign the input object. This can either be done locally or remotely depending on the
+chosen. It is using the supplied 'KeyEntry' or Key kid string to sign the input object. This can either be done locally or remotely depending on the
 CertProvider implementation. The end result is a `Signature` object.
 
 Lastly the `Signature` object needs to be merged with the original Document. It really depends on the type of signature being used how this is
@@ -103,12 +103,12 @@ The picture below gives a schematic overview of the process
 
 ![Signature Flow](./resources/ades%20signature%20flow.png)
 
-It is possible to use multiple so called _SignatureServices_ with the same _CertificateProvider_. This allows for instance to extract bytes and create
+It is possible to use multiple so called _SignatureServices_ with the same _KeyProvider_. This allows for instance to extract bytes and create
 a digest/hash
 from the input file locally, while creating the signature using a REST API or Azure Keyvault for instance. Then the signature is recombined with the
 original document locally. The
 _createSignature_ method and its counterpart _verifySignature_ methods are typically ran using a REST API, Keyvault or locally with PKCS#11 hardware
-Certificate Providers. It is up to the caller to determine whether creating the digest/hash, and placing the signature in the input document also
+Key Providers. It is up to the caller to determine whether creating the digest/hash, and placing the signature in the input document also
 should run
 remotely or not.
 
@@ -117,33 +117,34 @@ Azure Keyvault remotely. Then use the REST endpoints, or use an SDK if available
 local processing functionality unlike the Kotlin/Java library. The setup ensures that Personally Identifiable Information (PII) or other sensitive
 information doesn't leave your premise,
 and that only the signature is being created remotely from the Digest/Hash value. It also allows you to use authentication and roles/authorization
-locally on a per certificate and configuration level.
+locally on a per key and configuration level.
 
-# Certificate Provider Service
+# Key Provider Service
 
-The Certificate Provider Service allows to manage public/private keys and Certificates using either a PKCS#12 keystore file as byte array or filepath.
+The Key Provider Service allows to manage public/private keys and Certificates using either a PKCS#12 keystore file as byte array or filepath.
 It also
-has support for PKCS#11 hardware (HSM and USB cards) as well as support for a Remote REST Certificate Provider and a Azure Keyvault/Managed HSM
-Certificate Provider. Next to certificate/key management a Certificate Provider also is responsible for creating and verifying signatures themselves.
-Other operations, like creating a hash, merging a signature into an input document are handled by a Signature Service instead of the Certificate
-Provider. A Single Certificate Provider can be shared by different Signature Services, as explained [above](#signature-flow)
+has support for PKCS#11 hardware (HSM and USB cards) as well as support for a Remote REST Key Provider and a Azure Keyvault/Managed HSM
+Key Provider. Next to certificate/key management a Key Provider also is responsible for creating and verifying signatures themselves.
+Other operations, like creating a hash, merging a signature into an input document are handled by a Signature Service instead of the Key
+Provider. A Single Key Provider can be shared by different Signature Services, as explained [above](#signature-flow)
 
 Given the wide range of supported import/creation methods, this library does not create or
-import certificates. Please use your method of choice (see [below](#use-existing-tooling-to-create-a-certificate-and-keystore) for some pointers).
+import keys/certificates. The REST API does have support for it. Please use your method of choice (
+see [below](#use-existing-tooling-to-create-a-certificate-and-keystore) for some pointers).
 
-## PKCS\#12 Keystore Certificate Provider Service
+## PKCS\#12 Keystore Key Provider Service
 
-The below example in Kotlin sets up a certificate service using a PKCS#12 keystore file at a certain path
+The below example in Kotlin sets up a Key Provider Service using a PKCS#12 keystore file at a certain path
 
 ````kotlin
 val providerPath = "path/to/pkcs12.p12"
 val passwordInputCallback = PasswordInputCallback(password = "password".toCharArray())
-val providerConfig = CertificateProviderConfig(
-    type = CertificateProviderType.PKCS12,
+val providerConfig = KeyProviderConfig(
+    type = KeyProviderType.PKCS12,
     pkcs12Parameters = KeystoreParameters(providerPath)
 )
-val certProvider = CertificateProviderService(
-    CertificateProviderSettings(
+val keyProvider = KeyProviderService(
+    KeyProviderSettings(
         id = "my-pkcs12-provider",
         providerConfig,
         passwordInputCallback
@@ -180,23 +181,23 @@ openssl pkcs12 -export -in cert-chain.txt -inkey <private_key_filename> -name â€
 
 When prompted, provide a password for the new keystore.
 
-## PKCS\#11 Hardware Security Module and Card based Certificate Provider Service
+## PKCS\#11 Hardware Security Module and Card based Key Provider Service
 
-The PKCS#11 Certificate Provider allows you to use Hardware Security Based solutions that can interact using a PKCS#11 interface. It needs access to
+The PKCS#11 Key Provider allows you to use Hardware Security Based solutions that can interact using a PKCS#11 interface. It needs access to
 the driver library in order to operate.
 
 ````kotlin
 val passwordInputCallback = PasswordInputCallback(password = "password".toCharArray())
-val providerConfig = CertificateProviderConfig(
-    type = CertificateProviderType.PKCS11,
+val providerConfig = KeyProviderConfig(
+    type = KeyProviderType.PKCS11,
     pkcs11Parameters = Pkcs11Parameters(
         pkcs11LibraryPath = "/usr/lib/opensc-pkcs11.so", // The PKCS11 driver path
         slotId = 0,
         slotListIndex = 2
     )
 )
-val certProvider = CertificateProviderService(
-    CertificateProviderSettings(
+val keyProvider = KeyProviderService(
+    KeyProviderSettings(
         id = "my-pkcs11-provider",
         providerConfig,
         passwordInputCallback
@@ -224,19 +225,19 @@ class Pkcs11Parameters(
 
 ````
 
-## Azure Keyvault or Managed HSM Certificate Provider Service
+## Azure Keyvault or Managed HSM Key Provider Service
 
-An Azure Keyvault Certificate Provider uses Azure Keyvault and Azure Managed HSM to retrieve certificates, create the Signature and verify a
+An Azure Keyvault Key Provider uses Azure Keyvault and Azure Managed HSM to retrieve certificates, create the Signature and verify a
 signature.
-The below example in Kotlin sets up a Certificate Service using Azure Keyvault or Azure Managed HSM. Both Keyvault and Managed HSM support Hardware
+The below example in Kotlin sets up a Key Provider Service using Azure Keyvault or Azure Managed HSM. Both Keyvault and Managed HSM support Hardware
 Security Modules. The Managed HSM service is Microsoft's solution for an HSM not shared with other customers/tenants.
 
-**Note:** _Although the Azure Certificate Provider should work with Azure Managed HSM, the library is not being tested against Azure Managed HSM, as
+**Note:** _Although the Azure Key Provider should work with Azure Managed HSM, the library is not being tested against Azure Managed HSM, as
 opposed to Azure Keyvault._
 
 ````kotlin
-val providerConfig = CertificateProviderConfig(
-    type = CertificateProviderType.AZURE_KEYVAULT
+val providerConfig = KeyProviderConfig(
+    type = KeyProviderType.AZURE_KEYVAULT
 )
 val keyvaultConfig = AzureKeyvaultClientConfig(
     keyvaultUrl = "https://your-keyvault-here.vault.azure.net/",
@@ -257,41 +258,41 @@ val keyvaultConfig = AzureKeyvaultClientConfig(
     )
 )
 
-val providerSettings = CertificateProviderSettings(
+val providerSettings = KeyProviderSettings(
     id = "my-keyvault-provider",
     providerConfig
 )
 
 // From a factory
-var certProvider = CertificateProviderServiceFactory.createFromConfig(settings = providerSettings, azureKeyvaultClientConfig = keyvaultConfig)
+var keyProvider = KeyProviderServiceFactory.createFromConfig(settings = providerSettings, azureKeyvaultClientConfig = keyvaultConfig)
 
 
 // Or directly:
-certProvider = AzureKeyvaultCertificateProviderService(providerSettings, keyvaultConfig)
+keyProvider = AzureKeyvaultKeyProviderService(providerSettings, keyvaultConfig)
 ````
 
-## REST Certificate Provider
+## REST Key Provider
 
-The REST Certificate Provider uses REST to get Keys/Certificates It also exposes the createSignature and verifySignature methods as REST endpoints.
+The REST Key Provider uses REST to get Keys/Certificates It also exposes the createSignature and verifySignature methods as REST endpoints.
 Lastly other methods like creating a digest, determineSignInput and placing the signature in the original document could also be executed remotely if
 desired. This is however handled by the RESTSignatureService.
 
 ### Authentication and Authorization support
 
-The REST Certificate Provider has OAuth2, OpenID Connect and bearer token support integrated.
+The REST Key Provider has OAuth2, OpenID Connect and bearer token support integrated.
 
 #### OAuth2 support
 
-The REST Certificate Provider client has support for oAuth2 and by extension OpenID Connect. Access to the OAuth2 functionality can be
+The REST Key Provider client has support for oAuth2 and by extension OpenID Connect. Access to the OAuth2 functionality can be
 achieved by
-invoking the `oauth()` method on the REST Certificate Provider after providing the appropriate configuration:
+invoking the `oauth()` method on the REST Key Provider after providing the appropriate configuration:
 
 ````kotlin
-val certProviderSettings = CertificateProviderSettings(
+val keyProviderSettings = KeyProviderSettings(
     id = "rest-oauth2",
-    config = CertificateProviderConfig(
+    config = KeyProviderConfig(
         cacheEnabled = true,
-        type = CertificateProviderType.REST,
+        type = KeyProviderType.REST,
     )
 )
 val restConfig = RestClientConfig(
@@ -306,27 +307,27 @@ val restConfig = RestClientConfig(
     )
 )
 
-val restCertificateProvider = RestCertificateProviderService(certProviderSettings, restConfig)
+val restKeyProvider = RestKeyProviderService(keyProviderSettings, restConfig)
 // Use the respective methods to get certificate or sign at this point. It will use oAuth2 to request a token and refresh tokens
 
 // If oauth2 access is needed the oauth() method can be used. For instance to renew the access token
-restCertificateProvider.oauth().renewAccessToken()
+restKeyProvider.oauth().renewAccessToken()
 
 // From this point on requests will use the new token
 ````
 
 #### Bearer Token and JWT support
 
-The REST Certificate Provider client has support to include bearer tokens (JWTs) in the authentication header. Access to the JWT functionality can be
+The REST Key Provider client has support to include bearer tokens (JWTs) in the authentication header. Access to the JWT functionality can be
 achieved by
-invoking the bearerAuth() method on the REST Certificate Provider after providing the appropriate configuration:
+invoking the bearerAuth() method on the REST Key Provider after providing the appropriate configuration:
 
 ````kotlin
-val certProviderSettings = CertificateProviderSettings(
+val keyProviderSettings = KeyProviderSettings(
     id = "rest-bearer",
-    config = CertificateProviderConfig(
+    config = KeyProviderConfig(
         cacheEnabled = true,
-        type = CertificateProviderType.REST,
+        type = KeyProviderType.REST,
     )
 )
 val restConfig = RestClientConfig(
@@ -337,11 +338,11 @@ val restConfig = RestClientConfig(
     )
 )
 
-val restCertificateProvider = RestCertificateProviderService(certProviderSettings, restConfig)
+val restKeyProvider = RestKeyProviderService(keyProviderSettings, restConfig)
 // Use the respective methods to get certificate or sign at this point. It will use the bearer token in every request
 
 // If the bearer token needs to be updated
-restCertificateProvider.bearerAuth().bearerToken = "ey.....<updated.bearer.token>..."
+restKeyProvider.bearerAuth().bearerToken = "ey.....<updated.bearer.token>..."
 
 // From this point on requests will use the new token
 ````
@@ -353,39 +354,39 @@ protect the API endpoints from users not having access to a certain scope at an 
 
 The available scopes are:
 
-- **read:vdx_sign_cert**:    Read/List certificates
-- **admin:vdx_sign_cert**:   Administer certificated
-- **sign:vdx_sign_cert**:    Sign using certificates
+- **read:vdx_sign_key**:    Read/List keys
+- **admin:vdx_sign_key**:   Administer keys
+- **sign:vdx_sign_key**:    Sign using keys
 - **read:vdx_sign_config**:  Read configurations
 - **admin:vdx_sign_config**: Create and update configurations
 
-Please note that this doesn't provide protection at an individual configuration nor certificate level. For these there is role support. The eIDAS REST
+Please note that this doesn't provide protection at an individual configuration nor key level. For these there is role support. The eIDAS REST
 MS documentation provides more info on this subject.
 
 To enable scopes, you have to use your IAM solution of choice which supports oAuth2 or OpenID Connect and ensure that the appropriate scopes are
 requested from the IAM solution. How this works is different per IAM and outside the scope of this README.
 
-The REST Certificate Provider can set the scopes before requesting the tokens using the configuration as shown [above](#oauth2-support). You can also
-programaticaly set the scopes:
+The REST Key Provider can set the scopes before requesting the tokens using the configuration as shown [above](#oauth2-support). You can also
+programmatically set the scopes:
 
 ````kotlin
-restCertificateProvider.oauth()..setScope("sign:vdx_sign_cert")
+restKeyProvider.oauth().setScope("sign:vdx_sign_cert")
 ````
 
 #### Roles support
 
-The REST Microservice has role based support. It is possible to define roles on individual configurations as well as individual certificates. Meaning
+The REST Microservice has role based support. It is possible to define roles on individual configurations as well as individual keys. Meaning
 you can define which roles and thus users/groups can access and administer certain signing configurations, as well as which users/groups can sign
-using a particular certificate. This is more finegrained than using the scopes above. Of course both could be used together if desired. The use of
+using a particular key. This is more fine-grained than using the scopes above. Of course both could be used together if desired. The use of
 roles is explained in the Micro Service documentation. How roles should be made available to the JWT/bearer tokens is outside the scope of this
 README.
 
-## Certificate Provider caching
+## Key Provider caching
 
-Especially for remote Certificate Providers like the REST, Azure and PKCS#11 Certificate Providers it might make sense to enable Key/Certificate
+Especially for remote Key Providers like the REST, Azure and PKCS#11 Key Providers it might make sense to enable Key/Certificate
 caching. This means that a key which has been retrieved recently and which has not hit the configured Time to Live yet, will be returned from the
 local cache, improving performance. Please be aware that this library is not involved in updating or replacing keys as these are highly implementation
-specific. As such providing a really high TTL could return a stale Key/Certificate if the Key had been replaced for a certain alias value. Given
+specific. As such providing a really high TTL could return a stale Key/Certificate if the Key had been replaced for a certain kid value. Given
 keys/certificates are not replaced that often in practice this shouldn't be too much of a problem. Please note that the actual signing using a
 key/certificate is rarely done using a cached key/certificate itself, given the private key is seldomly included. The `createSignature` method
 typically isn't involved in the caching mechanism.
@@ -393,18 +394,18 @@ typically isn't involved in the caching mechanism.
 ````kotlin
 CertProviderConfig(
     cacheEnabled = true, // Enable caching of keys/certificates. Requires a JSR107 Cache implementation on the classpath! */
-    cacheTTLInSeconds = 600, // How long in seconds should certificates be kept in the cache since last access. Default: 5 min
+    cacheTTLInSeconds = 600, // How long in seconds should keys be kept in the cache since last access. Default: 5 min
 )
 ````
 
 ## List keys, certificates
 
-To list all available certificates of the provider one can use the getKeys() method. A list of IKeyEntry objects is being returned. The interface does
+To list all available keys of the provider one can use the getKeys() method. A list of IKeyEntry objects is being returned. The interface does
 not expose private keys, as developers typically should not access the private key directly and not every supported implementation gives access to
 private keys. If you are sure that key contains private keys, you can cas the result to IPrivateKeyEntry.
 
 ````kotlin
-val keys = certProvider.getKeys()
+val keys = keyProvider.getKeys()
 println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(keys))
 ````
 
@@ -412,7 +413,7 @@ println(Json { prettyPrint = true; serializersModule = serializers }.encodeToStr
 [
   {
     "type": "PrivateKeyEntry",
-    "alias": "test-key",
+    "kid": "test-key",
     "privateKey": {
       "algorithm": "RSA",
       "value": "MIIJRAIBAD....lpe53o2VXP",
@@ -431,22 +432,23 @@ println(Json { prettyPrint = true; serializersModule = serializers }.encodeToStr
 ]
 ````
 
-## Get a key/certificate by alias
+## Get a key/certificate by kid
 
-Use the geKey(alias: String) method to get a single certificate IKeyEntry object by alias if it exists. If it does not exist null is being returned.
+Use the geKey(kid: String) method to get a single key IKeyEntry object by kid if it exists. If it does not exist null is being returned.
 The IKeyEntry interface does not expose private keys, as developers typically should not access the private key directly and not every supported
-implementation gives access to private keys. If you are sure that key contains private keys, you can cast the result to IPrivateKeyEntry. Make sure to
-never sent private keys accoss unprotected network connections!
+implementation gives access to private keys. If you are sure that the key entry contains private keys, you can cast the result to IPrivateKeyEntry.
+Make sure to
+never sent private keys across unprotected network connections!
 
 ````kotlin
-val key = certProvider.getKey("test-key")
+val key = keyProvider.getKey("test-key")
 println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(key))
 ````
 
 ````json
   {
   "type": "PrivateKeyEntry",
-  "alias": "test-key",
+  "kid": "test-key",
   "privateKey": {
     "algorithm": "RSA",
     "value": "MIIJRAIBAD....lpe53o2VXP",
@@ -466,13 +468,13 @@ println(Json { prettyPrint = true; serializersModule = serializers }.encodeToStr
 
 ## Create the signature
 
-Depending on the certificate provider this method could be traversing the network as it might call a signature REST API, or use a
+Depending on the Key Provider this method could be traversing the network as it might call a signature REST API, or use a
 network/cloud based Hardware Security Module containing the private key to sign. As such we advise to create the digest hash using a SignatureService
 beforehand so original
 documents/data is not being sent. Only the hash digest will traverse the network.
 
 ````kotlin
-val signature = certProvider.createSignature(digestInput, keyEntry)
+val signature = keyProvider.createSignature(digestInput, keyEntry)
 println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(signature))
 ````
 
@@ -507,11 +509,11 @@ The Signature Service allows you to create and verify signatures, as well as cre
 
 ## Initialize the Signature Service
 
-The Signature service want to have a certificate provider as single argument. If you want to use multiple certificate providers you will have to
+The Signature service want to have a Key Provider as single argument. If you want to use multiple Key Providers you will have to
 instantiate multiple signature services.
 
 ````kotlin
-val signingService = SignatureService(certificateProvider = certProvider)
+val signingService = SignatureService(keyProvider = keyProvider)
 ````
 
 ## Determine Sign Input
@@ -547,7 +549,7 @@ val padesConfig = SignatureConfiguration(
 
 val pdfDoc = File("input.pdf")
 val origData = OrigData(value = pdfDocInput.readBytes(), name = pdfDoc.name)
-val keyEntry = signingService.certificateProvider.getKey("test-key")!!
+val keyEntry = signingService.keyProvider.getKey("test-key")!!
 
 val signInput = signingService.determineSignInput(
     origData = origData,
@@ -575,7 +577,7 @@ traverse a network if a remote Sign REST API or remote Hardware Security Module 
 The `digest` method creates a hash digest out of the SignInput. The hash digest is a one way function that creates the fingerprint of the file. From
 the digest you cannot get back to the original input data/document. This means any Personally Identifiable Data or Data which needs to stay private
 will not be available to methods which need access to a remote REST API or remote Hardware Security Module. This obviously is preferable from a
-privacy and security perspective. It allows users of the library to execute all methods on premise and then depending on the chosen Certificate
+privacy and security perspective. It allows users of the library to execute all methods on premise and then depending on the chosen Key
 Provider sign the data either on premise or remotely. In no circumstance will the input data leave the premise.
 
 ````kotlin
@@ -597,10 +599,10 @@ moved from `DOCUMENT` to `DIGEST` so that the `createSignature` method knows not
 
 ## Create the signature
 
-The default Signature Service implementations delegate this method to the corresponding method of the CertificateProvider, given most
-CertificateProviders to not expose private keys for security reasons.
+The default Signature Service implementations delegate this method to the corresponding method of the KeyProvider, given most
+KeyProviders to not expose private keys for security reasons.
 
-Depending on the certificate provider settings this method could be traversing the network as it might call a signature REST API, or use a
+Depending on the Key Provider settings this method could be traversing the network as it might call a signature REST API, or use a
 network/cloud based Hardware Security Module containing the private key to sign. As such we advise to create the digest beforehand so original
 documents/data is not being sent. Only the hash digest will traverse the network.
 
@@ -682,7 +684,7 @@ The result of the above is a new file which is the input PDF, but now signed.
 
 ## Check whether a signature is valid
 
-The default Signature Service implementations delegate this method to the corresponding method of the CertificateProvider.
+The default Signature Service implementations delegate this method to the corresponding method of the KeyProvider.
 
 In order to check whether a signature is valid the SignInput is needed. If a reference to that data is not available anymore the `determineSignInput`
 and depending on whether a hash digest was create the `digest` method are needed to get back the SignInput object.
@@ -722,7 +724,7 @@ There are 2 types of signatures possible:
 
 ### PKCS\#7 configuration options
 
-The below options are part of a configuration, but can typically also be provided on every invocation. This allows to use the same certificate for
+The below options are part of a configuration, but can typically also be provided on every invocation. This allows to use the same certificate/key for
 instance for signing by multiple people by changing the signerName and related properties.
 
 ````kotlin
@@ -794,9 +796,9 @@ class Pkcs7SignatureFormParameters(
 
 ### Example PKCS\#7 flow
 
-Below an example is provided where a local Signing Service and a Local Azure Keyvault Certificate Provider is being used to sign with a certificate on
+Below an example is provided where a local Signing Service and a Local Azure Keyvault Key Provider is being used to sign with a certificate on
 the AATL list, resulting in "blue-bar" signatures. The example key vault settings can be
-found [above](#initialize-azure-keyvault-or-managed-hsm-certificate-provider-service). The createSignature/verifySignature/getCert(s) methods would
+found [above](#initialize-azure-keyvault-or-managed-hsm-key-provider-service). The createSignature/verifySignature/getCert(s) methods would
 use the Azure Keyvault REST API, so we will be creating a digest first to ensure we are not sending the document to Azure Keyvault.
 
 ````kotlin
@@ -805,16 +807,16 @@ val pdfDocInput = this::class.java.classLoader.getResource("example-unsigned.pdf
 val origData = OrigData(value = pdfDocInput.readBytes(), name = "example-unsigned.pdf")
 
 
-val certProvider = CertificateProviderServiceFactory.createFromConfig(
+val keyProvider = KeyProviderServiceFactory.createFromConfig(
     settings = providerSettings, // See above for examples
     azureKeyvaultClientConfig = keyvaultConfig // See example above
 )
-// The factory has returned an Azure Keyvault Certificate Provider at this point
+// The factory has returned an Azure Keyvault Key Provider at this point
 
-// Create a local signature service, which uses alias/strings to denote the certificates to use
-val signingService = AliasSignatureService(certProvider)
+// Create a local signature service, which uses kid/strings to denote the certificates to use
+val signingService = KidSignatureService(keyProvider)
 
-val alias = "example:3f98a9a740fb41b79e3679cce7a34ba6" // The alias is Azure Keyvault certificate specific and is <certificate Id>:<version>
+val kid = "example:3f98a9a740fb41b79e3679cce7a34ba6" // The kid is Azure Keyvault certificate specific and is <certificate Id>:<version>
 
 val signatureConfiguration = SignatureConfiguration(
     signatureParameters = SignatureParameters(
@@ -841,7 +843,7 @@ val signatureConfiguration = SignatureConfiguration(
 // Locally extract the bytes to be signed from the PDF document
 val signInput = signingService.determineSignInput(
     origData = origData,
-    alias = alias,
+    kid = kid,
     signMode = SignMode.DOCUMENT,
     signatureConfiguration = signatureConfiguration
 )
@@ -849,8 +851,8 @@ val signInput = signingService.determineSignInput(
 // Locally create a hash/digest of the extracted bytes
 val digestInput = signingService.digest(signInput)
 
-// Calls Azure Keyvault using the hash/digest and the certificate associated with the alias value
-val signature = signingService.createSignature(digestInput, alias)
+// Calls Azure Keyvault using the hash/digest and the certificate associated with the kid value
+val signature = signingService.createSignature(digestInput, kid)
 
 // Locally combine the original document with the created signature
 val signOutput = signingService.sign(origData, signature, signatureConfiguration)
@@ -941,7 +943,7 @@ class PadesSignatureFormParameters(
 
 ### Example PAdES flow
 
-Below an example is provided where a local Signing Service and a Certificate Provider using a Hardware Security Module accessed using the PKCS#12
+Below an example is provided where a local Signing Service and a Key Provider using a Hardware Security Module accessed using the PKCS#12
 interface with a certificate provided by a Qualified Trust Service Provider.
 
 ````kotlin
@@ -950,15 +952,15 @@ val pdfDocInput = this::class.java.classLoader.getResource("example-unsigned.pdf
 val origData = OrigData(value = pdfDocInput.readBytes(), name = "example-unsigned.pdf")
 
 
-val certProvider = CertificateProviderServiceFactory.createFromConfig(
+val keyProvider = KeyProviderServiceFactory.createFromConfig(
     settings = providerSettings, // See above for examples
 )
-// The factory has returned a Local Certificate Provider with PKCS#12 HSM support at this point
+// The factory has returned a Local Key Provider with PKCS#12 HSM support at this point
 
-// Create a local signature service, which uses alias/strings to denote the certificates to use
-val signingService = AliasSignatureService(certProvider)
+// Create a local signature service, which uses kid/strings to denote the certificates to use
+val signingService = KidSignatureService(keyProvider)
 
-val alias = "example" // The alias is HSM specific and is <certificate Id>
+val kid = "example" // The kid is HSM specific and is <certificate Id>
 
 val signatureConfiguration = SignatureConfiguration(
     signatureParameters = SignatureParameters(
@@ -983,7 +985,7 @@ val signatureConfiguration = SignatureConfiguration(
 // Locally extract the bytes to be signed from the PDF document
 val signInput = signingService.determineSignInput(
     origData = origData,
-    alias = alias,
+    kid = kid,
     signMode = SignMode.DOCUMENT,
     signatureConfiguration = signatureConfiguration
 )
@@ -991,8 +993,8 @@ val signInput = signingService.determineSignInput(
 // Locally create a hash/digest of the extracted bytes
 val digestInput = signingService.digest(signInput)
 
-// Calls the HSM using the hash/digest and the certificate associated with the alias value
-val signature = signingService.createSignature(digestInput, alias)
+// Calls the HSM using the hash/digest and the certificate associated with the kid value
+val signature = signingService.createSignature(digestInput, kid)
 
 // Locally combine the original document with the created signature
 val signOutput = signingService.sign(origData, signature, signatureConfiguration)

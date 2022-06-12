@@ -6,13 +6,12 @@ import com.sphereon.vdx.ades.sign.util.toDSS
 import com.sphereon.vdx.ades.sign.util.toJavaPublicKey
 import eu.europa.esig.dss.enumerations.SignatureAlgorithm
 import eu.europa.esig.dss.spi.DSSSecurityProvider
-import eu.europa.esig.dss.spi.DSSUtils
 import java.security.GeneralSecurityException
 import java.security.spec.MGF1ParameterSpec
 import java.security.spec.PSSParameterSpec
 import java.util.*
 
-abstract class AbstractCertificateProviderService(override val settings: CertificateProviderSettings) : ICertificateProviderService {
+abstract class AbstractKeyProviderService(override val settings: KeyProviderSettings) : IKeyProviderService {
     protected val cacheService: CacheService = CacheService(settings)
 
     override fun createSignature(signInput: SignInput, keyEntry: IKeyEntry): Signature {

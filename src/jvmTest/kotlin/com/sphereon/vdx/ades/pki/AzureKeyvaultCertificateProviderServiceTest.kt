@@ -3,7 +3,7 @@ package com.sphereon.vdx.ades.pki
 import AbstractAdESTest
 import com.sphereon.vdx.ades.enums.*
 import com.sphereon.vdx.ades.model.*
-import com.sphereon.vdx.ades.sign.AliasSignatureService
+import com.sphereon.vdx.ades.sign.KidSignatureService
 import com.sphereon.vdx.ades.sign.util.toX509Certificate
 import eu.europa.esig.dss.enumerations.TokenExtractionStrategy
 import eu.europa.esig.dss.model.InMemoryDocument
@@ -30,12 +30,12 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
 
 
     @Test
-    fun `Given an alias the Azure Keyvault Certificate Provider Service should return a key`() {
-        val certProvider = CertificateProviderServiceFactory.createFromConfig(
+    fun `Given a KID the Azure Keyvault Certificate Provider Service should return a key`() {
+        val keyProvider = KeyProviderServiceFactory.createFromConfig(
             constructCertificateProviderSettings(false),
             azureKeyvaultClientConfig = constructKeyvaultClientConfig()
         )
-        val key = certProvider.getKey("esignum:3f98a9a740fb41b79e3679cce7a34ba6")
+        val key = keyProvider.getKey("esignum:3f98a9a740fb41b79e3679cce7a34ba6")
 
         assertNotNull(key)
         assertEquals("esignum:3f98a9a740fb41b79e3679cce7a34ba6", key.kid)
@@ -74,12 +74,12 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
         val logoData = OrigData(value = logo.readBytes(), name = "sphereon.png", mimeType = "image/png")
 
 
-        val certProvider = CertificateProviderServiceFactory.createFromConfig(
+        val keyProvider = KeyProviderServiceFactory.createFromConfig(
             constructCertificateProviderSettings(false),
             azureKeyvaultClientConfig = constructKeyvaultClientConfig()
         )
-        val signingService = AliasSignatureService(certProvider)
-        val alias = "esignum:3f98a9a740fb41b79e3679cce7a34ba6"
+        val signingService = KidSignatureService(keyProvider)
+        val kid = "esignum:3f98a9a740fb41b79e3679cce7a34ba6"
         val signatureConfiguration = SignatureConfiguration(
 
             signatureParameters = SignatureParameters(
@@ -130,7 +130,7 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
         )
         val signInput = signingService.determineSignInput(
             origData = pdfData,
-            alias = alias,
+            kid = kid,
             signMode = SignMode.DOCUMENT,
             signatureConfiguration = signatureConfiguration
         )
@@ -138,14 +138,14 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
         println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(signInput))
 
         // Let's first create a signature of the document/data without creating a digest
-        val signatureData = signingService.createSignature(signInput, alias)
+        val signatureData = signingService.createSignature(signInput, kid)
         assertNotNull(signatureData)
         assertEquals(SignMode.DOCUMENT, signatureData.signMode)
         assertEquals(SignatureAlg.RSA_SHA256, signatureData.algorithm)
 
         // Let's create a digest ourselves and sign that as well
         val digestInput = signingService.digest(signInput)
-        val signatureDigest = signingService.createSignature(digestInput, alias)
+        val signatureDigest = signingService.createSignature(digestInput, kid)
         assertNotNull(signatureDigest)
         assertEquals(SignMode.DIGEST, signatureDigest.signMode)
         assertEquals(SignatureAlg.RSA_RAW, signatureDigest.algorithm)
@@ -164,10 +164,10 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
 
         InMemoryDocument(signOutputDigest.value, signOutputData.name).save("" + System.currentTimeMillis() + "-sphereon-signed.pdf")
 
-        val validSignatureData = signingService.isValidSignature(signInput, signatureData, alias)
+        val validSignatureData = signingService.isValidSignature(signInput, signatureData, kid)
         assertTrue(validSignatureData)
 
-        val validSignatureDigest = signingService.isValidSignature(digestInput, signatureDigest, alias)
+        val validSignatureDigest = signingService.isValidSignature(digestInput, signatureDigest, kid)
         assertTrue(validSignatureDigest)
 
         assertTrue(signingService.isValidSignature(signInput, signatureData, signatureData.keyEntry.publicKey))
@@ -210,66 +210,6 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
     }
 
 
-    /*  @Test
-      fun `DSS direct test`() {
-          val pdfDocInput = this::class.java.classLoader.getResource("test-unsigned.pdf")
-          val origData = OrigData(value = pdfDocInput.readBytes(), name = "test-unsigned.pdf")
-
-          val certProvider = CertificateProviderServiceFactory.createFromConfig(
-              constructCertificateProviderSettings(false),
-              azureKeyvaultClientConfig = constructKeyvaultClientConfig()
-          )
-          val alias = "esignum:3f98a9a740fb41b79e3679cce7a34ba6"
-          val keyEntry = certProvider.getKey(alias)
-          val dssPrivateKeyEntry = keyEntry?.toDSS()
-
-          val padesService = PAdESService(CommonCertificateVerifier())
-
-          val padesSigParameters = PAdESSignatureParameters()
-          with(padesSigParameters) {
-              signaturePackaging = eu.europa.esig.dss.enumerations.SignaturePackaging.ENVELOPED
-              digestAlgorithm = DigestAlgorithm.SHA256
-              encryptionAlgorithm = EncryptionAlgorithm.RSA
-              signatureLevel = eu.europa.esig.dss.enumerations.SignatureLevel.PAdES_BASELINE_B
-              signerName = "Test Case"
-              contactInfo = "support@sphereon.com"
-              reason = "Test"
-              location = "Online"
-              signingCertificate = dssPrivateKeyEntry?.certificate
-              certificateChain = dssPrivateKeyEntry?.certificateChain?.toList()
-
-
-          }
-          padesSigParameters.bLevel().signingDate = Date.from(java.time.Instant.parse(SIGDATE))
-
-          val toSignDoc = InMemoryDocument(pdfDocInput.readBytes(), "test-unsigned.pdf")
-          val dataToSign = padesService.getDataToSign(toSignDoc, padesSigParameters)
-          println("Data to sign hashcode: ${dataToSign.bytes.hashCode()}")
-          val signingToken: SignatureTokenConnection = AzureKeyvaultTokenConnection(constructKeyvaultClientConfig(), alias)
-
-          val signature = signingToken.sign(dataToSign, DigestAlgorithm.SHA256, dssPrivateKeyEntry)
-          val signedDocument = padesService.signDocument(toSignDoc, padesSigParameters, signature)
-          signedDocument.save("" + System.currentTimeMillis() + "-DSS-signed.pdf")
-
-
-          val documentValidator = SignedDocumentValidator.fromDocument(signedDocument)
-          documentValidator.setCertificateVerifier(CommonCertificateVerifier())
-
-          assertEquals(1, documentValidator.signatures.size)
-          val diagData = documentValidator.diagnosticData
-          assertEquals(1, diagData.signatures.size)
-          assertEquals(4, diagData.usedCertificates.size)
-
-          assertContentEquals(signature.value, documentValidator.signatures.first().signatureValue)
-          val origDoc = documentValidator.getOriginalDocuments(documentValidator.signatures.first()).first()
-          ByteArrayOutputStream().use { baos ->
-              origDoc.writeTo(baos)
-              assertContentEquals(origData.value, baos.toByteArray())
-          }
-
-      }
-  */
-
     private fun constructKeyvaultClientConfig(): AzureKeyvaultClientConfig {
         return AzureKeyvaultClientConfig(
             applicationId = "unit-test",
@@ -289,13 +229,13 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
 
     private fun constructCertificateProviderSettings(
         enableCache: Boolean = false
-    ): CertificateProviderSettings {
+    ): KeyProviderSettings {
 
-        return CertificateProviderSettings(
+        return KeyProviderSettings(
             id = "eisgnum-test",
-            config = CertificateProviderConfig(
+            config = KeyProviderConfig(
                 cacheEnabled = enableCache,
-                type = CertificateProviderType.AZURE_KEYVAULT,
+                type = KeyProviderType.AZURE_KEYVAULT,
 
                 )
         )

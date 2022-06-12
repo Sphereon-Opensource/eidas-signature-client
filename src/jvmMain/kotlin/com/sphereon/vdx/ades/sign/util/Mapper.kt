@@ -94,11 +94,11 @@ fun KSPrivateKeyEntry.fromDSS(): IPrivateKeyEntry {
     )
 }
 
-fun DSSPrivateKeyEntry.fromDSS(alias: String): IKeyEntry {
+fun DSSPrivateKeyEntry.fromDSS(kid: String): IKeyEntry {
     return when (this) {
         is KSPrivateKeyEntry -> this.fromDSS()
         else -> KeyEntry(
-            kid = alias,
+            kid = kid,
             publicKey = this.certificate.publicKey.toKey(),
             certificate = this.certificate.toCertificate(),
             certificateChain = if (certificateChain == null) null else certificateChain.map { it.toCertificate() },
@@ -117,7 +117,7 @@ fun IKeyEntry.toDSS(): DSSPrivateKeyEntry {
 
 /*fun IPrivateKeyEntry.toDSS(): DSSPrivateKeyEntry {
     // for now, we just always assume a KS Private Key
-    return KSPrivateKeyEntry(this.alias, this.toJavaPrivateKeyEntry())
+    return KSPrivateKeyEntry(this.kid, this.toJavaPrivateKeyEntry())
 }*/
 
 fun IPrivateKeyEntry.toJavaPrivateKeyEntry(): KeyStore.PrivateKeyEntry {
@@ -144,8 +144,8 @@ fun KeystoreParameters.toPkcs12SignatureToken(callback: PasswordInputCallback): 
     else throw SignClientException("Please either provide bytes or a path for the keystore")
 }
 
-fun AzureKeyvaultClientConfig.toAzureSignatureToken(alias: String): AzureKeyvaultTokenConnection {
-    return AzureKeyvaultTokenConnection(this, alias)
+fun AzureKeyvaultClientConfig.toAzureSignatureToken(kid: String): AzureKeyvaultTokenConnection {
+    return AzureKeyvaultTokenConnection(this, kid)
 }
 
 

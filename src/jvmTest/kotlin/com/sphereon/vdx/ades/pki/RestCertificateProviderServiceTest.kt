@@ -1,9 +1,9 @@
 package com.sphereon.vdx.ades.pki
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.sphereon.vdx.ades.enums.CertificateProviderType
-import com.sphereon.vdx.ades.model.CertificateProviderConfig
-import com.sphereon.vdx.ades.model.CertificateProviderSettings
+import com.sphereon.vdx.ades.enums.KeyProviderType
+import com.sphereon.vdx.ades.model.KeyProviderConfig
+import com.sphereon.vdx.ades.model.KeyProviderSettings
 import com.sphereon.vdx.ades.model.PasswordInputCallback
 import com.sphereon.vdx.ades.rest.client.ApiResponse
 import com.sphereon.vdx.ades.rest.client.JSON
@@ -27,10 +27,10 @@ class RestCertificateProviderServiceTest {
 
     @Test
     @Ignore
-    fun `Given an alias the REST Certificate Provider Service should return a key`() {
+    fun `Given an KID the REST Certificate Provider Service should return a key`() {
         val data: KeyResponse = mapper.readValue(mockedRESTResponse, KeyResponse::class.java)
-        val certProvider = setupCertProviderMock(data)
-        val key = certProvider.getKey("rest")
+        val keyProvider = setupKeyProviderMock(data)
+        val key = keyProvider.getKey("rest")
 
         assertNotNull(key)
         assertEquals("rest", key.kid)
@@ -54,7 +54,7 @@ class RestCertificateProviderServiceTest {
 
     }
 
-    private fun setupCertProviderMock(data: KeyResponse): RestCertificateProviderService {
+    private fun setupKeyProviderMock(data: KeyResponse): RestKeyProviderService {
         val certApiMock = mockk<CertificatesApi>()
 
         every {
@@ -65,11 +65,11 @@ class RestCertificateProviderServiceTest {
             data
         )
 
-        val certProvider = spyk(RestCertificateProviderService(constructCertificateProviderSettings(), constructRestClientConfig()))
+        val keyProvider = spyk(RestKeyProviderService(constructKeyProviderSettings(), constructRestClientConfig()))
         every {
-            certProvider.newCertApi()
+            keyProvider.newCertApi()
         } returns certApiMock
-        return certProvider
+        return keyProvider
     }
 
 
@@ -79,16 +79,16 @@ class RestCertificateProviderServiceTest {
         )
     }
 
-    private fun constructCertificateProviderSettings(
+    private fun constructKeyProviderSettings(
         password: String = "password",
         enableCache: Boolean = false
-    ): CertificateProviderSettings {
+    ): KeyProviderSettings {
 
-        return CertificateProviderSettings(
+        return KeyProviderSettings(
             id = "rest",
-            config = CertificateProviderConfig(
+            config = KeyProviderConfig(
                 cacheEnabled = enableCache,
-                type = CertificateProviderType.REST,
+                type = KeyProviderType.REST,
 
                 ),
             passwordInputCallback = PasswordInputCallback(password = password.toCharArray())
@@ -98,7 +98,7 @@ class RestCertificateProviderServiceTest {
 
     private val mockedRESTResponse: String = "{" +
             "\"keyEntry\": {\n" +
-            "  \"alias\": \"good-user\",\n" +
+            "  \"kid\": \"good-user\",\n" +
             "  \"certificate\": \"MIID1DCCArygAwIBAgIBCjANBgkqhkiG9w0BAQsFADBNMRAwDgYDVQQDDAdnb29kLWNhMRkwFwYDVQQKDBBOb3dpbmEgU29sdXRpb25zMREwDwYDVQQLDAhQS0ktVEVTVDELMAkGA1UEBhMCTFUwHhcNMjEwNDAxMTUwMDE2WhcNMjMwMjAxMTUwMDE2WjBPMRIwEAYDVQQDDAlnb29kLXVzZXIxGTAXBgNVBAoMEE5vd2luYSBTb2x1dGlvbnMxETAPBgNVBAsMCFBLSS1URVNUMQswCQYDVQQGEwJMVTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMG1XQLFDs+sOTot11luAHEGXgFBc/Y2Nqx0GLX0yj2fGdlgPm2T342OVrnc10/i4PpNuU7M14r23lq4Ovy/bZ92D6Dx3fCIzLXG44c2HzbEEgJ9i+eDuvZZtQjKFDDYXXq762O4XQI3fdC79+gD/A1xTEKIfKl2YozeQm0GdH6Glr1+qMOUzvgxJeagb8XFpbACl800GijCpl87IC1lkH0eRdqQ0YBQALiGMMHVJ7++PK//Em0zYoC2Voe3lfz2IYTSJtwvda4GzuXTunL/6CXsIMWfPXM/2c2yvZthfQySCuF5LpL+aRHq27VKLLSNAXj93Tc6GItGWR2TCJ92WokCAwEAAaOBvDCBuTAOBgNVHQ8BAf8EBAMCBkAwgYcGCCsGAQUFBwEBBHsweTA5BggrBgEFBQcwAYYtaHR0cDovL2Rzcy5ub3dpbmEubHUvcGtpLWZhY3Rvcnkvb2NzcC9nb29kLWNhMDwGCCsGAQUFBzAChjBodHRwOi8vZHNzLm5vd2luYS5sdS9wa2ktZmFjdG9yeS9jcnQvZ29vZC1jYS5jcnQwHQYDVR0OBBYEFMlVsVjS0AsZNBNcTPHLRGAtD5YmMA0GCSqGSIb3DQEBCwUAA4IBAQAXBQjQSHexe5QksRo+Jt66mgYr9HJUQrOGkex0k1GQXm+919uJnPGLyXzHW0CZCCA+EzyOqAKXaIbPEgR3UKlkZ9UkhRZ7aC2SUrRLnBvP8IqTc/JJuZaXjQJQ5yNHrWfnAW6m6smC8WsVFAhtUmzlaHAz6MP7tK9dJsCe6vBPyjUbDiJqRthEZ7n8x9ZI3Y2nO0ZHuGdpFSTlu9GY3+A96ENUEo9xDaPrdU/wEZobeS28BQozPcN00naDoIjkl14y/VBEf8pDCfHeLbTARsAh+TCS6wFq5ChNE/WnxkBZpOt+EAU7XMXOVEJPNggQegIIRdCs8kYXxY1e6Q42vNaS\",\n" +
             "  \"certificateChain\": [\n" +
             "    \"MIID1DCCArygAwIBAgIBCjANBgkqhkiG9w0BAQsFADBNMRAwDgYDVQQDDAdnb29kLWNhMRkwFwYDVQQKDBBOb3dpbmEgU29sdXRpb25zMREwDwYDVQQLDAhQS0ktVEVTVDELMAkGA1UEBhMCTFUwHhcNMjEwNDAxMTUwMDE2WhcNMjMwMjAxMTUwMDE2WjBPMRIwEAYDVQQDDAlnb29kLXVzZXIxGTAXBgNVBAoMEE5vd2luYSBTb2x1dGlvbnMxETAPBgNVBAsMCFBLSS1URVNUMQswCQYDVQQGEwJMVTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMG1XQLFDs+sOTot11luAHEGXgFBc/Y2Nqx0GLX0yj2fGdlgPm2T342OVrnc10/i4PpNuU7M14r23lq4Ovy/bZ92D6Dx3fCIzLXG44c2HzbEEgJ9i+eDuvZZtQjKFDDYXXq762O4XQI3fdC79+gD/A1xTEKIfKl2YozeQm0GdH6Glr1+qMOUzvgxJeagb8XFpbACl800GijCpl87IC1lkH0eRdqQ0YBQALiGMMHVJ7++PK//Em0zYoC2Voe3lfz2IYTSJtwvda4GzuXTunL/6CXsIMWfPXM/2c2yvZthfQySCuF5LpL+aRHq27VKLLSNAXj93Tc6GItGWR2TCJ92WokCAwEAAaOBvDCBuTAOBgNVHQ8BAf8EBAMCBkAwgYcGCCsGAQUFBwEBBHsweTA5BggrBgEFBQcwAYYtaHR0cDovL2Rzcy5ub3dpbmEubHUvcGtpLWZhY3Rvcnkvb2NzcC9nb29kLWNhMDwGCCsGAQUFBzAChjBodHRwOi8vZHNzLm5vd2luYS5sdS9wa2ktZmFjdG9yeS9jcnQvZ29vZC1jYS5jcnQwHQYDVR0OBBYEFMlVsVjS0AsZNBNcTPHLRGAtD5YmMA0GCSqGSIb3DQEBCwUAA4IBAQAXBQjQSHexe5QksRo+Jt66mgYr9HJUQrOGkex0k1GQXm+919uJnPGLyXzHW0CZCCA+EzyOqAKXaIbPEgR3UKlkZ9UkhRZ7aC2SUrRLnBvP8IqTc/JJuZaXjQJQ5yNHrWfnAW6m6smC8WsVFAhtUmzlaHAz6MP7tK9dJsCe6vBPyjUbDiJqRthEZ7n8x9ZI3Y2nO0ZHuGdpFSTlu9GY3+A96ENUEo9xDaPrdU/wEZobeS28BQozPcN00naDoIjkl14y/VBEf8pDCfHeLbTARsAh+TCS6wFq5ChNE/WnxkBZpOt+EAU7XMXOVEJPNggQegIIRdCs8kYXxY1e6Q42vNaS\",\n" +

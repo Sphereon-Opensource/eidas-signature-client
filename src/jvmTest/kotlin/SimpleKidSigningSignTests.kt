@@ -13,7 +13,7 @@ import kotlin.test.assertTrue
 
 private const val CERTIFICATE = "certificate"
 
-class SimpleAliasSigningSignTests : AbstractAdESTest() {
+class SimpleKidSigningSignTests : AbstractAdESTest() {
 
     @Test
     fun `Given an input with signmode DOCUMENT the sign method should sign the document`() {
@@ -24,8 +24,8 @@ class SimpleAliasSigningSignTests : AbstractAdESTest() {
             signingDate = Clock.System.now()
         )
 
-        val signingService = constructAliasSignatureService(enableCache = true, keystoreFilename = "user_a_rsa.p12", password = "password")
-        val keyEntry = signingService.certificateProvider.getKey(CERTIFICATE)!!
+        val signingService = constructKidSignatureService(enableCache = true, keystoreFilename = "user_a_rsa.p12", password = "password")
+        val keyEntry = signingService.keyProvider.getKey(CERTIFICATE)!!
         val signature = signingService.createSignature(signInput, CERTIFICATE)
         assertNotNull(signature)
         assertEquals(SignatureAlg.RSA_SHA256, signature.algorithm)
@@ -48,8 +48,8 @@ class SimpleAliasSigningSignTests : AbstractAdESTest() {
             signingDate = Clock.System.now()
         )
 
-        val signingService = constructAliasSignatureService(enableCache = true, keystoreFilename = "user_a_rsa.p12", password = "password")
-        val keyEntry = signingService.certificateProvider.getKey(CERTIFICATE)!!
+        val signingService = constructKidSignatureService(enableCache = true, keystoreFilename = "user_a_rsa.p12", password = "password")
+        val keyEntry = signingService.keyProvider.getKey(CERTIFICATE)!!
         assertNotNull(keyEntry)
         val signature = signingService.createSignature(signInput, CERTIFICATE)
         assertNotNull(signature)
@@ -71,8 +71,8 @@ class SimpleAliasSigningSignTests : AbstractAdESTest() {
             signingDate = Clock.System.now()
         )
 
-        val signingService = constructAliasSignatureService(enableCache = false, keystoreFilename = "user_a_rsa.p12", password = "password")
-        val keyEntry = signingService.certificateProvider.getKey(CERTIFICATE)!!
+        val signingService = constructKidSignatureService(enableCache = false, keystoreFilename = "user_a_rsa.p12", password = "password")
+        val keyEntry = signingService.keyProvider.getKey(CERTIFICATE)!!
         val signature = signingService.createSignature(signInput, CERTIFICATE, MaskGenFunction.MGF1)
         assertNotNull(signature)
         assertEquals(SignatureAlg.RSA_SSA_PSS_SHA256_MGF1, signature.algorithm)
@@ -93,8 +93,8 @@ class SimpleAliasSigningSignTests : AbstractAdESTest() {
             signingDate = Clock.System.now()
         )
 
-        val signingService = constructAliasSignatureService(enableCache = false, keystoreFilename = "user_a_rsa.p12", password = "password")
-        val keyEntry = signingService.certificateProvider.getKey(CERTIFICATE)!!
+        val signingService = constructKidSignatureService(enableCache = false, keystoreFilename = "user_a_rsa.p12", password = "password")
+        val keyEntry = signingService.keyProvider.getKey(CERTIFICATE)!!
         assertNotNull(keyEntry)
         val signature = signingService.createSignature(signInput, CERTIFICATE, MaskGenFunction.MGF1)
         assertNotNull(signature)

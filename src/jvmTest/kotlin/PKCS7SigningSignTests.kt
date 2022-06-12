@@ -21,7 +21,7 @@ class PKCS7SigningSignTests : AbstractAdESTest() {
         val origData = OrigData(value = pdfDocInput.readBytes(), name = "test-unsigned.pdf")
 
         val signingService = constructKeySignatureService(keystoreFilename = "good-user.p12", password = "ks-password")
-        val keyEntry = signingService.certificateProvider.getKey("good-user")!!
+        val keyEntry = signingService.keyProvider.getKey("good-user")!!
         val signatureConfiguration = SignatureConfiguration(
 
             signatureParameters = SignatureParameters(

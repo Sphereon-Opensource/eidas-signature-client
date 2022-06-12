@@ -6,19 +6,19 @@ import com.sphereon.vdx.ades.enums.MaskGenFunction
 import com.sphereon.vdx.ades.enums.SignMode
 import com.sphereon.vdx.ades.enums.SignatureAlg
 import com.sphereon.vdx.ades.model.*
-import com.sphereon.vdx.ades.pki.ICertificateProviderService
+import com.sphereon.vdx.ades.pki.IKeyProviderService
 
 interface IRemoteSignatureService {
 
-    val certificateProvider: ICertificateProviderService
+    val keyProvider: IKeyProviderService
 
     /**
      * Determines the bytes that will serve as input for the digest or signature.
      * Since multiple signature types are supported the configuration and key are required te determine the appropriate mode
      *
      * @param origData The orignal data/file
-     * @param certificateAlias
-     * The certificate alias
+     * @param kid
+     * The key identifier
      * @param signMode The signmode to use
      * @param signatureConfiguration The configuration
      *
@@ -26,7 +26,7 @@ interface IRemoteSignatureService {
      */
     fun determineSignInput(
         origData: OrigData,
-        certificateAlias: String,
+        kid: String,
         signMode: SignMode,
         signatureConfiguration: SignatureConfiguration
     ): SignInput
@@ -51,14 +51,14 @@ interface IRemoteSignatureService {
      *
      * @param signInput
      * The data that need to be signed
-     * @param certificateAlias
-     * The certificate alias
+     * @param kid
+     * The key identifier
      * @return the signature value representation with the used algorithm and the binary value
      * @throws SigningException
      * If there is any problem during the signature process
      */
     @Throws(SigningException::class)
-    fun createSignature(signInput: SignInput, certificateAlias: String): Signature
+    fun createSignature(signInput: SignInput, kid: String): Signature
 
 
     /**
@@ -69,8 +69,8 @@ interface IRemoteSignatureService {
      * The data that need to be signed
      * @param mgf
      * the mask generation function
-     * @param certificateAlias
-     * The certificate alias
+     * @param kid
+     * The key identifier
      * @return the signature value representation with the used algorithm and the binary value
      * @throws SigningException
      * If there is any problem during the signature process
@@ -78,7 +78,7 @@ interface IRemoteSignatureService {
     @Throws(SigningException::class)
     fun createSignature(
         signInput: SignInput,
-        certificateAlias: String,
+        kid: String,
         mgf: MaskGenFunction
     ): Signature
 
@@ -90,8 +90,8 @@ interface IRemoteSignatureService {
      * The data that need to be signed
      * @param signatureAlgorithm
      * the Signature Algorithm
-     * @param certificateAlias
-     * The certificate alias
+     * @param kid
+     * The key identifier
      * @return the signature value representation with the used algorithm and the binary value
      * @throws SigningException
      * If there is any problem during the signature process
@@ -99,14 +99,14 @@ interface IRemoteSignatureService {
     @Throws(SigningException::class)
     fun createSignature(
         signInput: SignInput,
-        certificateAlias: String,
+        kid: String,
         signatureAlgorithm: SignatureAlg
     ): Signature
 
     fun isValidSignature(signInput: SignInput, signature: Signature, certificate: Certificate): Boolean
 
 
-    fun isValidSignature(signInput: SignInput, signature: Signature, certificateAlias: String): Boolean
+    fun isValidSignature(signInput: SignInput, signature: Signature, kid: String): Boolean
 
     /**
      *
@@ -115,8 +115,8 @@ interface IRemoteSignatureService {
      *
      * @param origData
      * The data that need to be signed
-     * @param certificateAlias
-     * The certificate alias
+     * @param kid
+     * The key identifier
      * @param signMode
      * The signing mode
      * @param signatureConfiguration
@@ -126,7 +126,7 @@ interface IRemoteSignatureService {
      * If there is any problem during the signature process
      */
     @Throws(SigningException::class)
-    fun sign(origData: OrigData, certificateAlias: String, signMode: SignMode, signatureConfiguration: SignatureConfiguration): SignOutput
+    fun sign(origData: OrigData, kid: String, signMode: SignMode, signatureConfiguration: SignatureConfiguration): SignOutput
 
     /**
      * This method create the `signOutput` using the `signInput` a calculated `signature` and the provided configuration

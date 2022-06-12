@@ -2,7 +2,7 @@ package com.sphereon.vdx.ades.pki
 
 import SelfSignedCertGenerator
 import com.sphereon.vdx.ades.PKIException
-import com.sphereon.vdx.ades.enums.CertificateProviderType
+import com.sphereon.vdx.ades.enums.KeyProviderType
 import com.sphereon.vdx.ades.model.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -15,28 +15,28 @@ import java.security.cert.X509Certificate
 import kotlin.test.*
 
 
-class LocalCertificateProviderServiceTest {
+class LocalKeyProviderServiceTest {
     @Test
     fun `Given too few config parameters a PKI Exception occurs`() {
         val pkcs11Ex = assertFailsWith<PKIException> {
-            CertificateProviderServiceFactory.createFromConfig(
-                CertificateProviderSettings(id = "pkcs11", CertificateProviderConfig(type = CertificateProviderType.PKCS11))
+            KeyProviderServiceFactory.createFromConfig(
+                KeyProviderSettings(id = "pkcs11", KeyProviderConfig(type = KeyProviderType.PKCS11))
             )
         }
         assert("PKCS11 provider without configuration" in pkcs11Ex.message!!)
 
 
         val pkcs12Ex = assertFailsWith<PKIException> {
-            CertificateProviderServiceFactory.createFromConfig(
-                CertificateProviderSettings(id = "pkcs12", CertificateProviderConfig(type = CertificateProviderType.PKCS12))
+            KeyProviderServiceFactory.createFromConfig(
+                KeyProviderSettings(id = "pkcs12", KeyProviderConfig(type = KeyProviderType.PKCS12))
             )
         }
         assert("PKCS12 provider without configuration" in pkcs12Ex.message!!)
 
 
         val notSupportedEx = assertFailsWith<PKIException> {
-            CertificateProviderServiceFactory.createFromConfig(
-                CertificateProviderSettings(id = "not supported yet", CertificateProviderConfig(type = CertificateProviderType.JKS))
+            KeyProviderServiceFactory.createFromConfig(
+                KeyProviderSettings(id = "not supported yet", KeyProviderConfig(type = KeyProviderType.JKS))
             )
         }
         assert("Config type not set or supported" in notSupportedEx.message!!)
@@ -44,8 +44,8 @@ class LocalCertificateProviderServiceTest {
 
 
     @Test
-    fun `Given an in memory pkcs12 bytearray configuration one certificate should be found`() {
-        val testKeyAlias = "test-key"
+    fun `Given an in memory pkcs12 bytearray configuration one key should be found`() {
+        val testKid = "test-key"
         val password = "password".toCharArray()
         val baos = ByteArrayOutputStream()
 
@@ -58,22 +58,22 @@ class LocalCertificateProviderServiceTest {
         // Setup keystore and store it in a byte array
         val keyStore = KeyStore.getInstance("PKCS12")
         keyStore.load(null, password)
-        keyStore.setKeyEntry(testKeyAlias, keyPair.private, password, arrayOf(cert))
-        assertNotNull(keyStore.getKey(testKeyAlias, password))
+        keyStore.setKeyEntry(testKid, keyPair.private, password, arrayOf(cert))
+        assertNotNull(keyStore.getKey(testKid, password))
         keyStore.store(baos, password)
         val providerBytes = baos.toByteArray()
         baos.close()
 
 
-        // Do the actual cert provider tests with the bytearray keystore
+        // Do the actual key provider tests with the bytearray keystore
         val passwordInputCallback = PasswordInputCallback(password = password)
-        val providerConfig = CertificateProviderConfig(
-            type = CertificateProviderType.PKCS12,
+        val providerConfig = KeyProviderConfig(
+            type = KeyProviderType.PKCS12,
             pkcs12Parameters = KeystoreParameters(providerBytes = providerBytes)
         )
-        val certProvider =
-            CertificateProviderServiceFactory.createFromConfig(
-                CertificateProviderSettings(
+        val keyProvider =
+            KeyProviderServiceFactory.createFromConfig(
+                KeyProviderSettings(
                     id = "pkcs12",
                     providerConfig,
                     passwordInputCallback
@@ -81,11 +81,11 @@ class LocalCertificateProviderServiceTest {
             )
 
 
-        assertFalse(certProvider.getKeys().isEmpty())
-        assertEquals(1, certProvider.getKeys().size)
-        println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(certProvider.getKeys()))
+        assertFalse(keyProvider.getKeys().isEmpty())
+        assertEquals(1, keyProvider.getKeys().size)
+        println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(keyProvider.getKeys()))
 
-        assertNotNull(certProvider.getKey(testKeyAlias))
+        assertNotNull(keyProvider.getKey(testKid))
     }
 
 
@@ -93,24 +93,24 @@ class LocalCertificateProviderServiceTest {
     fun `Given a pkcs12 file configuration one certificate should be found`() {
         val providerPath = this::class.java.classLoader.getResource("good-user.p12").path
         val passwordInputCallback = PasswordInputCallback(password = "ks-password".toCharArray())
-        val providerConfig = CertificateProviderConfig(
-            type = CertificateProviderType.PKCS12,
+        val providerConfig = KeyProviderConfig(
+            type = KeyProviderType.PKCS12,
             pkcs12Parameters = KeystoreParameters(providerPath)
         )
-        val certProvider =
-            LocalCertificateProviderService(
-                CertificateProviderSettings(
+        val keyProvider =
+            LocalKeyProviderService(
+                KeyProviderSettings(
                     id = "pkcs12",
                     providerConfig,
                     passwordInputCallback
                 )
             )
 
-        assertFalse(certProvider.getKeys().isEmpty())
-        assertEquals(1, certProvider.getKeys().size)
-        assertNotNull(certProvider.getKey("good-user"))
-        println(json.encodeToString(certProvider.getKeys().first().certificate))
-        assertNull(certProvider.getKey("does-not-exist"))
+        assertFalse(keyProvider.getKeys().isEmpty())
+        assertEquals(1, keyProvider.getKeys().size)
+        assertNotNull(keyProvider.getKey("good-user"))
+        println(json.encodeToString(keyProvider.getKeys().first().certificate))
+        assertNull(keyProvider.getKey("does-not-exist"))
     }
 }
 

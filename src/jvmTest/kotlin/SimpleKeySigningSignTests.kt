@@ -23,7 +23,7 @@ class SimpleKeySigningSignTests : AbstractAdESTest() {
         )
 
         val signingService = constructKeySignatureService(keystoreFilename = "user_a_rsa.p12", password = "password")
-        val keyEntry = signingService.certificateProvider.getKey("certificate")!!
+        val keyEntry = signingService.keyProvider.getKey("certificate")!!
         val signature = signingService.createSignature(signInput, keyEntry)
         assertNotNull(signature)
         assertEquals(SignatureAlg.RSA_SHA256, signature.algorithm)
@@ -47,7 +47,7 @@ class SimpleKeySigningSignTests : AbstractAdESTest() {
         )
 
         val signingService = constructKeySignatureService(keystoreFilename = "user_a_rsa.p12", password = "password")
-        val keyEntry = signingService.certificateProvider.getKey("certificate")!!
+        val keyEntry = signingService.keyProvider.getKey("certificate")!!
         val signature = signingService.createSignature(signInput, keyEntry)
         assertNotNull(signature)
         assertEquals(SignatureAlg.RSA_SHA256, signature.algorithm)
@@ -69,7 +69,7 @@ class SimpleKeySigningSignTests : AbstractAdESTest() {
         )
 
         val signingService = constructKeySignatureService(keystoreFilename = "user_a_rsa.p12", password = "password")
-        val keyEntry = signingService.certificateProvider.getKey("certificate")!!
+        val keyEntry = signingService.keyProvider.getKey("certificate")!!
         val signature = signingService.createSignature(signInput, keyEntry, MaskGenFunction.MGF1)
         assertNotNull(signature)
         assertEquals(SignatureAlg.RSA_SSA_PSS_SHA256_MGF1, signature.algorithm)
@@ -91,7 +91,7 @@ class SimpleKeySigningSignTests : AbstractAdESTest() {
         )
 
         val signingService = constructKeySignatureService(keystoreFilename = "user_a_rsa.p12", password = "password")
-        val keyEntry = signingService.certificateProvider.getKey("certificate")!!
+        val keyEntry = signingService.keyProvider.getKey("certificate")!!
         val signature = signingService.createSignature(signInput, keyEntry, MaskGenFunction.MGF1)
         assertNotNull(signature)
         assertEquals(SignatureAlg.RSA_SSA_PSS_SHA256_MGF1, signature.algorithm)
