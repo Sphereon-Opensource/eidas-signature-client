@@ -3,6 +3,7 @@ import com.sphereon.vdx.ades.enums.MaskGenFunction
 import com.sphereon.vdx.ades.enums.SignMode
 import com.sphereon.vdx.ades.enums.SignatureAlg
 import com.sphereon.vdx.ades.model.SignInput
+import kotlinx.datetime.Clock
 import org.apache.commons.codec.binary.Hex
 import org.junit.jupiter.api.Test
 import kotlin.test.assertContentEquals
@@ -16,7 +17,12 @@ class SimpleAliasSigningSignTests : AbstractAdESTest() {
 
     @Test
     fun `Given an input with signmode DOCUMENT the sign method should sign the document`() {
-        val signInput = SignInput(input = "test".toByteArray(), signMode = SignMode.DOCUMENT, digestAlgorithm = DigestAlg.SHA256)
+        val signInput = SignInput(
+            input = "test".toByteArray(),
+            signMode = SignMode.DOCUMENT,
+            digestAlgorithm = DigestAlg.SHA256,
+            signingDate = Clock.System.now()
+        )
 
         val signingService = constructAliasSignatureService(enableCache = true, keystoreFilename = "user_a_rsa.p12", password = "password")
         val keyEntry = signingService.certificateProvider.getKey(CERTIFICATE)!!
@@ -38,7 +44,8 @@ class SimpleAliasSigningSignTests : AbstractAdESTest() {
         val signInput = SignInput(
             input = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08".toByteArray(),
             signMode = SignMode.DIGEST,
-            digestAlgorithm = DigestAlg.SHA256
+            digestAlgorithm = DigestAlg.SHA256,
+            signingDate = Clock.System.now()
         )
 
         val signingService = constructAliasSignatureService(enableCache = true, keystoreFilename = "user_a_rsa.p12", password = "password")
@@ -57,7 +64,12 @@ class SimpleAliasSigningSignTests : AbstractAdESTest() {
 
     @Test
     fun `Given an input with signmode DOCUMENT and maskgen function 1 the sign method should sign the document`() {
-        val signInput = SignInput(input = "test".toByteArray(), signMode = SignMode.DOCUMENT, digestAlgorithm = DigestAlg.SHA256)
+        val signInput = SignInput(
+            input = "test".toByteArray(),
+            signMode = SignMode.DOCUMENT,
+            digestAlgorithm = DigestAlg.SHA256,
+            signingDate = Clock.System.now()
+        )
 
         val signingService = constructAliasSignatureService(enableCache = false, keystoreFilename = "user_a_rsa.p12", password = "password")
         val keyEntry = signingService.certificateProvider.getKey(CERTIFICATE)!!
@@ -77,7 +89,8 @@ class SimpleAliasSigningSignTests : AbstractAdESTest() {
         val signInput = SignInput(
             input = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08".toByteArray(),
             signMode = SignMode.DIGEST,
-            digestAlgorithm = DigestAlg.SHA256
+            digestAlgorithm = DigestAlg.SHA256,
+            signingDate = Clock.System.now()
         )
 
         val signingService = constructAliasSignatureService(enableCache = false, keystoreFilename = "user_a_rsa.p12", password = "password")

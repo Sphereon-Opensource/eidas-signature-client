@@ -123,10 +123,10 @@ open class AzureKeyvaultCertificateProviderService(
 
         return if (isDigestMode(signInput)) {
             tokenConnection.signDigest(signInput.toDigest(), mgf?.toDSS(), keyEntry.toDSS()).toRaw()
-                .fromDSS(signMode = signInput.signMode, keyEntry, settings.id)
+                .fromDSS(signMode = signInput.signMode, keyEntry, settings.id, signInput.signingDate)
         } else {
             tokenConnection.sign(signInput.toBeSigned(), signInput.digestAlgorithm.toDSS(), mgf?.toDSS(), keyEntry.toDSS())
-                .fromDSS(signMode = signInput.signMode, keyEntry, settings.id)
+                .fromDSS(signMode = signInput.signMode, keyEntry, settings.id, signInput.signingDate)
         }
     }
 

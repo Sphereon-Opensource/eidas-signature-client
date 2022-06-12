@@ -3,6 +3,7 @@ import com.sphereon.vdx.ades.enums.DigestAlg
 import com.sphereon.vdx.ades.enums.SignMode
 import com.sphereon.vdx.ades.model.SignInput
 import com.sphereon.vdx.ades.model.serializers
+import kotlinx.datetime.Clock
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.apache.commons.codec.binary.Hex
@@ -14,7 +15,8 @@ class SimpleSigningDigestTests : AbstractAdESTest() {
 
     @Test
     fun `Given an input with signmode DIGEST but without a digest algorithm the digest function should throw an exception`() {
-        val digestInput = SignInput(input = "test".toByteArray(), signMode = SignMode.DIGEST, digestAlgorithm = null)
+        val digestInput =
+            SignInput(input = "test".toByteArray(), signMode = SignMode.DIGEST, digestAlgorithm = null, signingDate = Clock.System.now())
         val ex = assertFailsWith<SigningException> {
             constructKeySignatureService(keystoreFilename = "user_a_rsa.p12", password = "password").digest(digestInput)
         }
@@ -23,7 +25,8 @@ class SimpleSigningDigestTests : AbstractAdESTest() {
 
     @Test
     fun `Given an input with signmode DIGEST with a digest algorithm of NONE the digest function should throw an exception`() {
-        val digestInput = SignInput(input = "test".toByteArray(), signMode = SignMode.DIGEST, digestAlgorithm = DigestAlg.NONE)
+        val digestInput =
+            SignInput(input = "test".toByteArray(), signMode = SignMode.DIGEST, digestAlgorithm = DigestAlg.NONE, signingDate = Clock.System.now())
         val ex = assertFailsWith<SigningException> {
             constructKeySignatureService(keystoreFilename = "user_a_rsa.p12", password = "password").digest(digestInput)
         }
@@ -39,7 +42,8 @@ class SimpleSigningDigestTests : AbstractAdESTest() {
                 SignInput(
                     input = "test".toByteArray(),
                     signMode = SignMode.DIGEST,
-                    digestAlgorithm = DigestAlg.SHA256
+                    digestAlgorithm = DigestAlg.SHA256,
+                    signingDate = Clock.System.now()
                 )
             ).input
         )
@@ -50,7 +54,8 @@ class SimpleSigningDigestTests : AbstractAdESTest() {
                     SignInput(
                         input = "test".toByteArray(),
                         signMode = SignMode.DIGEST,
-                        digestAlgorithm = DigestAlg.SHA256
+                        digestAlgorithm = DigestAlg.SHA256,
+                        signingDate = Clock.System.now()
                     )
                 )
             )
@@ -62,7 +67,8 @@ class SimpleSigningDigestTests : AbstractAdESTest() {
                 SignInput(
                     input = "test".toByteArray(),
                     signMode = SignMode.DIGEST,
-                    digestAlgorithm = DigestAlg.SHA512
+                    digestAlgorithm = DigestAlg.SHA512,
+                    signingDate = Clock.System.now()
                 )
             ).input
         )
@@ -73,7 +79,8 @@ class SimpleSigningDigestTests : AbstractAdESTest() {
                 SignInput(
                     input = "test".toByteArray(),
                     signMode = SignMode.DIGEST,
-                    digestAlgorithm = DigestAlg.SHA3_256
+                    digestAlgorithm = DigestAlg.SHA3_256,
+                    signingDate = Clock.System.now()
                 )
             ).input
         )
@@ -84,7 +91,8 @@ class SimpleSigningDigestTests : AbstractAdESTest() {
                 SignInput(
                     input = "test".toByteArray(),
                     signMode = SignMode.DIGEST,
-                    digestAlgorithm = DigestAlg.SHA3_512
+                    digestAlgorithm = DigestAlg.SHA3_512,
+                    signingDate = Clock.System.now()
                 )
             ).input
         )

@@ -38,6 +38,7 @@ import eu.europa.esig.dss.token.DSSPrivateKeyEntry
 import eu.europa.esig.dss.token.KSPrivateKeyEntry
 import eu.europa.esig.dss.token.Pkcs11SignatureToken
 import eu.europa.esig.dss.token.Pkcs12SignatureToken
+import kotlinx.datetime.Instant
 import kotlinx.datetime.toJavaInstant
 import java.awt.Color
 import java.lang.reflect.Field
@@ -202,9 +203,14 @@ fun SignatureValue.toRaw(): SignatureValue {
     return SignatureValue(rawSigAlg, value)
 }
 
-fun SignatureValue.fromDSS(signMode: SignMode, keyEntry: IKeyEntry, providerId: String): Signature {
+fun SignatureValue.fromDSS(signMode: SignMode, keyEntry: IKeyEntry, providerId: String, signingDate: Instant): Signature {
     return Signature(
-        value = this.value, signMode = signMode, algorithm = this.algorithm.fromDSS(), keyEntry = keyEntry, providerId = providerId
+        value = this.value,
+        signMode = signMode,
+        algorithm = this.algorithm.fromDSS(),
+        keyEntry = keyEntry,
+        providerId = providerId,
+        date = signingDate
     )
 }
 
@@ -345,33 +351,46 @@ fun TextWrapping.toDSS(): eu.europa.esig.dss.enumerations.TextWrapping {
 }
 
 fun SignatureParameters.toDSS(
-    key: IKeyEntry, signedData: ByteArray? = null, signatureAlg: SignatureAlg? = null, timestampParameters: com.sphereon.vdx.ades.model.TimestampParameters?
+    key: IKeyEntry,
+    signedData: ByteArray? = null,
+    signatureAlg: SignatureAlg? = null,
+    timestampParameters: com.sphereon.vdx.ades.model.TimestampParameters? = null,
+    signingDate: Instant? = null
 ): AbstractSignatureParameters<out SerializableTimestampParameters> {
     return when (signatureForm()) {
-        SignatureForm.CAdES -> toCades(key, signedData, signatureAlg, timestampParameters)
-        SignatureForm.PAdES -> toPades(key, signedData, signatureAlg, timestampParameters)
-        SignatureForm.PKCS7 -> toPKCS7(key, signedData, signatureAlg, timestampParameters)
+        SignatureForm.CAdES -> toCades(key, signedData, signingDate, signatureAlg, timestampParameters)
+        SignatureForm.PAdES -> toPades(key, signedData, signingDate, signatureAlg, timestampParameters)
+        SignatureForm.PKCS7 -> toPKCS7(key, signedData, signingDate, signatureAlg, timestampParameters)
         else -> throw SigningException("Encryption algorithm $encryptionAlgorithm not supported yet")
     }
 }
 
 fun SignatureParameters.toCades(
-    key: IKeyEntry, signedData: ByteArray? = null, signatureAlg: SignatureAlg? = null, timestampParameters: com.sphereon.vdx.ades.model.TimestampParameters?
+    key: IKeyEntry,
+    signedData: ByteArray? = null,
+    signingDate: Instant? = null,
+    signatureAlg: SignatureAlg? = null,
+    timestampParameters: com.sphereon.vdx.ades.model.TimestampParameters?
 ): CAdESSignatureParameters {
     if (signatureForm() != SignatureForm.CAdES) throw SigningException("Cannot convert to cades signature parameters when signature form is ${signatureForm()}")
-    return mapCadesSignatureParams(this, key, signedData, signatureAlg, timestampParameters)
+    return mapCadesSignatureParams(this, key, signingDate, signedData, signatureAlg, timestampParameters)
 }
 
 fun SignatureParameters.toPades(
-    key: IKeyEntry, signedData: ByteArray? = null, signatureAlg: SignatureAlg? = null, timestampParameters: com.sphereon.vdx.ades.model.TimestampParameters?
+    key: IKeyEntry,
+    signedData: ByteArray? = null,
+    signingDate: Instant? = null,
+    signatureAlg: SignatureAlg? = null,
+    timestampParameters: com.sphereon.vdx.ades.model.TimestampParameters?
 ): PAdESSignatureParameters {
     if (signatureForm() != SignatureForm.PAdES) throw SigningException("Cannot convert to pades signature parameters when signature form is ${signatureForm()}")
-    return mapPadesSignatureParams(this, key, signedData, signatureAlg, timestampParameters)
+    return mapPadesSignatureParams(this, key, signingDate, signedData, signatureAlg, timestampParameters)
 }
 
 fun mapPadesSignatureParams(
     signatureParameters: SignatureParameters,
     key: IKeyEntry,
+    signingDate: Instant? = null,
     signedData: ByteArray? = null,
     signatureAlg: SignatureAlg? = null,
     timestampParameters: com.sphereon.vdx.ades.model.TimestampParameters?
@@ -379,7 +398,7 @@ fun mapPadesSignatureParams(
     val dssParams = PAdESSignatureParameters()
 
     mapTimestampParams(dssParams, signatureForm = signatureParameters.signatureForm(), timestampParameters = timestampParameters)
-    mapBlevelParams(dssParams.bLevel(), signatureParameters)
+    mapBlevelParams(dssParams.bLevel(), signatureParameters, signingDate)
     mapGenericSignatureParams(dssParams, signatureParameters, key, signedData, signatureAlg)
     dssParams.isEn319122 = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.en319122 ?: true
 //    dssParams.contentHintsDescription = signatureParameters.signatureFormParameters?.padesSignatureFormParameters?.contentHintsDescription
@@ -413,10 +432,17 @@ fun mapPadesSignatureParams(
     return dssParams
 }
 
-fun mapBlevelParams(dssbLevelParams: BLevelParameters, signatureParameters: SignatureParameters) {
+fun mapBlevelParams(dssbLevelParams: BLevelParameters, signatureParameters: SignatureParameters, signingDate: Instant? = null) {
     val bLevelParameters = signatureParameters.signatureLevelParameters?.bLevelParameters ?: return
     with(dssbLevelParams) {
-        signingDate = if (bLevelParameters.signingDate != null) Date.from(bLevelParameters.signingDate.toJavaInstant()) else null
+        this.signingDate = if (signingDate != null) {
+            bLevelParameters.signingDate = signingDate
+            Date.from(signingDate.toJavaInstant())
+        } else if (bLevelParameters.signingDate != null) {
+            Date.from(bLevelParameters.signingDate!!.toJavaInstant())
+        } else {
+            null
+        }
         isTrustAnchorBPPolicy = bLevelParameters.trustAnchorBPPolicy == true
         claimedSignerRoles = bLevelParameters.claimedSignerRoles
         if (bLevelParameters.signerLocationCountry != null || bLevelParameters.signerLocationLocality != null || bLevelParameters.signerLocationStreet != null || bLevelParameters.signerLocationPostalAddress != null || bLevelParameters.signerLocationPostalCode != null || bLevelParameters.signerLocationStateOrProvince != null) {
@@ -438,7 +464,12 @@ fun mapBlevelParams(dssbLevelParams: BLevelParameters, signatureParameters: Sign
 }
 
 fun mapCadesSignatureParams(
-    signatureParameters: SignatureParameters, key: IKeyEntry, signedData: ByteArray? = null, signatureAlg: SignatureAlg? = null, timestampParameters: com.sphereon.vdx.ades.model.TimestampParameters?
+    signatureParameters: SignatureParameters,
+    key: IKeyEntry,
+    signingDate: Instant?,
+    signedData: ByteArray? = null,
+    signatureAlg: SignatureAlg? = null,
+    timestampParameters: com.sphereon.vdx.ades.model.TimestampParameters?
 ): CAdESSignatureParameters {
     val dssParams = CAdESSignatureParameters()
     dssParams.contentTimestampParameters = CAdESTimestampParameters()
@@ -447,7 +478,7 @@ fun mapCadesSignatureParams(
 
     mapTimestampParams(dssParams, signatureParameters.signatureForm(), timestampParameters)
     mapGenericSignatureParams(dssParams, signatureParameters, key, signedData, signatureAlg)
-    mapBlevelParams(dssParams.bLevel(), signatureParameters)
+    mapBlevelParams(dssParams.bLevel(), signatureParameters, signingDate)
     dssParams.isEn319122 = signatureParameters.signatureFormParameters?.cadesSignatureFormParameters?.en319122 ?: true
     dssParams.contentHintsDescription = signatureParameters.signatureFormParameters?.cadesSignatureFormParameters?.contentHintsDescription
     dssParams.contentHintsType = signatureParameters.signatureFormParameters?.cadesSignatureFormParameters?.contentHintsType
@@ -528,23 +559,26 @@ fun mapTimestampParams(
 
 }
 
-private fun initTimestampParameters(pades: Boolean) = if (pades) PAdESTimestampParameters().also { it.contentSize = 12314 } else CAdESTimestampParameters()
+private fun initTimestampParameters(pades: Boolean) =
+    if (pades) PAdESTimestampParameters().also { it.contentSize = 12314 } else CAdESTimestampParameters()
 
 fun SignatureParameters.toPKCS7(
     key: IKeyEntry,
-    signedData: ByteArray?,
-    signatureAlg: SignatureAlg?,
-    timestampParameters: com.sphereon.vdx.ades.model.TimestampParameters?
+    signedData: ByteArray? = null,
+    signingDate: Instant? = null,
+    signatureAlg: SignatureAlg? = null,
+    timestampParameters: com.sphereon.vdx.ades.model.TimestampParameters? = null
 ): PKCS7SignatureParameters {
     if (signatureForm() != SignatureForm.PKCS7) throw SigningException("Cannot convert to PKCS7 signature parameters when signature form is ${signatureForm()}")
-    return mapPKCSSignatureParams(this, key, signedData, signatureAlg, timestampParameters)
+    return mapPKCSSignatureParams(this, key, signingDate, signedData, signatureAlg, timestampParameters)
 }
 
 fun mapPKCSSignatureParams(
     signatureParameters: SignatureParameters,
     key: IKeyEntry,
-    signedData: ByteArray?,
-    signatureAlg: SignatureAlg?,
+    signingDate: Instant? = null,
+    signedData: ByteArray? = null,
+    signatureAlg: SignatureAlg? = null,
     timestampParameters: com.sphereon.vdx.ades.model.TimestampParameters?
 ): PKCS7SignatureParameters {
     val dssParams = PKCS7SignatureParameters()

@@ -58,7 +58,8 @@ open class RestCertificateProviderService(settings: CertificateProviderSettings,
             algorithm = SignatureAlg.valueOf(signature.signature.algorithm.name),
             signMode = signInput.signMode,
             keyEntry = keyEntry,
-            providerId = signature.signature.binding.certificateProviderId
+            providerId = signature.signature.binding.certificateProviderId,
+            date = signInput.signingDate
         )
     }
 

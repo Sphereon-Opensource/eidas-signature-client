@@ -384,7 +384,7 @@ data class BLevelParams(
     val trustAnchorBPPolicy: Boolean? = true,
 
     /** The claimed signing time  */
-    val signingDate: Instant? = Clock.System.now(),
+    var signingDate: Instant? = Clock.System.now(),
 
     /** The claimed signer roles  */
     val claimedSignerRoles: List<String>? = null,

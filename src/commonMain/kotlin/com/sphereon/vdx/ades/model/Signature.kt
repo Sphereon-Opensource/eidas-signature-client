@@ -3,6 +3,7 @@ package com.sphereon.vdx.ades.model
 import com.sphereon.vdx.ades.Base64Serializer
 import com.sphereon.vdx.ades.enums.SignMode
 import com.sphereon.vdx.ades.enums.SignatureAlg
+import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -13,9 +14,7 @@ data class Signature(
     val signMode: SignMode,
     val keyEntry: IKeyEntry,
     val providerId: String,
-//    val publicKey: Key,
-//    val certificate: Certificate?,
-//    val certificateChain: List<Certificate>?
+    val date: Instant
 ) {
 
     override fun equals(other: Any?): Boolean {
@@ -28,6 +27,8 @@ data class Signature(
         if (algorithm != other.algorithm) return false
         if (signMode != other.signMode) return false
         if (keyEntry != other.keyEntry) return false
+        if (providerId != other.providerId) return false
+        if (date != other.date) return false
 
         return true
     }
@@ -37,6 +38,8 @@ data class Signature(
         result = 31 * result + algorithm.hashCode()
         result = 31 * result + signMode.hashCode()
         result = 31 * result + keyEntry.hashCode()
+        result = 31 * result + providerId.hashCode()
+        result = 31 * result + date.hashCode()
         return result
     }
 }

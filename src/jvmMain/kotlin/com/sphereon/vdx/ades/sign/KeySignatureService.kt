@@ -26,6 +26,7 @@ import eu.europa.esig.dss.model.InMemoryDocument
 import eu.europa.esig.dss.model.ToBeSigned
 import eu.europa.esig.dss.pades.PAdESSignatureParameters
 import eu.europa.esig.dss.spi.DSSUtils
+import kotlinx.datetime.toKotlinInstant
 import java.io.ByteArrayOutputStream
 
 
@@ -36,7 +37,7 @@ open class KeySignatureService(val certificateProvider: ICertificateProviderServ
         if (signInput.digestAlgorithm == null) throw SigningException("Cannot create a digest when the digest mode is not specified")
         if (signInput.digestAlgorithm == DigestAlg.NONE) throw SigningException("Cannot create a digest when the digest mode is set to NONE")
         val digest = DSSUtils.digest(signInput.digestAlgorithm.toDSS(), signInput.input)
-        return SignInput(digest, SignMode.DIGEST, signInput.digestAlgorithm, signInput.name)
+        return SignInput(digest, SignMode.DIGEST, signInput.signingDate, signInput.digestAlgorithm, signInput.name)
     }
 
     override fun createSignature(signInput: SignInput, keyEntry: IKeyEntry): Signature {
@@ -86,7 +87,8 @@ open class KeySignatureService(val certificateProvider: ICertificateProviderServ
             input = toBeSigned.bytes,
             name = origData.name,
             signMode = signMode,
-            digestAlgorithm = signatureConfiguration.signatureParameters.digestAlgorithm
+            digestAlgorithm = signatureConfiguration.signatureParameters.digestAlgorithm,
+            signingDate = signatureParameters.bLevel().signingDate.toInstant().toKotlinInstant()
         )
     }
 
@@ -101,7 +103,8 @@ open class KeySignatureService(val certificateProvider: ICertificateProviderServ
             signatureConfiguration.signatureParameters.toDSS(
                 key = signature.keyEntry,
                 signatureAlg = signature.algorithm,
-                timestampParameters = signatureConfiguration.timestampParameters
+                timestampParameters = signatureConfiguration.timestampParameters,
+                signingDate = signature.date
             )
 
         val toSign = InMemoryDocument(origData.value, origData.name)
