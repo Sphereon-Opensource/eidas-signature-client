@@ -20,11 +20,11 @@ class CacheService(private val settings: CertificateProviderSettings) {
     }
 
 
-    fun get(alias: String): IKeyEntry? {
+    fun get(kid: String): IKeyEntry? {
         if (!cacheEnabled || cache == null) {
             return null
         }
-        return cache!!.get(alias)
+        return cache!!.get(kid)
     }
 
     fun isEnabled(): Boolean {
@@ -33,7 +33,7 @@ class CacheService(private val settings: CertificateProviderSettings) {
 
     fun put(key: IKeyEntry): IKeyEntry {
         if (isEnabled()) {
-            cache!!.put(key.alias, key)
+            cache!!.put(key.kid, key)
         }
         return key
     }

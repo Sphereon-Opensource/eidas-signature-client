@@ -87,7 +87,7 @@ fun KeyVaultCertificate.toKeyEntry(): IKeyEntry {
     x509Chain.addAll(CertificateUtil.downloadExtraCertificates(x509Certificate))
 
     return KeyEntry(
-        alias = "${properties.name}:${properties.version}",
+        kid = "${properties.name}:${properties.version}",
         encryptionAlgorithm = if (x509Certificate.sigAlgName.endsWith("RSA")) CryptoAlg.RSA else CryptoAlg.valueOf(x509Certificate.publicKey.algorithm),
         certificate = x509Certificate.toCertificate(),
         publicKey = x509Certificate.toPublicKey(),
@@ -106,7 +106,7 @@ fun KeyVaultKey.toKeyEntry(): IKeyEntry {
         subjectDN = this.key.
     )*/
     return KeyEntry(
-        alias = "${properties.name}:${properties.version}",
+        kid = "${properties.name}:${properties.version}",
         encryptionAlgorithm = CryptoAlg.valueOf(keyType.toString().replace("-HSM", "")),
         publicKey = this.key.toRsa().public.toKey()
     )

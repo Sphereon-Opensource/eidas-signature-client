@@ -56,7 +56,7 @@ object CertificateUtil {
     fun toKeyEntry(x509Certificate: X509Certificate, alias: String): IKeyEntry {
         val certificate = toCertificate(x509Certificate)
         return KeyEntry(
-            alias = alias,
+            kid = alias,
             publicKey = x509Certificate.toPublicKey(),
             certificate = certificate,
             encryptionAlgorithm = CryptoAlg.valueOf(x509Certificate.sigAlgName)

@@ -23,16 +23,16 @@ class LocalCertificateProviderService(settings: CertificateProviderSettings) : A
         return tokenConnection.keys.map { if (it is KSPrivateKeyEntry) it.fromDSS(it.alias) else it.fromDSS(it.certificate.toCertificate().fingerPrint) }
     }
 
-    override fun getKey(alias: String): IKeyEntry? {
-        return cacheService.get(alias) ?: when (tokenConnection) {
+    override fun getKey(kid: String): IKeyEntry? {
+        return cacheService.get(kid) ?: when (tokenConnection) {
             is AbstractKeyStoreTokenConnection -> {
-                val key = tokenConnection.getKey(alias)?.fromDSS(alias)
+                val key = tokenConnection.getKey(kid)?.fromDSS(kid)
                 if (key != null) {
                     cacheService.put(key)
                 }
                 return key
             }
-            else -> getKeys().first { it.alias == alias }
+            else -> getKeys().first { it.kid == kid }
         }
     }
 

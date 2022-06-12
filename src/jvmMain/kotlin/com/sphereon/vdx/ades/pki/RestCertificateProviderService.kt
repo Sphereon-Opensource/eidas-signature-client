@@ -42,7 +42,7 @@ open class RestCertificateProviderService(settings: CertificateProviderSettings,
                 .binding(
                     ConfigCertificateBinding()
                         .certificateProviderId(settings.id)
-                        .certificateAlias(keyEntry.alias)
+                        .certificateAlias(keyEntry.kid)
                         .signatureConfigId(null)
                 )
                 .signInput(
@@ -82,7 +82,7 @@ open class RestCertificateProviderService(settings: CertificateProviderSettings,
 
         val x509Certificate = CertificateUtil.toX509Certificate(certData.keyEntry.certificate.value)
         val key = KeyEntry(
-            alias = alias,
+            kid = alias,
             publicKey = x509Certificate.publicKey.toKey(),
             certificate = x509Certificate.toCertificate(),
             certificateChain = certData.keyEntry.certificateChain?.map {

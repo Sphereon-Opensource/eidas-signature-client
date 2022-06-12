@@ -33,7 +33,7 @@ class RestCertificateProviderServiceTest {
         val key = certProvider.getKey("rest")
 
         assertNotNull(key)
-        assertEquals("rest", key.alias)
+        assertEquals("rest", key.kid)
         assertNotNull(key.certificate)
         assertEquals("1A485229434026D47F47ADE3BDCA499253F588C0", key.certificate?.fingerPrint)
         assertEquals("C=LU, OU=PKI-TEST, O=Nowina Solutions, CN=good-ca", key.certificate?.issuerDN)

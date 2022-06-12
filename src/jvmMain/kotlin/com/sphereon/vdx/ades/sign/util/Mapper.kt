@@ -84,7 +84,7 @@ fun SignatureLevel.toDSS(): eu.europa.esig.dss.enumerations.SignatureLevel {
 
 fun KSPrivateKeyEntry.fromDSS(): IPrivateKeyEntry {
     return PrivateKeyEntry(
-        alias = this.alias,
+        kid = this.alias,
 //        attributes = if (this.attributes != null) null else null,
         publicKey = this.certificate.publicKey.toKey(),
         privateKey = Key(value = this.privateKey.encoded, algorithm = CryptoAlg.valueOf(this.privateKey.algorithm), format = this.privateKey.format),
@@ -98,7 +98,7 @@ fun DSSPrivateKeyEntry.fromDSS(alias: String): IKeyEntry {
     return when (this) {
         is KSPrivateKeyEntry -> this.fromDSS()
         else -> KeyEntry(
-            alias = alias,
+            kid = alias,
             publicKey = this.certificate.publicKey.toKey(),
             certificate = this.certificate.toCertificate(),
             certificateChain = if (certificateChain == null) null else certificateChain.map { it.toCertificate() },
@@ -110,7 +110,7 @@ fun DSSPrivateKeyEntry.fromDSS(alias: String): IKeyEntry {
 fun IKeyEntry.toDSS(): DSSPrivateKeyEntry {
     return when (this) {
         is IPrivateKeyEntry -> // for now, we just always assume a KS Private Key. We need this since most of DSS depends on this implementation
-            return KSPrivateKeyEntry(this.alias, this.toJavaPrivateKeyEntry())
+            return KSPrivateKeyEntry(this.kid, this.toJavaPrivateKeyEntry())
         else -> DSSWrappedKeyEntry(this)
     }
 }

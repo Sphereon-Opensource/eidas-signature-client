@@ -12,8 +12,8 @@ import java.security.PrivateKey
 
 class DSSWrappedKeyEntry(keyEntry: IKeyEntry) : DSSPrivateKeyEntry {
 
-    /** The key's alias  */
-    private val alias: String = keyEntry.alias
+    /** The key's alias. We are not calling it kid here, as DSS uses 'alias'  */
+    private val alias: String = keyEntry.kid
 
     /** The certificate  */
     private val certificate: CertificateToken?

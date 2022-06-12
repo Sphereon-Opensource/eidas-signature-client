@@ -16,10 +16,10 @@ object ConnectionFactory {
     }
 
     fun connection(
-        settings: CertificateProviderSettings, alias: String? = null,
+        settings: CertificateProviderSettings, kid: String? = null,
         keyvaultConfig: AzureKeyvaultClientConfig? = null
     ): SignatureTokenConnection {
-        return connection(settings.config, settings.passwordInputCallback, alias, keyvaultConfig)
+        return connection(settings.config, settings.passwordInputCallback, kid, keyvaultConfig)
     }
 
     fun connection(

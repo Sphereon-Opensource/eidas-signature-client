@@ -15,11 +15,11 @@ import eu.europa.esig.dss.token.DSSPrivateKeyEntry
 import java.security.GeneralSecurityException
 import java.security.spec.AlgorithmParameterSpec
 
-class AzureKeyvaultTokenConnection(keyvaultConfig: AzureKeyvaultClientConfig, alias: String) : AbstractSignatureTokenConnection() {
+class AzureKeyvaultTokenConnection(keyvaultConfig: AzureKeyvaultClientConfig, kid: String) : AbstractSignatureTokenConnection() {
     private val cryptoClient: CryptographyAsyncClient
 
     init {
-        val parts = alias.split(":")
+        val parts = kid.split(":")
         cryptoClient = CryptographyClientBuilder()
             .serviceVersion(CryptographyServiceVersion.V7_3)
             .clientOptions(keyvaultConfig.toClientOptions())

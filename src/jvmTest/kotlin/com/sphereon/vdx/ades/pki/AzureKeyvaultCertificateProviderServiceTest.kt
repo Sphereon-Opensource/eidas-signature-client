@@ -12,7 +12,6 @@ import eu.europa.esig.dss.pades.validation.PDFDocumentValidator
 import eu.europa.esig.dss.spi.x509.CommonTrustedCertificateSource
 import eu.europa.esig.dss.validation.CommonCertificateVerifier
 import eu.europa.esig.dss.validation.executor.ValidationLevel
-import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
@@ -39,7 +38,7 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
         val key = certProvider.getKey("esignum:3f98a9a740fb41b79e3679cce7a34ba6")
 
         assertNotNull(key)
-        assertEquals("esignum:3f98a9a740fb41b79e3679cce7a34ba6", key.alias)
+        assertEquals("esignum:3f98a9a740fb41b79e3679cce7a34ba6", key.kid)
         assertNotNull(key.publicKey)
         assertEquals("X.509", key.publicKey.format)
         assertEquals(CryptoAlg.RSA, key.publicKey.algorithm)

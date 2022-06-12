@@ -68,12 +68,12 @@ open class AzureKeyvaultCertificateProviderService(
         return res.toIterable().toList()
     }
 
-    override fun getKey(alias: String): IKeyEntry? {
-        val cachedKey = cacheService.get(alias)
+    override fun getKey(kid: String): IKeyEntry? {
+        val cachedKey = cacheService.get(kid)
         if (cachedKey != null) {
             return cachedKey
         }
-        val kvNames = aliasToKVKeyName(alias)
+        val kvNames = kidToKVKeyName(kid)
         val certificateVersion = certClient?.getCertificateVersion(kvNames.first, kvNames.second)
         val keyMono =
             certificateVersion?.map { it.toKeyEntry() } ?: keyClient.getKey(kvNames.first, kvNames.second).map { it.toKeyEntry() }
@@ -95,13 +95,13 @@ open class AzureKeyvaultCertificateProviderService(
                 // In case we have a RAW digest we need Azure. Let's check for any digest type anyway though
                 (ConnectionFactory.connection(
                     settings = settings,
-                    alias = signature.keyEntry.alias,
+                    kid = signature.keyEntry.kid,
                     keyvaultConfig = keyvaultConfig
                 ) as AzureKeyvaultTokenConnection).isValidSignature(signInput, signature)
     }
 
-    private fun aliasToKVKeyName(alias: String): Pair<String, String> {
-        var pair = alias.split(KEY_NAME_VERSION_SEP).let { Pair(it[0], it.getOrNull(1) ?: "") }
+    private fun kidToKVKeyName(kid: String): Pair<String, String> {
+        val pair = kid.split(KEY_NAME_VERSION_SEP).let { Pair(it[0], it.getOrNull(1) ?: "") }
         if (pair.second.lowercase() == "latest") {
             return pair.copy(second = "")
         }
@@ -119,7 +119,7 @@ open class AzureKeyvaultCertificateProviderService(
     override fun createSignatureImpl(signInput: SignInput, keyEntry: IKeyEntry, mgf: MaskGenFunction?): Signature {
         if (signInput.digestAlgorithm == null) throw SigningException("Digest algorithm needs to be specified at this point")
 
-        val tokenConnection = ConnectionFactory.connection(settings = settings, alias = keyEntry.alias, keyvaultConfig = keyvaultConfig)
+        val tokenConnection = ConnectionFactory.connection(settings = settings, kid = keyEntry.kid, keyvaultConfig = keyvaultConfig)
 
         return if (isDigestMode(signInput)) {
             tokenConnection.signDigest(signInput.toDigest(), mgf?.toDSS(), keyEntry.toDSS()).toRaw()

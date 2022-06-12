@@ -19,7 +19,7 @@ val json = Json { serializersModule = serializers }
 
 interface IKeyEntry {
     val attributes: Set<Attribute>?
-    val alias: String
+    val kid: String
     val publicKey: Key
     val certificate: Certificate?
     val certificateChain: List<Certificate>?
@@ -34,7 +34,7 @@ interface IPrivateKeyEntry : IKeyEntry {
 @kotlinx.serialization.Serializable
 @SerialName("KeyEntry")
 data class KeyEntry(
-    override val alias: String,
+    override val kid: String,
     override val publicKey: Key,
     override val attributes: Set<Attribute>? = null,
     override val encryptionAlgorithm: CryptoAlg,
@@ -48,7 +48,7 @@ data class KeyEntry(
 
         other as KeyEntry
 
-        if (alias != other.alias) return false
+        if (kid != other.kid) return false
         if (publicKey != other.publicKey) return false
         if (attributes != other.attributes) return false
         if (encryptionAlgorithm != other.encryptionAlgorithm) return false
@@ -59,7 +59,7 @@ data class KeyEntry(
     }
 
     override fun hashCode(): Int {
-        var result = alias.hashCode()
+        var result = kid.hashCode()
         result = 31 * result + publicKey.hashCode()
         result = 31 * result + (attributes?.hashCode() ?: 0)
         result = 31 * result + encryptionAlgorithm.hashCode()
@@ -72,7 +72,7 @@ data class KeyEntry(
 @kotlinx.serialization.Serializable
 @SerialName("PrivateKeyEntry")
 data class PrivateKeyEntry(
-    override val alias: String,
+    override val kid: String,
     override val privateKey: Key,
     override val publicKey: Key,
     override val attributes: Set<Attribute>? = null,
@@ -86,7 +86,7 @@ data class PrivateKeyEntry(
 
         other as PrivateKeyEntry
 
-        if (alias != other.alias) return false
+        if (kid != other.kid) return false
         if (privateKey != other.privateKey) return false
         if (publicKey != other.publicKey) return false
         if (attributes != other.attributes) return false
@@ -98,7 +98,7 @@ data class PrivateKeyEntry(
     }
 
     override fun hashCode(): Int {
-        var result = alias.hashCode()
+        var result = kid.hashCode()
         result = 31 * result + privateKey.hashCode()
         result = 31 * result + publicKey.hashCode()
         result = 31 * result + (attributes?.hashCode() ?: 0)
