@@ -1,8 +1,8 @@
 package com.sphereon.vdx.ades.pki
 
 import com.sphereon.vdx.ades.PKIException
-import com.sphereon.vdx.ades.model.KeyProviderSettings
 import com.sphereon.vdx.ades.model.IKeyEntry
+import com.sphereon.vdx.ades.model.KeyProviderSettings
 import com.sphereon.vdx.ades.sign.ISimpleSignatureService
 
 interface IKeyProviderService : ISimpleSignatureService {

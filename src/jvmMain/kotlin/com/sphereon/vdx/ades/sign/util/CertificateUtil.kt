@@ -20,9 +20,10 @@ import java.security.cert.X509Certificate
 import java.security.cert.X509Extension
 
 
-object CertificateUtil {
+private val logger = KotlinLogging.logger {}
 
-    private val logger = KotlinLogging.logger {}
+
+object CertificateUtil {
 
     fun toX509Certificate(certificate: Certificate): X509Certificate {
         val certFactory: CertificateFactory = CertificateFactory.getInstance("X.509")
@@ -132,7 +133,7 @@ object CertificateUtil {
             return downloadedCerts
         }
         if (asn1Prim !is ASN1Sequence) {
-            logger.warn("ASN1Sequence expected, got " + asn1Prim.javaClass.simpleName)
+            logger.warn { "ASN1Sequence expected, got " + asn1Prim.javaClass.simpleName }
             return downloadedCerts
         }
         val asn1Seq = asn1Prim
@@ -150,7 +151,7 @@ object CertificateUtil {
             val urlString = String(uri.octets)
             var `in`: java.io.InputStream? = null
             try {
-                logger.info("CA issuers URL: $urlString")
+                logger.debug { "CA issuers URL: $urlString" }
                 `in` = java.net.URL(urlString).openStream()
                 val certFactory = CertificateFactory.getInstance("X.509")
                 val altCerts = certFactory.generateCertificates(`in`)
@@ -159,7 +160,7 @@ object CertificateUtil {
                         if (downloadedCerts.contains(altCert)) {
                             continue
                         }
-                        logger.info("x509 subjectDN: ${altCert.subjectDN}")
+                        logger.debug { "x509 subjectDN: ${altCert.subjectDN}" }
 
                         downloadedCerts.add(altCert)
                         if (recursive == true) {
@@ -167,7 +168,7 @@ object CertificateUtil {
                         }
                     }
                 }
-                logger.info("CA issuers URL: ${altCerts.size} certificate(s) downloaded")
+                logger.debug { "CA issuers URL: ${altCerts.size} certificate(s) downloaded" }
             } catch (ex: IOException) {
                 logger.warn(urlString + " failure: ${ex.message}", ex)
             } catch (ex: java.security.cert.CertificateException) {
@@ -176,7 +177,7 @@ object CertificateUtil {
                 org.apache.pdfbox.io.IOUtils.closeQuietly(`in`)
             }
         }
-        logger.info("CA issuers: Downloaded ${downloadedCerts.size} certificate(s) total")
+        logger.info { "CA issuers: Downloaded ${downloadedCerts.size} certificate(s) total" }
         return downloadedCerts
     }
 }

@@ -313,16 +313,20 @@ data class PadesSignatureFormParameters(
     /** Defines if the signature shall be created according ti ETSI EN 319 122  */
     val en319122: Boolean? = true,
 
-  /*  *//** Content Hints type  *//*
+    /*  */
+    /** Content Hints type  *//*
     val contentHintsType: String? = null,
 
-    *//** Content Hints description  *//*
+    */
+    /** Content Hints description  *//*
     val contentHintsDescription: String? = null,
 
-    *//** Content identifier prefix  *//*
+    */
+    /** Content identifier prefix  *//*
     val contentIdentifierPrefix: String? = null,
 
-    *//** Content identifier suffix  *//*
+    */
+    /** Content identifier suffix  *//*
     val contentIdentifierSuffix: String? = null*/
 
 )

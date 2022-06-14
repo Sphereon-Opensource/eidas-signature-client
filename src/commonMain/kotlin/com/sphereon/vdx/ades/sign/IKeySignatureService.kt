@@ -2,9 +2,7 @@ package com.sphereon.vdx.ades.sign
 
 import com.sphereon.vdx.ades.SignClientException
 import com.sphereon.vdx.ades.SigningException
-import com.sphereon.vdx.ades.enums.MaskGenFunction
 import com.sphereon.vdx.ades.enums.SignMode
-import com.sphereon.vdx.ades.enums.SignatureAlg
 import com.sphereon.vdx.ades.model.*
 
 interface IKeySignatureService : ISimpleSignatureService {
@@ -34,10 +32,6 @@ interface IKeySignatureService : ISimpleSignatureService {
      */
     @Throws(SignClientException::class)
     fun digest(signInput: SignInput): SignInput
-
-
-
-
 
 
     /**

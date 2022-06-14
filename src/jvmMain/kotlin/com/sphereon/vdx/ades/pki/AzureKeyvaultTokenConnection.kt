@@ -12,8 +12,11 @@ import com.sphereon.vdx.ades.model.Signature
 import com.sphereon.vdx.ades.sign.AbstractSignatureTokenConnection
 import com.sphereon.vdx.ades.sign.util.toDSS
 import eu.europa.esig.dss.token.DSSPrivateKeyEntry
+import mu.KotlinLogging
 import java.security.GeneralSecurityException
 import java.security.spec.AlgorithmParameterSpec
+
+private val logger = KotlinLogging.logger {}
 
 class AzureKeyvaultTokenConnection(keyvaultConfig: AzureKeyvaultClientConfig, kid: String) : AbstractSignatureTokenConnection() {
     private val cryptoClient: CryptographyAsyncClient
@@ -30,6 +33,8 @@ class AzureKeyvaultTokenConnection(keyvaultConfig: AzureKeyvaultClientConfig, ki
             .credential(keyvaultConfig.credentialOpts.toTokenCredential(keyvaultConfig.tenantId))
             .keyIdentifier("${keyvaultConfig.keyvaultUrl}keys/${parts[0]}/${parts.getOrNull(1) ?: ""}")
             .buildAsyncClient()
+        logger.debug { "Azure keyvault connection for Key with id $kid and url ${keyvaultConfig.keyvaultUrl} created" }
+
     }
 
     override fun close() {

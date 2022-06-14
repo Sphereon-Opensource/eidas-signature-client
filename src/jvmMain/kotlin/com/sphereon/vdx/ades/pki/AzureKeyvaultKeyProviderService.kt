@@ -1,5 +1,6 @@
 package com.sphereon.vdx.ades.pki
 
+import AbstractCacheObjectSerializer
 import com.azure.core.http.policy.RetryOptions
 import com.azure.core.http.policy.RetryPolicy
 import com.azure.security.keyvault.certificates.CertificateAsyncClient
@@ -14,14 +15,18 @@ import com.sphereon.vdx.ades.enums.KeyProviderType
 import com.sphereon.vdx.ades.enums.MaskGenFunction
 import com.sphereon.vdx.ades.model.*
 import com.sphereon.vdx.ades.sign.util.*
+import mu.KotlinLogging
 import java.util.*
 
 private const val KEY_NAME_VERSION_SEP = ":"
 
+private val logger = KotlinLogging.logger {}
+
 open class AzureKeyvaultKeyProviderService(
     settings: KeyProviderSettings,
-    val keyvaultConfig: AzureKeyvaultClientConfig
-) : AbstractKeyProviderService(settings) {
+    val keyvaultConfig: AzureKeyvaultClientConfig,
+    cacheObjectSerializer: AbstractCacheObjectSerializer<String, IKeyEntry>? = null
+) : AbstractKeyProviderService(settings, cacheObjectSerializer) {
 
     private val keyClient: KeyAsyncClient
     private val certClient: CertificateAsyncClient?
@@ -45,8 +50,12 @@ open class AzureKeyvaultKeyProviderService(
         // Azure Managed HSM has no Certs API
         hasCerts = keyvaultConfig.hsmType == HSMType.KEYVAULT
         certClient = when (keyvaultConfig.hsmType) {
-            HSMType.MANAGED_HSM -> null
-            HSMType.KEYVAULT ->
+            HSMType.MANAGED_HSM -> {
+                logger.warn { "Azure keyvault key provider ${settings.id} in mode: Managed HSM. This mode as opposed to 'keyvault' mode is untested currently!" }
+                null
+            }
+            HSMType.KEYVAULT -> {
+                logger.debug { "Azure keyvault key provider ${settings.id} in mode: Keyvault. Creating a certificate client." }
                 CertificateClientBuilder()
                     .serviceVersion(CertificateServiceVersion.V7_3)
                     .vaultUrl(keyvaultConfig.keyvaultUrl)
@@ -57,6 +66,7 @@ open class AzureKeyvaultKeyProviderService(
                     )
                     .credential(keyvaultConfig.credentialOpts.toTokenCredential(keyvaultConfig.tenantId))
                     .buildAsyncClient()
+            }
         }
     }
 
@@ -69,10 +79,13 @@ open class AzureKeyvaultKeyProviderService(
     }
 
     override fun getKey(kid: String): IKeyEntry? {
+        logger.exit(kid)
         val cachedKey = cacheService.get(kid)
         if (cachedKey != null) {
+            logger.debug { "Cache hit for key entry with id $kid" }
             return cachedKey
         }
+        logger.debug { "Cache miss for key entry with id $kid" }
         val kvNames = kidToKVKeyName(kid)
         val certificateVersion = certClient?.getCertificateVersion(kvNames.first, kvNames.second)
         val keyMono =
@@ -81,7 +94,8 @@ open class AzureKeyvaultKeyProviderService(
         // This is a workaround, since we can be called from a Web(Test)Client, and this library/method is not reactive. Using block() would result in an error
         // TODO: Make methods reactive and provide a sync client as well
         val key = keyMono.toFuture().get()
-        cacheService.put(key)
+        cacheService.put(key.kid, key)
+        logger.exit(key)
         return key
     }
 
@@ -90,14 +104,21 @@ open class AzureKeyvaultKeyProviderService(
         Objects.requireNonNull(signature, "Signature cannot be null!")
         Objects.requireNonNull(publicKey, "Public key cannot be null!")
         // Let's try using the public key first
-        return super.isValidSignature(signInput, signature, publicKey) ||
+        var valid = super.isValidSignature(signInput, signature, publicKey)
 
-                // In case we have a RAW digest we need Azure. Let's check for any digest type anyway though
-                (ConnectionFactory.connection(
-                    settings = settings,
-                    kid = signature.keyEntry.kid,
-                    keyvaultConfig = keyvaultConfig
-                ) as AzureKeyvaultTokenConnection).isValidSignature(signInput, signature)
+        if (!valid) {
+            logger.info { "RAW digest signature found. Calling Azure Keyvault to do an online check" }
+            // In case we have a RAW digest we need Azure. Let's check for any digest type anyway though
+            valid = (ConnectionFactory.connection(
+                settings = settings,
+                kid = signature.keyEntry.kid,
+                keyvaultConfig = keyvaultConfig
+            ) as AzureKeyvaultTokenConnection).isValidSignature(signInput, signature)
+            logger.info {
+                "Signature with date '${signature.date}' and provider '${signature.providerId}' for input '${signInput.name}' was ${if (valid) "VALID" else "INVALID"} according to Keyvault"
+            }
+        }
+        return valid
     }
 
     private fun kidToKVKeyName(kid: String): Pair<String, String> {
@@ -117,17 +138,23 @@ open class AzureKeyvaultKeyProviderService(
 
 
     override fun createSignatureImpl(signInput: SignInput, keyEntry: IKeyEntry, mgf: MaskGenFunction?): Signature {
+        logger.entry(signInput, keyEntry, mgf)
         if (signInput.digestAlgorithm == null) throw SigningException("Digest algorithm needs to be specified at this point")
 
         val tokenConnection = ConnectionFactory.connection(settings = settings, kid = keyEntry.kid, keyvaultConfig = keyvaultConfig)
 
-        return if (isDigestMode(signInput)) {
+        val isDigest = isDigestMode(signInput)
+        logger.info { "Creating signature with date '${signInput.signingDate}' provider Id '${settings.id}', key Id '${keyEntry.kid}' and sign input '${signInput.name}'..." }
+        val signature = if (isDigest) {
             tokenConnection.signDigest(signInput.toDigest(), mgf?.toDSS(), keyEntry.toDSS()).toRaw()
                 .fromDSS(signMode = signInput.signMode, keyEntry, settings.id, signInput.signingDate)
         } else {
             tokenConnection.sign(signInput.toBeSigned(), signInput.digestAlgorithm.toDSS(), mgf?.toDSS(), keyEntry.toDSS())
                 .fromDSS(signMode = signInput.signMode, keyEntry, settings.id, signInput.signingDate)
         }
+        logger.info { "Signature created with date '${signInput.signingDate}' provider Id '${settings.id}', key Id '${keyEntry.kid}' and sign input '${signInput.name}'" }
+        logger.exit(signature)
+        return signature
     }
 
 

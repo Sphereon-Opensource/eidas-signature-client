@@ -1,9 +1,6 @@
 package com.sphereon.vdx.ades.enums
 
-import com.sphereon.vdx.ades.enums.SignatureForm.CAdES
-import com.sphereon.vdx.ades.enums.SignatureForm.JAdES
-import com.sphereon.vdx.ades.enums.SignatureForm.PAdES
-import com.sphereon.vdx.ades.enums.SignatureForm.PKCS7
+import com.sphereon.vdx.ades.enums.SignatureForm.*
 
 @kotlinx.serialization.Serializable
 enum class SignatureLevel(val form: SignatureForm) {

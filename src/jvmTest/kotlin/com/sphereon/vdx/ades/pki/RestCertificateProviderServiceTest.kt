@@ -7,7 +7,7 @@ import com.sphereon.vdx.ades.model.KeyProviderSettings
 import com.sphereon.vdx.ades.model.PasswordInputCallback
 import com.sphereon.vdx.ades.rest.client.ApiResponse
 import com.sphereon.vdx.ades.rest.client.JSON
-import com.sphereon.vdx.ades.rest.client.api.CertificatesApi
+import com.sphereon.vdx.ades.rest.client.api.KeysApi
 import com.sphereon.vdx.ades.rest.client.model.KeyResponse
 import io.mockk.every
 import io.mockk.mockk
@@ -55,7 +55,7 @@ class RestCertificateProviderServiceTest {
     }
 
     private fun setupKeyProviderMock(data: KeyResponse): RestKeyProviderService {
-        val certApiMock = mockk<CertificatesApi>()
+        val certApiMock = mockk<KeysApi>()
 
         every {
             certApiMock.getKeyWithHttpInfo("rest", "rest")
@@ -67,7 +67,7 @@ class RestCertificateProviderServiceTest {
 
         val keyProvider = spyk(RestKeyProviderService(constructKeyProviderSettings(), constructRestClientConfig()))
         every {
-            keyProvider.newCertApi()
+            keyProvider.newKeysApi()
         } returns certApiMock
         return keyProvider
     }

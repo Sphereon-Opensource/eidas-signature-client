@@ -5,12 +5,7 @@ import eu.europa.esig.dss.cades.CMSUtils
 import eu.europa.esig.dss.cades.signature.CustomContentSigner
 import eu.europa.esig.dss.enumerations.SignatureLevel
 import eu.europa.esig.dss.enumerations.TimestampType
-import eu.europa.esig.dss.model.DSSDocument
-import eu.europa.esig.dss.model.DSSException
-import eu.europa.esig.dss.model.DigestDocument
-import eu.europa.esig.dss.model.SignatureValue
-import eu.europa.esig.dss.model.TimestampParameters
-import eu.europa.esig.dss.model.ToBeSigned
+import eu.europa.esig.dss.model.*
 import eu.europa.esig.dss.pdf.IPdfObjFactory
 import eu.europa.esig.dss.pdf.PDFServiceMode
 import eu.europa.esig.dss.pdf.ServiceLoaderPdfObjFactory
@@ -24,14 +19,10 @@ import eu.europa.esig.dss.validation.timestamp.TimestampToken
 import mu.KotlinLogging
 import org.apache.pdfbox.pdmodel.PDDocument
 import org.apache.pdfbox.pdmodel.interactive.digitalsignature.PDSignature
-import org.bouncycastle.cms.CMSException
-import org.bouncycastle.cms.CMSProcessableByteArray
-import org.bouncycastle.cms.CMSSignedData
-import org.bouncycastle.cms.CMSSignedDataGenerator
-import org.bouncycastle.cms.SignerInfoGeneratorBuilder
+import org.bouncycastle.cms.*
 import org.bouncycastle.tsp.TSPException
 import java.io.IOException
-import java.util.Objects
+import java.util.*
 
 class PKCS7Service(
     certificateVerifier: CertificateVerifier?,

@@ -10,10 +10,9 @@ import eu.europa.esig.dss.pades.PAdESSignatureParameters
 import eu.europa.esig.dss.pades.PAdESTimestampParameters
 import eu.europa.esig.dss.pades.SignatureImageParameters
 import org.apache.pdfbox.pdmodel.interactive.digitalsignature.PDSignature
-import java.util.Date
-import java.util.TimeZone
+import java.util.*
 
-class PKCS7SignatureParameters() : CAdESSignatureParameters(), PAdESCommonParameters {
+class PKCS7SignatureParameters : CAdESSignatureParameters(), PAdESCommonParameters {
 
     var reason: String? = null
     var contactInfo: String? = null
@@ -21,7 +20,7 @@ class PKCS7SignatureParameters() : CAdESSignatureParameters(), PAdESCommonParame
     var signerName: String? = null
     var permission: CertificationPermission? = null
     var signatureMode: PdfSignatureMode? = PdfSignatureMode.APPROVAL
-    var signingTimeZone :TimeZone? = TimeZone.getDefault()
+    var signingTimeZone: TimeZone? = TimeZone.getDefault()
 
     var signatureImageParameters: SignatureImageParameters? = null
     private var passwordProtection: String? = null

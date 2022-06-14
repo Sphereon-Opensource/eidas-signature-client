@@ -3,11 +3,8 @@ import com.sphereon.vdx.ades.model.*
 import eu.europa.esig.dss.model.InMemoryDocument
 import eu.europa.esig.dss.validation.CommonCertificateVerifier
 import eu.europa.esig.dss.validation.SignedDocumentValidator
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
-import java.io.FileOutputStream
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -49,16 +46,16 @@ class PKCS7SigningSignTests : AbstractAdESTest() {
             signatureConfiguration = signatureConfiguration
         )
 
-        println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(signInput))
+//        println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(signInput))
 
         val digestInput = signingService.digest(signInput)
-        println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(digestInput))
+//        println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(digestInput))
 
         val signature = signingService.createSignature(digestInput, keyEntry)
-        println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(signature))
+//        println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(signature))
 
         val signOutput = signingService.sign(origData, signature, signatureConfiguration)
-        println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(signOutput))
+//        println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(signOutput))
         assertNotNull(signOutput)
 
 
@@ -68,9 +65,6 @@ class PKCS7SigningSignTests : AbstractAdESTest() {
         documentValidator.setCertificateVerifier(CommonCertificateVerifier())
         documentValidator.validateDocument()
 
-        FileOutputStream("C:\\temp\\${signOutput.name}").use { fos -> // TODO remove
-            fos.write(signOutput.value)
-        }
 
         assertEquals(1, documentValidator.signatures.size)
         val diagData = documentValidator.diagnosticData

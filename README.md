@@ -16,6 +16,7 @@ signature to merge with the original document. This means you are not sending th
 privacy and security perspective.
 
 # Table of Contents
+
 - [Multiplatform library and REST API](#multiplatform-library-and-rest-api)
 - [License](#license)
 - [Signature flow](#signature-flow)
@@ -55,7 +56,6 @@ privacy and security perspective.
     * [Requirements](#requirements)
     * [Adding as Maven dependency](#adding-as-maven-dependency)
     * [Gradle build (local maven repo)](#gradle-build--local-maven-repo-)
-
 
 # Multiplatform library and REST API
 

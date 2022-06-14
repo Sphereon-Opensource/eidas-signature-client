@@ -12,6 +12,7 @@ import eu.europa.esig.dss.token.AbstractSignatureTokenConnection
 import eu.europa.esig.dss.token.DSSPrivateKeyEntry
 import eu.europa.esig.dss.token.KSPrivateKeyEntry
 import eu.europa.esig.dss.token.SignatureTokenConnection
+import mu.KotlinLogging
 import org.slf4j.LoggerFactory
 import java.security.GeneralSecurityException
 import java.security.NoSuchAlgorithmException
@@ -21,9 +22,10 @@ import java.security.spec.MGF1ParameterSpec
 import java.security.spec.PSSParameterSpec
 import java.util.*
 
+private val logger = KotlinLogging.logger {}
+
 abstract class AbstractSignatureTokenConnection : SignatureTokenConnection {
 
-    private val LOG = LoggerFactory.getLogger(AbstractSignatureTokenConnection::class.java)
 
     @Throws(DSSException::class)
     override fun sign(toBeSigned: ToBeSigned, digestAlgorithm: DigestAlgorithm?, keyEntry: DSSPrivateKeyEntry): SignatureValue? {
@@ -102,10 +104,9 @@ abstract class AbstractSignatureTokenConnection : SignatureTokenConnection {
         bytes: ByteArray, javaSignatureAlgorithm: String, param: AlgorithmParameterSpec?,
         keyEntry: DSSPrivateKeyEntry
     ): ByteArray {
-        if (!(keyEntry is KSPrivateKeyEntry)) {
+        if (keyEntry !is KSPrivateKeyEntry) {
             throw IllegalArgumentException("Only KSPrivateKeyEntry are supported")
         }
-        LOG.info("Signature algorithm : {}", javaSignatureAlgorithm)
         val signature = getSignatureInstance(javaSignatureAlgorithm)
         if (param != null) {
             signature.setParameter(param)

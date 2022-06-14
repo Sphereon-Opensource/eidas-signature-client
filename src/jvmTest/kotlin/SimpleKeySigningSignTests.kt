@@ -82,7 +82,6 @@ class SimpleKeySigningSignTests : AbstractAdESTest() {
 
     @Test
     fun `Given an input with signmode DIGEST and maskgen function 1 the sign method should sign the document`() {
-//        println(Hex.encodeHexString(MessageDigest.getInstance("SHA-256").digest("test".toByteArray())))
         val signInput = SignInput(
             input = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08".toByteArray(),
             signMode = SignMode.DIGEST,

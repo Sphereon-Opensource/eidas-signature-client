@@ -4,8 +4,8 @@ import com.sphereon.vdx.ades.model.KeyProviderSettings
 import com.sphereon.vdx.ades.model.KeystoreParameters
 import com.sphereon.vdx.ades.model.PasswordInputCallback
 import com.sphereon.vdx.ades.pki.LocalKeyProviderService
-import com.sphereon.vdx.ades.sign.KidSignatureService
 import com.sphereon.vdx.ades.sign.KeySignatureService
+import com.sphereon.vdx.ades.sign.KidSignatureService
 
 abstract class AbstractAdESTest {
     fun constructKeyProviderService(
@@ -25,7 +25,8 @@ abstract class AbstractAdESTest {
                 id = "pkcs12",
                 providerConfig,
                 passwordInputCallback
-            )
+            ),
+            KeyEntryCacheSerializer()
         )
     }
 

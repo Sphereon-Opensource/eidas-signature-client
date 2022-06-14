@@ -1,53 +1,76 @@
 package com.sphereon.vdx.ades.pki
 
-import com.sphereon.vdx.ades.model.KeyProviderSettings
-import com.sphereon.vdx.ades.model.IKeyEntry
+import AbstractCacheObjectSerializer
+import mu.KotlinLogging
 import java.util.concurrent.TimeUnit
 import javax.cache.Cache
 import javax.cache.Caching
+import javax.cache.configuration.Configuration
 import javax.cache.configuration.MutableConfiguration
 import javax.cache.expiry.AccessedExpiryPolicy
 import javax.cache.expiry.Duration
 
-private const val CACHE_NAME = "keys"
+private val logger = KotlinLogging.logger {}
 
-class CacheService(private val settings: KeyProviderSettings) {
-    private val cacheEnabled = settings.config.cacheEnabled == true
-    private var cache: Cache<String, IKeyEntry>? = null
+open class CacheService<K, V>(
+    private val cacheName: String,
+    private val cacheEnabled: Boolean? = true,
+    private val cacheTTLInSeconds: Long? = 60,
+    private val serializer: AbstractCacheObjectSerializer<K, V>?
+) {
+    private var cache: Cache<K, V>? = null
+
 
     init {
         initCache()
     }
 
 
-    fun get(kid: String): IKeyEntry? {
-        if (!cacheEnabled || cache == null) {
+    fun get(key: K): V? {
+        if (!isEnabled()) {
             return null
         }
-        return cache!!.get(kid)
+        val v = cache!!.get(key)
+        logger.debug { "Cache ${v?.let { "HIT" } ?: "MIS"} for key '$key' in cache '$cacheName'" }
+        return v
     }
 
     fun isEnabled(): Boolean {
-        return cacheEnabled && cache != null
+        return cacheEnabled == true && cache != null
     }
 
-    fun put(key: IKeyEntry): IKeyEntry {
+    fun put(key: K, value: V): V {
+        logger.entry(key, value)
         if (isEnabled()) {
-            cache!!.put(key.kid, key)
+            logger.trace { "Caching value for key $key" }
+            cache!!.put(key, value)
         }
-        return key
+        logger.exit(value)
+        return value
     }
 
     private fun initCache() {
-        if (cacheEnabled) {
+        logger.info { "Cache '$cacheName' is ${if (cacheEnabled == true) "" else "NOT"} being enabled..." }
+        if (cacheEnabled == true) {
             val cachingProvider = Caching.getCachingProvider()
             val cacheManager = cachingProvider.cacheManager
-            val config: MutableConfiguration<String, IKeyEntry> = MutableConfiguration()
 
-            cache = cacheManager!!.getCache(CACHE_NAME)
             if (cache == null) {
-                config.setExpiryPolicyFactory(AccessedExpiryPolicy.factoryOf(Duration(TimeUnit.SECONDS, settings.config.cacheTTLInSeconds ?: 30)))
-                cache = cacheManager.createCache(CACHE_NAME, config)
+                if (cacheManager.cacheNames.contains(cacheName)) {
+                    this.cache = cacheManager.getCache(cacheName)
+                } else {
+                    // We get the config from the serializer of any. Default to a mutable config. This might clutter the logs with warnings in case of Ehcache,
+                    // as our Kotlin data classes are cross-platform and cannot implement Java's Serializable interface
+                    val config: Configuration<K, V> = serializer?.cacheConfiguration(cacheTTLInSeconds)
+                        ?: MutableConfiguration<K, V>().setExpiryPolicyFactory(
+                            AccessedExpiryPolicy.factoryOf(
+                                Duration(TimeUnit.SECONDS, cacheTTLInSeconds!!)
+                            )
+                        )
+
+                    cache = cacheManager.createCache(cacheName, config)
+                    logger.info { "Cache '$cacheName' now is enabled" }
+                }
             }
         }
     }

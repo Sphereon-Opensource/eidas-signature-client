@@ -3,9 +3,10 @@ package com.sphereon.vdx.ades.pki
 import SelfSignedCertGenerator
 import com.sphereon.vdx.ades.PKIException
 import com.sphereon.vdx.ades.enums.KeyProviderType
-import com.sphereon.vdx.ades.model.*
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
+import com.sphereon.vdx.ades.model.KeyProviderConfig
+import com.sphereon.vdx.ades.model.KeyProviderSettings
+import com.sphereon.vdx.ades.model.KeystoreParameters
+import com.sphereon.vdx.ades.model.PasswordInputCallback
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
 import java.security.KeyPair
@@ -83,7 +84,7 @@ class LocalKeyProviderServiceTest {
 
         assertFalse(keyProvider.getKeys().isEmpty())
         assertEquals(1, keyProvider.getKeys().size)
-        println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(keyProvider.getKeys()))
+//        println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(keyProvider.getKeys()))
 
         assertNotNull(keyProvider.getKey(testKid))
     }
@@ -109,7 +110,7 @@ class LocalKeyProviderServiceTest {
         assertFalse(keyProvider.getKeys().isEmpty())
         assertEquals(1, keyProvider.getKeys().size)
         assertNotNull(keyProvider.getKey("good-user"))
-        println(json.encodeToString(keyProvider.getKeys().first().certificate))
+//        println(json.encodeToString(keyProvider.getKeys().first().certificate))
         assertNull(keyProvider.getKey("does-not-exist"))
     }
 }

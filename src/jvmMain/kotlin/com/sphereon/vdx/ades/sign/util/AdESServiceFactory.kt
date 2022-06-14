@@ -1,5 +1,6 @@
 package com.sphereon.vdx.ades.sign.util
 
+import com.sphereon.vdx.ades.SigningException
 import com.sphereon.vdx.ades.enums.SignatureForm
 import com.sphereon.vdx.ades.model.Certificate
 import com.sphereon.vdx.ades.model.SignatureConfiguration
@@ -21,9 +22,12 @@ import eu.europa.esig.dss.validation.CommonCertificateVerifier
 
 class AdESServiceFactory {
     companion object {
-        fun getService(signatureForm: SignatureForm?, certificateChain: List<Certificate>?): AbstractSignatureService<out AbstractSignatureParameters<out TimestampParameters>, out TimestampParameters> {
+        fun getService(
+            signatureForm: SignatureForm?,
+            certificateChain: List<Certificate>?
+        ): AbstractSignatureService<out AbstractSignatureParameters<out TimestampParameters>, out TimestampParameters> {
             if (signatureForm == null) {
-                throw RuntimeException("Please provide a signature form to get an AdES Service!")
+                throw SigningException("Please provide a signature form to get an AdES Service!")
             }
             val certificateVerifier = CommonCertificateVerifier()
             // We can inject several sources. eg: OCSP, CRL, AIA, trusted lists
@@ -60,7 +64,7 @@ class AdESServiceFactory {
                 SignatureForm.PAdES -> PAdESService(certificateVerifier)
                 SignatureForm.JAdES -> JAdESService(certificateVerifier)
                 SignatureForm.PKCS7 -> PKCS7Service(certificateVerifier)
-                else -> throw RuntimeException("Cannot create service for signature form " + signatureForm.name)
+                else -> throw SigningException("Cannot create service for signature form " + signatureForm.name)
             }
 
         }

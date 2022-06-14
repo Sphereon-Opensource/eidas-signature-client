@@ -40,7 +40,6 @@ class SimpleKidSigningSignTests : AbstractAdESTest() {
 
     @Test
     fun `Given an input with signmode DIGEST the sign method should sign the document`() {
-//        println(Hex.encodeHexString(MessageDigest.getInstance("SHA-256").digest("test".toByteArray())))
         val signInput = SignInput(
             input = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08".toByteArray(),
             signMode = SignMode.DIGEST,
@@ -58,6 +57,8 @@ class SimpleKidSigningSignTests : AbstractAdESTest() {
             Hex.decodeHex("232a30e81b52e3520faad55f9ac57ea0160fc150e140f0f4a451a3512e7bdb0d2e7f8ea9270868c32d1af387cb49bea8317540c0031e436eb70b09d747123e5f869e89eecac780d36e6db24a452b6f7fa66bd85884d491d0bd09406aa1dd3f5ccd24a05fa38b1d3fc7d7b68c7b7a3d8fa944b644139856c756b55e3cd9b8a40b4b01cb442a1d4aaadd1a1cbdf7b2957697e59c39e336d4f0a486683787348405d0b000e0c6d13c0336c6b29f6d1dc9e29e66ae6faa54604b28a1a8c15f91b7241545ceed6ca7ecd128b931f727bb38dd7bbf999f4a65df6302dcf5c9074ca565e6490da3d3c9589f569a3a9d3a87032ed31bf009305b7963bf738c7a3d7c89db"),
             signature.value
         )
+        signingService.keyProvider.getKey(CERTIFICATE)!!
+        signingService.keyProvider.getKey(CERTIFICATE)!!
 
         assertTrue(signingService.isValidSignature(signInput, signature, CERTIFICATE))
     }
@@ -85,7 +86,6 @@ class SimpleKidSigningSignTests : AbstractAdESTest() {
 
     @Test
     fun `Given an input with signmode DIGEST and maskgen function 1 the sign method should sign the document`() {
-//        println(Hex.encodeHexString(MessageDigest.getInstance("SHA-256").digest("test".toByteArray())))
         val signInput = SignInput(
             input = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08".toByteArray(),
             signMode = SignMode.DIGEST,

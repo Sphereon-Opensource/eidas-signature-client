@@ -2,11 +2,37 @@ plugins {
     id("maven-publish")
     kotlin("multiplatform") version "1.6.21"
     kotlin("plugin.serialization") version "1.6.21"
+    id("io.gitlab.arturbosch.detekt") version "1.21.0-RC1"
 }
 
 group = "com.sphereon.vdx"
 version = "0.9.1-SNAPSHOT"
 
+
+detekt {
+    buildUponDefaultConfig = true // preconfigure defaults
+    allRules = false // activate all available (even unstable) rules.
+    config = files("$projectDir/config/detekt/detekt.yml") // point to your custom config defining rules to run, overwriting default behavior
+    baseline = file("$projectDir/config/detekt/detekt-baseline-main.xml") // a way of suppressing issues before introducing detekt
+    source = files("src/commonMain/kotlin", "src/jvmMain/kotlin")
+}
+
+tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
+    reports {
+        html.required.set(true) // observe findings in your browser with structure and code snippets
+        xml.required.set(true) // checkstyle like format mainly for integrations like Jenkins
+        txt.required.set(true) // similar to the console output, contains issue signature to manually edit baseline files
+        sarif.required.set(true) // standardized SARIF format (https://sarifweb.azurewebsites.net/) to support integrations with Github Code Scanning
+    }
+}
+
+// Kotlin DSL
+tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
+    jvmTarget = "11"
+}
+tasks.withType<io.gitlab.arturbosch.detekt.DetektCreateBaselineTask>().configureEach {
+    jvmTarget = "11"
+}
 
 kotlin {
     jvm {
@@ -17,7 +43,6 @@ kotlin {
         testRuns["test"].executionTask.configure {
             useJUnitPlatform()
         }
-
 
 
     }
@@ -46,13 +71,14 @@ kotlin {
         val dssVersion = "5.10.1"
         val kotlinSerializationVersion = "1.3.2"
         val kotlinDateTimeVersion = "0.3.3"
-        val bcVersion = 1.71
+        val log4jVersion = "2.17.1"
+        val bcVersion = "1.71"
 
         val commonMain by getting {
             dependencies {
                 api("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinSerializationVersion")
                 api("org.jetbrains.kotlinx:kotlinx-datetime:$kotlinDateTimeVersion")
-                api("io.matthewnelson.kotlin-components:encoding-base64:1.1.1")
+                implementation("io.matthewnelson.kotlin-components:encoding-base64:1.1.1")
             }
         }
         val commonTest by getting {
@@ -62,6 +88,7 @@ kotlin {
         }
         val jvmMain by getting {
             dependencies {
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-cbor:$kotlinSerializationVersion")
                 api("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinSerializationVersion")
                 api("eu.europa.ec.joinup.sd-dss:dss-model:$dssVersion")
                 api("eu.europa.ec.joinup.sd-dss:dss-document:$dssVersion")
@@ -78,6 +105,8 @@ kotlin {
                 api("javax.cache:cache-api:1.1.1")
                 implementation("javax.xml.bind:jaxb-api:2.3.0")
                 api("jakarta.xml.bind:jakarta.xml.bind-api:3.0.1")
+                implementation("javax.annotation:javax.annotation-api:1.3.2")
+                implementation("javax.activation:activation:1.1.1")
                 api("org.glassfish.jaxb:jaxb-runtime:2.3.3")
 
                 api("io.github.microutils:kotlin-logging-jvm:2.1.23")
@@ -96,7 +125,7 @@ kotlin {
         }
         val jvmTest by getting {
             dependencies {
-                implementation("eu.europa.ec.joinup.sd-dss:dss-test:$dssVersion:tests")
+//                implementation("eu.europa.ec.joinup.sd-dss:dss-test:$dssVersion:tests")
 
                 implementation("org.bouncycastle:bcpkix-jdk18on:$bcVersion")
                 implementation("io.mockk:mockk:1.12.4")
@@ -104,6 +133,9 @@ kotlin {
 //                implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
 
                 implementation("org.ehcache:ehcache:3.8.1")
+                implementation("org.apache.logging.log4j:log4j-api:${log4jVersion}")
+                implementation("org.apache.logging.log4j:log4j-core:${log4jVersion}")
+                implementation("org.apache.logging.log4j:log4j-slf4j-impl:${log4jVersion}")
 
 
             }

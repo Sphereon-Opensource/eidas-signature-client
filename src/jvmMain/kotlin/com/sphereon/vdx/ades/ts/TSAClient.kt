@@ -81,10 +81,7 @@ class TSAClient
 
         // https://www.ietf.org/rfc/rfc3161.html#section-2.4.2
         val token = response.timeStampToken ?: throw TimestampException(
-            String.format(
-                "Response from %s does not have a time stamp token, status: %s (%s)", url, response.status,
-                response.statusString
-            )
+            "Response from $url does not have a time stamp token, status: ${response.status} (${response.statusString})"
         )
         return token.encoded
     }

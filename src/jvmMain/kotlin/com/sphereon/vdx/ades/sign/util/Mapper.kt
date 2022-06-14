@@ -537,8 +537,7 @@ fun mapTimestampParams(
     timestampParameters?.baselineBContentTimestampParameters?.apply {
         val tsParams = initTimestampParameters(pades)
         tsParams.digestAlgorithm = timestampParameters.baselineBContentTimestampParameters.digestAlgorithm.toDSS()
-        if (pades && visualSignatureParameters != null)
-            (tsParams as PAdESTimestampParameters).imageParameters = visualSignatureParameters.toDSS()
+        if (pades && visualSignatureParameters != null) (tsParams as PAdESTimestampParameters).imageParameters = visualSignatureParameters.toDSS()
     }
     timestampParameters?.baselineTSignatureTimestampParameters?.apply {
         val tsParams = initTimestampParameters(pades)

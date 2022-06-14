@@ -1,6 +1,7 @@
 package com.sphereon.vdx.ades.pki
 
 import AbstractAdESTest
+import KeyEntryCacheSerializer
 import com.sphereon.vdx.ades.enums.*
 import com.sphereon.vdx.ades.model.*
 import com.sphereon.vdx.ades.sign.KidSignatureService
@@ -15,8 +16,6 @@ import eu.europa.esig.dss.validation.executor.ValidationLevel
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
 import kotlin.test.assertContentEquals
@@ -32,8 +31,9 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
     @Test
     fun `Given a KID the Azure Keyvault Certificate Provider Service should return a key`() {
         val keyProvider = KeyProviderServiceFactory.createFromConfig(
-            constructCertificateProviderSettings(false),
-            azureKeyvaultClientConfig = constructKeyvaultClientConfig()
+            constructCertificateProviderSettings(true),
+            azureKeyvaultClientConfig = constructKeyvaultClientConfig(),
+            cacheObjectSerializer = KeyEntryCacheSerializer()
         )
         val key = keyProvider.getKey("esignum:3f98a9a740fb41b79e3679cce7a34ba6")
 
@@ -45,8 +45,7 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
         assertEquals("59F815EF01229B27147BB84F2F412C16C5BD6BE0", key.certificate?.fingerPrint)
         assertEquals("CN=Ensured Document Signing CA, O=Ensured B.V., L=Heerhugowaard, ST=Noord-Holland, C=NL", key.certificate?.issuerDN)
         assertEquals(
-            "EMAILADDRESS=signature@esignum.io, CN=Afdeling beheer, OU=Afdeling beheer, O=Sphereon B.V., ST=Utrecht, C=NL",
-            key.certificate?.subjectDN
+            "EMAILADDRESS=signature@esignum.io, CN=Afdeling beheer, OU=Afdeling beheer, O=Sphereon B.V., ST=Utrecht, C=NL", key.certificate?.subjectDN
         )
         assertEquals("302503097311715737064467329723821046857", key.certificate?.serialNumber)
         assertNotNull(key.certificate?.keyUsage)
@@ -75,8 +74,7 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
 
 
         val keyProvider = KeyProviderServiceFactory.createFromConfig(
-            constructCertificateProviderSettings(false),
-            azureKeyvaultClientConfig = constructKeyvaultClientConfig()
+            constructCertificateProviderSettings(false), azureKeyvaultClientConfig = constructKeyvaultClientConfig()
         )
         val signingService = KidSignatureService(keyProvider)
         val kid = "esignum:3f98a9a740fb41b79e3679cce7a34ba6"
@@ -88,8 +86,7 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
                 encryptionAlgorithm = CryptoAlg.RSA,
                 signatureAlgorithm = SignatureAlg.RSA_SHA256,
                 signatureLevelParameters = SignatureLevelParameters(
-                    signatureLevel = SignatureLevel.PAdES_BASELINE_LTA,
-                    bLevelParameters = BLevelParams(
+                    signatureLevel = SignatureLevel.PAdES_BASELINE_LTA, bLevelParameters = BLevelParams(
 //                        signingDate = Instant.parse(SIGDATE)
                     )
                 ),
@@ -108,34 +105,27 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
 //                                fieldId = "SigNK",
                                 originX = 50f,
                                 originY = 400f,
-                            ),
-                            image = logoData,
+                            ), image = logoData,
 //                            rotation = VisualSignatureRotation.ROTATE_90,
                             textParameters = VisualSignatureTextParameters(
-                                text = "Niels Klomp\r\nCTO",
-                                signerTextPosition = SignerTextPosition.TOP
+                                text = "Niels Klomp\r\nCTO", signerTextPosition = SignerTextPosition.TOP
                             )
 
                         )
 
                     )
                 )
-            ),
-            timestampParameters = TimestampParameters(
-                tsaUrl = "http://timestamping.ensuredca.com/",
-                baselineLTAArchiveTimestampParameters = TimestampParameterSettings(
+            ), timestampParameters = TimestampParameters(
+                tsaUrl = "http://timestamping.ensuredca.com/", baselineLTAArchiveTimestampParameters = TimestampParameterSettings(
                     digestAlgorithm = DigestAlg.SHA256
                 )
             )
         )
         val signInput = signingService.determineSignInput(
-            origData = pdfData,
-            kid = kid,
-            signMode = SignMode.DOCUMENT,
-            signatureConfiguration = signatureConfiguration
+            origData = pdfData, kid = kid, signMode = SignMode.DOCUMENT, signatureConfiguration = signatureConfiguration
         )
 
-        println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(signInput))
+//        println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(signInput))
 
         // Let's first create a signature of the document/data without creating a digest
         val signatureData = signingService.createSignature(signInput, kid)
@@ -174,8 +164,7 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
         assertTrue(signingService.isValidSignature(digestInput, signatureDigest, signatureDigest.keyEntry.publicKey))
         val documentValidator = PDFDocumentValidator(
             InMemoryDocument(
-                signOutputData.value,
-                signOutputData.name
+                signOutputData.value, signOutputData.name
             )
         )
         documentValidator.setValidationLevel(ValidationLevel.BASIC_SIGNATURES)
@@ -218,8 +207,7 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
             hsmType = HSMType.KEYVAULT,
             exponentialBackoffRetryOpts = ExponentialBackoffRetryOpts(),
             credentialOpts = CredentialOpts(
-                credentialMode = CredentialMode.SERVICE_CLIENT_SECRET,
-                secretCredentialOpts = SecretCredentialOpts(
+                credentialMode = CredentialMode.SERVICE_CLIENT_SECRET, secretCredentialOpts = SecretCredentialOpts(
                     clientId = "d1570d88-02ff-4c98-b5e6-49eda718708f",
                     clientSecret = "_sug439PHn8745_YG-4CzcNr_CKTFLTljW",
                 )
@@ -228,16 +216,13 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
     }
 
     private fun constructCertificateProviderSettings(
-        enableCache: Boolean = false
+        enableCache: Boolean? = false
     ): KeyProviderSettings {
 
         return KeyProviderSettings(
-            id = "eisgnum-test",
-            config = KeyProviderConfig(
-                cacheEnabled = enableCache,
-                type = KeyProviderType.AZURE_KEYVAULT,
-
-                )
+            id = "esignum-test", config = KeyProviderConfig(
+                cacheEnabled = enableCache, type = KeyProviderType.AZURE_KEYVAULT
+            )
         )
     }
 }

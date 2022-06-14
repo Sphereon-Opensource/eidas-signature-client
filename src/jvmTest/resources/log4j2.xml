@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="warn">
+    <Appenders>
+        <!-- A1 is a ConsoleAppender, using PatternLayout. -->
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{yyyy-MM-dd'T'HH:mm:ss.SSSZ} %p %m%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+
+        <!-- DSS is noisy, so let's set that to ERROR -->
+        <Logger additivity="false" level="ERROR" name="eu.europa.esig.dss">
+            <AppenderRef ref="console"/>
+        </Logger>
+
+        <!-- Set our logging to DEBUG for testing -->
+        <Logger additivity="false" level="DEBUG" name="com.sphereon.vdx">
+            <AppenderRef ref="console"/>
+        </Logger>
+        <!-- Set root logger level to Warn -->
+        <Root level="WARN">
+            <AppenderRef ref="console"/>
+        </Root>
+    </Loggers>
+</Configuration>

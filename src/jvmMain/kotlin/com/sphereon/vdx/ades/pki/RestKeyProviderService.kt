@@ -1,18 +1,18 @@
 package com.sphereon.vdx.ades.pki
 
+import AbstractCacheObjectSerializer
 import com.sphereon.vdx.ades.PKIException
 import com.sphereon.vdx.ades.SignClientException
-import com.sphereon.vdx.ades.enums.KeyProviderType
 import com.sphereon.vdx.ades.enums.CryptoAlg
+import com.sphereon.vdx.ades.enums.KeyProviderType
 import com.sphereon.vdx.ades.enums.MaskGenFunction
 import com.sphereon.vdx.ades.enums.SignatureAlg
 import com.sphereon.vdx.ades.model.*
 import com.sphereon.vdx.ades.rest.client.ApiClient
-import com.sphereon.vdx.ades.rest.client.api.CertificatesApi
+import com.sphereon.vdx.ades.rest.client.api.KeysApi
 import com.sphereon.vdx.ades.rest.client.api.SigningApi
 import com.sphereon.vdx.ades.rest.client.auth.HttpBearerAuth
 import com.sphereon.vdx.ades.rest.client.auth.OAuth
-import com.sphereon.vdx.ades.rest.client.model.ConfigCertificateBinding
 import com.sphereon.vdx.ades.rest.client.model.CreateSignature
 import com.sphereon.vdx.ades.rest.client.model.DigestAlgorithm
 import com.sphereon.vdx.ades.rest.client.model.SignMode
@@ -24,8 +24,12 @@ import com.sphereon.vdx.ades.sign.util.toKey
 private const val BEARER_LITERAL = "bearer"
 private const val OAUTH2_LITERAL = "oauth2"
 
-open class RestKeyProviderService(settings: KeyProviderSettings, val restClientConfig: RestClientConfig) :
-    AbstractKeyProviderService(settings) {
+open class RestKeyProviderService(
+    settings: KeyProviderSettings,
+    val restClientConfig: RestClientConfig,
+    cacheObjectSerializer: AbstractCacheObjectSerializer<String, IKeyEntry>? = null
+) :
+    AbstractKeyProviderService(settings, cacheObjectSerializer) {
 
     private val apiClient: ApiClient
 
@@ -39,16 +43,16 @@ open class RestKeyProviderService(settings: KeyProviderSettings, val restClientC
         val signingClient = newSigningApi()
         val signature = signingClient.createSignature(
             CreateSignature()
-                .binding(
+                /*.binding(
                     ConfigCertificateBinding()
                         .certificateProviderId(settings.id)
                         .certificateAlias(keyEntry.kid)
                         .signatureConfigId(null)
-                )
+                )*/
                 .signInput(
                     com.sphereon.vdx.ades.rest.client.model.SignInput()
                         .signMode(SignMode.valueOf(signInput.signMode.name))
-                        .input(java.util.Base64.getEncoder().encodeToString(signInput.input))
+                        .input(signInput.input)
                         .name(signInput.name)
                         .digestAlgorithm(signInput.digestAlgorithm?.name?.let { DigestAlgorithm.valueOf(it) })
                 )
@@ -58,7 +62,7 @@ open class RestKeyProviderService(settings: KeyProviderSettings, val restClientC
             algorithm = SignatureAlg.valueOf(signature.signature.algorithm.name),
             signMode = signInput.signMode,
             keyEntry = keyEntry,
-            providerId = signature.signature.binding.certificateProviderId,
+            providerId = signature.signature.binding.keyProviderId,
             date = signInput.signingDate
         )
     }
@@ -73,7 +77,7 @@ open class RestKeyProviderService(settings: KeyProviderSettings, val restClientC
             return cachedKey
         }
 
-        val certApi = newCertApi()
+        val certApi = newKeysApi()
         val certResponse = certApi.getKeyWithHttpInfo(settings.id, kid)
         if (certResponse.statusCode == 404) {
             return null
@@ -92,7 +96,7 @@ open class RestKeyProviderService(settings: KeyProviderSettings, val restClientC
             encryptionAlgorithm = CryptoAlg.RSA
         )
 
-        cacheService.put(key)
+        cacheService.put(kid, key)
         return key
     }
 
@@ -108,8 +112,8 @@ open class RestKeyProviderService(settings: KeyProviderSettings, val restClientC
         )
     }
 
-    fun newCertApi(): CertificatesApi {
-        return CertificatesApi(apiClient)
+    fun newKeysApi(): KeysApi {
+        return KeysApi(apiClient)
     }
 
     fun newSigningApi(): SigningApi {

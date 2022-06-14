@@ -1,18 +1,27 @@
 package com.sphereon.vdx.ades.pki
 
+import AbstractCacheObjectSerializer
 import com.sphereon.vdx.ades.enums.*
 import com.sphereon.vdx.ades.model.*
 import com.sphereon.vdx.ades.sign.util.toDSS
 import com.sphereon.vdx.ades.sign.util.toJavaPublicKey
 import eu.europa.esig.dss.enumerations.SignatureAlgorithm
 import eu.europa.esig.dss.spi.DSSSecurityProvider
+import mu.KotlinLogging
 import java.security.GeneralSecurityException
 import java.security.spec.MGF1ParameterSpec
 import java.security.spec.PSSParameterSpec
 import java.util.*
 
-abstract class AbstractKeyProviderService(override val settings: KeyProviderSettings) : IKeyProviderService {
-    protected val cacheService: CacheService = CacheService(settings)
+private val logger = KotlinLogging.logger {}
+
+abstract class AbstractKeyProviderService(
+    override val settings: KeyProviderSettings,
+    cacheObjectSerializer: AbstractCacheObjectSerializer<String, IKeyEntry>?
+) : IKeyProviderService {
+
+    protected val cacheService: CacheService<String, IKeyEntry> =
+        CacheService("Keys", settings.config.cacheEnabled, settings.config.cacheTTLInSeconds, cacheObjectSerializer)
 
     override fun createSignature(signInput: SignInput, keyEntry: IKeyEntry): Signature {
         return createSignatureImpl(signInput, keyEntry, null)
@@ -32,6 +41,7 @@ abstract class AbstractKeyProviderService(override val settings: KeyProviderSett
     }
 
     override fun isValidSignature(signInput: SignInput, signature: Signature, publicKey: Key): Boolean {
+        logger.entry(signInput, signature, publicKey)
         Objects.requireNonNull(signInput, "signInput cannot be null!")
         Objects.requireNonNull(signature, "Signature cannot be null!")
         Objects.requireNonNull(publicKey, "Public key cannot be null!")
@@ -62,9 +72,12 @@ abstract class AbstractKeyProviderService(override val settings: KeyProviderSett
                 DSSUtils.digest(signature.algorithm.digestAlgorithm.toDSS(), signInput.input)
             }*/
             javaSig.update(signInput.input)
-            javaSig.verify(signature.value)
+            val verify = javaSig.verify(signature.value)
+            logger.info { "Signature with date '${signature.date}' and provider '${signature.providerId}' for input '${signInput.name}' was ${if (verify) "VALID" else "INVALID"}" }
+            logger.exit(verify)
+
         } catch (e: GeneralSecurityException) {
-            println(e)
+            logger.warn { "Signature with date '${signature.date}' and provider '${signature.providerId}' for input '${signInput.name}' was INVALID, with an exception: ${e.message}" }
             false
         }
     }
