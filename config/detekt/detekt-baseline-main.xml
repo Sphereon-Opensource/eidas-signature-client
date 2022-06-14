@@ -2,78 +2,30 @@
 <SmellBaseline>
   <ManuallySuppressedIssues></ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>ComplexCondition:Mapper.kt$bLevelParameters.signerLocationCountry != null ||
-      bLevelParameters.signerLocationLocality != null || bLevelParameters.signerLocationStreet != null ||
-      bLevelParameters.signerLocationPostalAddress != null || bLevelParameters.signerLocationPostalCode != null ||
-      bLevelParameters.signerLocationStateOrProvince != null
-    </ID>
-    <ID>ComplexCondition:SigUtils.kt$SigUtils$extendedKeyUsage != null &amp;&amp;
-      !extendedKeyUsage.contains(KeyPurposeId.id_kp_emailProtection.toString()) &amp;&amp;
-      !extendedKeyUsage.contains(KeyPurposeId.id_kp_codeSigning.toString()) &amp;&amp;
-      !extendedKeyUsage.contains(KeyPurposeId.anyExtendedKeyUsage.toString()) &amp;&amp;
-      !extendedKeyUsage.contains("1.2.840.113583.1.1.5") &amp;&amp; // not mentioned in Adobe document, but tolerated in
-      practice !extendedKeyUsage.contains("1.3.6.1.4.1.311.10.3.12")
-    </ID>
-    <ID>ComplexCondition:TSAClient.kt$TSAClient$username != null &amp;&amp; password != null &amp;&amp;
-      !username.isEmpty() &amp;&amp; !password.isEmpty()
-    </ID>
-    <ID>ComplexMethod:CertificateUtil.kt$CertificateUtil$ fun downloadExtraCertificates(x509Extension: X509Extension,
-      recursive: Boolean? = true): List&lt;X509Certificate&gt;
-    </ID>
+    <ID>ComplexCondition:Mapper.kt$bLevelParameters.signerLocationCountry != null || bLevelParameters.signerLocationLocality != null || bLevelParameters.signerLocationStreet != null || bLevelParameters.signerLocationPostalAddress != null || bLevelParameters.signerLocationPostalCode != null || bLevelParameters.signerLocationStateOrProvince != null</ID>
+    <ID>ComplexCondition:SigUtils.kt$SigUtils$extendedKeyUsage != null &amp;&amp; !extendedKeyUsage.contains(KeyPurposeId.id_kp_emailProtection.toString()) &amp;&amp; !extendedKeyUsage.contains(KeyPurposeId.id_kp_codeSigning.toString()) &amp;&amp; !extendedKeyUsage.contains(KeyPurposeId.anyExtendedKeyUsage.toString()) &amp;&amp; !extendedKeyUsage.contains("1.2.840.113583.1.1.5") &amp;&amp; // not mentioned in Adobe document, but tolerated in practice !extendedKeyUsage.contains("1.3.6.1.4.1.311.10.3.12")</ID>
+    <ID>ComplexCondition:TSAClient.kt$TSAClient$username != null &amp;&amp; password != null &amp;&amp; !username.isEmpty() &amp;&amp; !password.isEmpty()</ID>
+    <ID>ComplexMethod:CertificateUtil.kt$CertificateUtil$ fun downloadExtraCertificates(x509Extension: X509Extension, recursive: Boolean? = true): List&lt;X509Certificate&gt;</ID>
     <ID>ComplexMethod:SignatureParameters.kt$BLevelParams$override fun equals(other: Any?): Boolean</ID>
-    <ID>
-      ExplicitItLambdaParameter:Mapper.kt${ it -&gt; it.pkcs7SignatureFormParameters?.let { formParameters -&gt; dssParams.contactInfo = formParameters.contactInfo dssParams.location = formParameters.location dssParams.permission = if (formParameters.certificationPermission != null) eu.europa.esig.dss.enumerations.CertificationPermission.valueOf( formParameters.certificationPermission.name ) else null dssParams.reason = formParameters.reason dssParams.signerName = formParameters.signerName dssParams.signatureMode = formParameters.mode if (dssParams.signatureMode != PdfSignatureMode.CERTIFICATION &amp;&amp; dssParams.permission != null) { throw SigningException("Cannot set certification permissions when mode is not set to Certification") }
-      else if (dssParams.signatureMode == PdfSignatureMode.CERTIFICATION &amp;&amp; dssParams.permission == null) {
-      dssParams.permission = CertificationPermission.MINIMAL_CHANGES_PERMITTED }
-      signatureParameters.signatureFormParameters.padesSignatureFormParameters?.signingTimeZone?.let {
-      dssParams.signingTimeZone = TimeZone.getTimeZone(it) } } }
-    </ID>
-    <ID>ForbiddenComment:AzureKeyvaultKeyProviderService.kt$AzureKeyvaultKeyProviderService$// TODO: Make methods
-      reactive and provide a sync client as well
-    </ID>
-    <ID>ForbiddenComment:AzureKeyvaultTokenConnection.kt$AzureKeyvaultTokenConnection$// TODO: Make methods reactive and
-      provide a sync client as well
-    </ID>
-    <ID>ForbiddenComment:CertificateUtil.kt$CertificateUtil$// TODO: Add cache, getting all the CAs over and over is
-      expensive
-    </ID>
+    <ID>ExplicitItLambdaParameter:Mapper.kt${ it -&gt; it.pkcs7SignatureFormParameters?.let { formParameters -&gt; dssParams.contactInfo = formParameters.contactInfo dssParams.location = formParameters.location dssParams.permission = if (formParameters.certificationPermission != null) eu.europa.esig.dss.enumerations.CertificationPermission.valueOf( formParameters.certificationPermission.name ) else null dssParams.reason = formParameters.reason dssParams.signerName = formParameters.signerName dssParams.signatureMode = formParameters.mode if (dssParams.signatureMode != PdfSignatureMode.CERTIFICATION &amp;&amp; dssParams.permission != null) { throw SigningException("Cannot set certification permissions when mode is not set to Certification") } else if (dssParams.signatureMode == PdfSignatureMode.CERTIFICATION &amp;&amp; dssParams.permission == null) { dssParams.permission = CertificationPermission.MINIMAL_CHANGES_PERMITTED } signatureParameters.signatureFormParameters.padesSignatureFormParameters?.signingTimeZone?.let { dssParams.signingTimeZone = TimeZone.getTimeZone(it) } } }</ID>
+    <ID>ForbiddenComment:AzureKeyvaultKeyProviderService.kt$AzureKeyvaultKeyProviderService$// TODO: Make methods reactive and provide a sync client as well</ID>
+    <ID>ForbiddenComment:AzureKeyvaultTokenConnection.kt$AzureKeyvaultTokenConnection$// TODO: Make methods reactive and provide a sync client as well</ID>
+    <ID>ForbiddenComment:CertificateUtil.kt$CertificateUtil$// TODO: Add cache, getting all the CAs over and over is expensive</ID>
     <ID>ForbiddenComment:CertificateUtil.kt$CertificateUtil$// TODO: certChain</ID>
     <ID>ForbiddenComment:KeyvaultMapper.kt$// TODO: Certificate in case of keyvault (not managed hsm)</ID>
-    <ID>ForbiddenComment:KeyvaultMapper.kt$// null todo: Doublecheck. This is a raw signature. We use the signData
-      method of keyvault. Hopefully the hash algo doesn't matter
-    </ID>
-    <ID>ForbiddenComment:LocalKeyProviderService.kt$LocalKeyProviderService$// TODO: Create provider so we can move this
-      to the abstract class and even move createSignatureImpl there
-    </ID>
+    <ID>ForbiddenComment:KeyvaultMapper.kt$// null todo: Doublecheck. This is a raw signature. We use the signData method of keyvault. Hopefully the hash algo doesn't matter</ID>
+    <ID>ForbiddenComment:LocalKeyProviderService.kt$LocalKeyProviderService$// TODO: Create provider so we can move this to the abstract class and even move createSignatureImpl there</ID>
     <ID>ForbiddenComment:Mapper.kt$// FIXME: Assumes x509</ID>
     <ID>ForbiddenComment:Mapper.kt$// TODO: font!</ID>
     <ID>ForbiddenComment:RestKeyProviderService.kt$RestKeyProviderService$// fixme: Needs to come from response</ID>
     <ID>ForbiddenComment:TSAClient.kt$TSAClient$// todo: support proxy servers</ID>
-    <ID>ImplicitDefaultLocale:AbstractSignatureTokenConnection.kt$AbstractSignatureTokenConnection$String.format("Unable
-      to sign : %s", e.message)
-    </ID>
-    <ID>ImplicitDefaultLocale:AbstractSignatureTokenConnection.kt$AbstractSignatureTokenConnection$String.format("Unable
-      to sign digest : %s", e.message)
-    </ID>
-    <ID>ImplicitDefaultLocale:PKCS7Service.kt$PKCS7Service$String.format("Unsupported signature format '%s' for
-      extension.", parameters.signatureLevel)
-    </ID>
-    <ID>LongParameterList:Algorithms.kt$DigestAlg$( val internalName: String, val javaName: String, val oid: String, val
-      xmlId: String? = null, val jadesId: String? = null, val httpHeaderId: String? = null, val saltLength: Int? = 0 )
-    </ID>
-    <ID>LongParameterList:Certificate.kt$Certificate$( @kotlinx.serialization.Serializable(with =
-      Base64Serializer::class) val value: ByteArray, val fingerPrint: String, val serialNumber: String? = null, val
-      issuerDN: String, val subjectDN: String, val notBefore: Instant, val notAfter: Instant, val keyUsage: Map&lt;String,
-      Boolean&gt;? = null )
-    </ID>
-    <ID>LongParameterList:Mapper.kt$( signatureParameters: SignatureParameters, key: IKeyEntry, signingDate: Instant? =
-      null, signedData: ByteArray? = null, signatureAlg: SignatureAlg? = null, timestampParameters:
-      com.sphereon.vdx.ades.model.TimestampParameters? )
-    </ID>
-    <ID>LongParameterList:Mapper.kt$( signatureParameters: SignatureParameters, key: IKeyEntry, signingDate: Instant?,
-      signedData: ByteArray? = null, signatureAlg: SignatureAlg? = null, timestampParameters:
-      com.sphereon.vdx.ades.model.TimestampParameters? )
-    </ID>
+    <ID>ImplicitDefaultLocale:AbstractSignatureTokenConnection.kt$AbstractSignatureTokenConnection$String.format("Unable to sign : %s", e.message)</ID>
+    <ID>ImplicitDefaultLocale:AbstractSignatureTokenConnection.kt$AbstractSignatureTokenConnection$String.format("Unable to sign digest : %s", e.message)</ID>
+    <ID>ImplicitDefaultLocale:PKCS7Service.kt$PKCS7Service$String.format("Unsupported signature format '%s' for extension.", parameters.signatureLevel)</ID>
+    <ID>LongParameterList:Algorithms.kt$DigestAlg$( val internalName: String, val javaName: String, val oid: String, val xmlId: String? = null, val jadesId: String? = null, val httpHeaderId: String? = null, val saltLength: Int? = 0 )</ID>
+    <ID>LongParameterList:Certificate.kt$Certificate$( @kotlinx.serialization.Serializable(with = Base64Serializer::class) val value: ByteArray, val fingerPrint: String, val serialNumber: String? = null, val issuerDN: String, val subjectDN: String, val notBefore: Instant, val notAfter: Instant, val keyUsage: Map&lt;String, Boolean&gt;? = null )</ID>
+    <ID>LongParameterList:Mapper.kt$( signatureParameters: SignatureParameters, key: IKeyEntry, signingDate: Instant? = null, signedData: ByteArray? = null, signatureAlg: SignatureAlg? = null, timestampParameters: com.sphereon.vdx.ades.model.TimestampParameters? )</ID>
+    <ID>LongParameterList:Mapper.kt$( signatureParameters: SignatureParameters, key: IKeyEntry, signingDate: Instant?, signedData: ByteArray? = null, signatureAlg: SignatureAlg? = null, timestampParameters: com.sphereon.vdx.ades.model.TimestampParameters? )</ID>
     <ID>MagicNumber:Algorithms.kt$DigestAlg.SHA256$32</ID>
     <ID>MagicNumber:Algorithms.kt$DigestAlg.SHA3_256$32</ID>
     <ID>MagicNumber:Algorithms.kt$DigestAlg.SHA3_512$64</ID>
@@ -97,143 +49,58 @@
     <ID>MagicNumber:SigUtils.kt$SigUtils$3</ID>
     <ID>MagicNumber:TimestampType.kt$TimestampType.ARCHIVE_TIMESTAMP$3</ID>
     <ID>MagicNumber:TimestampType.kt$TimestampType.DOCUMENT_TIMESTAMP$3</ID>
-    <ID>MaxLineLength:AbstractKeyProviderService.kt$AbstractKeyProviderService$// Replace with RAW for RSA in case we
-      receive a digest. Probably we should correct the signature algorithm value itself instead of correcting it here
-    </ID>
-    <ID>MaxLineLength:AbstractKeyProviderService.kt$AbstractKeyProviderService$if (signature.algorithm.maskGenFunction
-      == null) SignatureAlgorithm.RSA_RAW.jceId else SignatureAlgorithm.RSA_SSA_PSS_RAW_MGF1.jceId
-    </ID>
-    <ID>MaxLineLength:AbstractKeyProviderService.kt$AbstractKeyProviderService$logger.info { "Signature with date
-      '${signature.date}' and provider '${signature.providerId}' for input '${signInput.name}' was
-      ${if (verify) "VALID" else "INVALID"}" }
-    </ID>
-    <ID>MaxLineLength:AbstractKeyProviderService.kt$AbstractKeyProviderService$logger.warn { "Signature with date
-      '${signature.date}' and provider '${signature.providerId}' for input '${signInput.name}' was INVALID, with an
-      exception: ${e.message}" }
-    </ID>
-    <ID>MaxLineLength:AdESServiceFactory.kt$AdESServiceFactory.Companion$/* fun getService(signatureLevel:
-      SignatureLevel?): AbstractSignatureService&lt;out AbstractSignatureParameters&lt;out TimestampParameters&gt;, out
-      TimestampParameters&gt; { return getService(signatureLevel?.form) }*/
-    </ID>
+    <ID>MaxLineLength:AbstractKeyProviderService.kt$AbstractKeyProviderService$// Replace with RAW for RSA in case we receive a digest. Probably we should correct the signature algorithm value itself instead of correcting it here</ID>
+    <ID>MaxLineLength:AbstractKeyProviderService.kt$AbstractKeyProviderService$if (signature.algorithm.maskGenFunction == null) SignatureAlgorithm.RSA_RAW.jceId else SignatureAlgorithm.RSA_SSA_PSS_RAW_MGF1.jceId</ID>
+    <ID>MaxLineLength:AbstractKeyProviderService.kt$AbstractKeyProviderService$logger.info { "Signature with date '${signature.date}' and provider '${signature.providerId}' for input '${signInput.name}' was ${if (verify) "VALID" else "INVALID"}" }</ID>
+    <ID>MaxLineLength:AbstractKeyProviderService.kt$AbstractKeyProviderService$logger.warn { "Signature with date '${signature.date}' and provider '${signature.providerId}' for input '${signInput.name}' was INVALID, with an exception: ${e.message}" }</ID>
+    <ID>MaxLineLength:AdESServiceFactory.kt$AdESServiceFactory.Companion$/* fun getService(signatureLevel: SignatureLevel?): AbstractSignatureService&lt;out AbstractSignatureParameters&lt;out TimestampParameters&gt;, out TimestampParameters&gt; { return getService(signatureLevel?.form) }*/</ID>
     <ID>MaxLineLength:AdESServiceFactory.kt$AdESServiceFactory.Companion$fun</ID>
-    <ID>MaxLineLength:AzureKeyvaultKeyProviderService.kt$AzureKeyvaultKeyProviderService$"Signature with date
-      '${signature.date}' and provider '${signature.providerId}' for input '${signInput.name}' was
-      ${if (valid) "VALID" else "INVALID"} according to Keyvault"
-    </ID>
-    <ID>MaxLineLength:AzureKeyvaultKeyProviderService.kt$AzureKeyvaultKeyProviderService$// This is a workaround, since
-      we can be called from a Web(Test)Client, and this library/method is not reactive. Using block() would result in an
-      error
-    </ID>
-    <ID>MaxLineLength:AzureKeyvaultKeyProviderService.kt$AzureKeyvaultKeyProviderService$logger.info { "Creating
-      signature with date '${signInput.signingDate}' provider Id '${settings.id}', key Id '${keyEntry.kid}' and sign
-      input '${signInput.name}'..." }
-    </ID>
-    <ID>MaxLineLength:AzureKeyvaultKeyProviderService.kt$AzureKeyvaultKeyProviderService$logger.info { "Signature
-      created with date '${signInput.signingDate}' provider Id '${settings.id}', key Id '${keyEntry.kid}' and sign input
-      '${signInput.name}'" }
-    </ID>
-    <ID>MaxLineLength:AzureKeyvaultKeyProviderService.kt$AzureKeyvaultKeyProviderService$logger.warn { "Azure keyvault
-      key provider ${settings.id} in mode: Managed HSM. This mode as opposed to 'keyvault' mode is untested currently!"
-      }
-    </ID>
-    <ID>MaxLineLength:AzureKeyvaultKeyProviderService.kt$AzureKeyvaultKeyProviderService$throw
-      SignClientException("Cannot create a Keyvault certificate Service Provider without mode set to Azure Keyvault.
-      Current mode: ${settings.config.type}")
-    </ID>
-    <ID>MaxLineLength:AzureKeyvaultTokenConnection.kt$AzureKeyvaultTokenConnection$// This is a workaround, since we can
-      be called from a Web(Test)Client, and this library/method is not reactive. Using block() would result in an error
-    </ID>
-    <ID>MaxLineLength:CacheService.kt$CacheService$// We get the config from the serializer of any. Default to a mutable
-      config. This might clutter the logs with warnings in case of Ehcache,
-    </ID>
-    <ID>MaxLineLength:KeySignatureService.kt$KeySignatureService$else -&gt; throw SigningException("Determining sign
-      input using signature form ${signatureConfiguration.signatureParameters.signatureForm()} not support")
-    </ID>
-    <ID>MaxLineLength:KeySignatureService.kt$KeySignatureService$logger.info { "Created a digest for signInput named
-      '${signInput.name}' with date ${signInput.signingDate}, signature mode '${signInput.signMode.name}' and digest
-      mode '${signInput.digestAlgorithm.name}'" }
-    </ID>
-    <ID>MaxLineLength:KeySignatureService.kt$KeySignatureService$logger.info { "Creating a digest for signInput named
-      '${signInput.name}' with date ${signInput.signingDate}, signature mode '${signInput.signMode.name}' and digest
-      mode '${signInput.digestAlgorithm?.name ?: "&lt;unknown&gt;"}'" }
-    </ID>
-    <ID>MaxLineLength:KeySignatureService.kt$KeySignatureService$logger.info { "Determined sign input for data with name
-      '${origData.name}', key id '${keyEntry.kid}' in mode ${signatureForm.name}. Signing date:
-      ${signInput.signingDate}" }
-    </ID>
-    <ID>MaxLineLength:KeySignatureService.kt$KeySignatureService$logger.info { "Merged signature with original document
-      named '${origData.name}' at date ${signature.date}, using key Id ${signature.keyEntry.kid}, and provider
-      ${signature.providerId}, in mode '$signatureForm'" }
-    </ID>
-    <ID>MaxLineLength:KeySignatureService.kt$KeySignatureService$logger.info { "Merging signature with original document
-      named '${origData.name}' at date ${signature.date}, using key Id ${signature.keyEntry.kid}, and provider
-      ${signature.providerId}, in mode '$signatureForm'..." }
-    </ID>
-    <ID>MaxLineLength:KeyvaultMapper.kt$encryptionAlgorithm = if (x509Certificate.sigAlgName.endsWith("RSA"))
-      CryptoAlg.RSA else CryptoAlg.valueOf(x509Certificate.publicKey.algorithm)
-    </ID>
-    <ID>MaxLineLength:KeyvaultMapper.kt$eu.europa.esig.dss.enumerations.SignatureAlgorithm.ECDSA_RAW -&gt;
-      SignatureAlgorithm.ES256
-    </ID>
-    <ID>MaxLineLength:KeyvaultMapper.kt$eu.europa.esig.dss.enumerations.SignatureAlgorithm.RSA_RAW -&gt;
-      SignatureAlgorithm.RS256
-    </ID>
-    <ID>MaxLineLength:LocalKeyProviderService.kt$LocalKeyProviderService$return tokenConnection.keys.map { if (it is
-      KSPrivateKeyEntry) it.fromDSS(it.alias) else it.fromDSS(it.certificate.toCertificate().fingerPrint) }
-    </ID>
+    <ID>MaxLineLength:AzureKeyvaultKeyProviderService.kt$AzureKeyvaultKeyProviderService$"Signature with date '${signature.date}' and provider '${signature.providerId}' for input '${signInput.name}' was ${if (valid) "VALID" else "INVALID"} according to Keyvault"</ID>
+    <ID>MaxLineLength:AzureKeyvaultKeyProviderService.kt$AzureKeyvaultKeyProviderService$// This is a workaround, since we can be called from a Web(Test)Client, and this library/method is not reactive. Using block() would result in an error</ID>
+    <ID>MaxLineLength:AzureKeyvaultKeyProviderService.kt$AzureKeyvaultKeyProviderService$logger.info { "Creating signature with date '${signInput.signingDate}' provider Id '${settings.id}', key Id '${keyEntry.kid}' and sign input '${signInput.name}'..." }</ID>
+    <ID>MaxLineLength:AzureKeyvaultKeyProviderService.kt$AzureKeyvaultKeyProviderService$logger.info { "Signature created with date '${signInput.signingDate}' provider Id '${settings.id}', key Id '${keyEntry.kid}' and sign input '${signInput.name}'" }</ID>
+    <ID>MaxLineLength:AzureKeyvaultKeyProviderService.kt$AzureKeyvaultKeyProviderService$logger.warn { "Azure keyvault key provider ${settings.id} in mode: Managed HSM. This mode as opposed to 'keyvault' mode is untested currently!" }</ID>
+    <ID>MaxLineLength:AzureKeyvaultKeyProviderService.kt$AzureKeyvaultKeyProviderService$throw SignClientException("Cannot create a Keyvault certificate Service Provider without mode set to Azure Keyvault. Current mode: ${settings.config.type}")</ID>
+    <ID>MaxLineLength:AzureKeyvaultTokenConnection.kt$AzureKeyvaultTokenConnection$// This is a workaround, since we can be called from a Web(Test)Client, and this library/method is not reactive. Using block() would result in an error</ID>
+    <ID>MaxLineLength:CacheService.kt$CacheService$// We get the config from the serializer of any. Default to a mutable config. This might clutter the logs with warnings in case of Ehcache,</ID>
+    <ID>MaxLineLength:KeySignatureService.kt$KeySignatureService$else -&gt; throw SigningException("Determining sign input using signature form ${signatureConfiguration.signatureParameters.signatureForm()} not support")</ID>
+    <ID>MaxLineLength:KeySignatureService.kt$KeySignatureService$logger.info { "Created a digest for signInput named '${signInput.name}' with date ${signInput.signingDate}, signature mode '${signInput.signMode.name}' and digest mode '${signInput.digestAlgorithm.name}'" }</ID>
+    <ID>MaxLineLength:KeySignatureService.kt$KeySignatureService$logger.info { "Creating a digest for signInput named '${signInput.name}' with date ${signInput.signingDate}, signature mode '${signInput.signMode.name}' and digest mode '${signInput.digestAlgorithm?.name ?: "&lt;unknown&gt;"}'" }</ID>
+    <ID>MaxLineLength:KeySignatureService.kt$KeySignatureService$logger.info { "Determined sign input for data with name '${origData.name}', key id '${keyEntry.kid}' in mode ${signatureForm.name}. Signing date: ${signInput.signingDate}" }</ID>
+    <ID>MaxLineLength:KeySignatureService.kt$KeySignatureService$logger.info { "Merged signature with original document named '${origData.name}' at date ${signature.date}, using key Id ${signature.keyEntry.kid}, and provider ${signature.providerId}, in mode '$signatureForm'" }</ID>
+    <ID>MaxLineLength:KeySignatureService.kt$KeySignatureService$logger.info { "Merging signature with original document named '${origData.name}' at date ${signature.date}, using key Id ${signature.keyEntry.kid}, and provider ${signature.providerId}, in mode '$signatureForm'..." }</ID>
+    <ID>MaxLineLength:KeyvaultMapper.kt$encryptionAlgorithm = if (x509Certificate.sigAlgName.endsWith("RSA")) CryptoAlg.RSA else CryptoAlg.valueOf(x509Certificate.publicKey.algorithm)</ID>
+    <ID>MaxLineLength:KeyvaultMapper.kt$eu.europa.esig.dss.enumerations.SignatureAlgorithm.ECDSA_RAW -&gt; SignatureAlgorithm.ES256</ID>
+    <ID>MaxLineLength:KeyvaultMapper.kt$eu.europa.esig.dss.enumerations.SignatureAlgorithm.RSA_RAW -&gt; SignatureAlgorithm.RS256</ID>
+    <ID>MaxLineLength:LocalKeyProviderService.kt$LocalKeyProviderService$return tokenConnection.keys.map { if (it is KSPrivateKeyEntry) it.fromDSS(it.alias) else it.fromDSS(it.certificate.toCertificate().fingerPrint) }</ID>
     <ID>MaxLineLength:Mapper.kt$if</ID>
-    <ID>MaxLineLength:Mapper.kt$if (signatureAlg?.encryptionAlgorithm != null) signatureAlg.encryptionAlgorithm.toDSS()
-      else signatureParameters.encryptionAlgorithm?.toDSS()
-    </ID>
-    <ID>MaxLineLength:Mapper.kt$if (signatureForm() != SignatureForm.CAdES) throw SigningException("Cannot convert to
-      cades signature parameters when signature form is ${signatureForm()}")
-    </ID>
-    <ID>MaxLineLength:Mapper.kt$if (signatureForm() != SignatureForm.PAdES) throw SigningException("Cannot convert to
-      pades signature parameters when signature form is ${signatureForm()}")
-    </ID>
-    <ID>MaxLineLength:Mapper.kt$if (signatureForm() != SignatureForm.PKCS7) throw SigningException("Cannot convert to
-      PKCS7 signature parameters when signature form is ${signatureForm()}")
-    </ID>
+    <ID>MaxLineLength:Mapper.kt$if (signatureAlg?.encryptionAlgorithm != null) signatureAlg.encryptionAlgorithm.toDSS() else signatureParameters.encryptionAlgorithm?.toDSS()</ID>
+    <ID>MaxLineLength:Mapper.kt$if (signatureForm() != SignatureForm.CAdES) throw SigningException("Cannot convert to cades signature parameters when signature form is ${signatureForm()}")</ID>
+    <ID>MaxLineLength:Mapper.kt$if (signatureForm() != SignatureForm.PAdES) throw SigningException("Cannot convert to pades signature parameters when signature form is ${signatureForm()}")</ID>
+    <ID>MaxLineLength:Mapper.kt$if (signatureForm() != SignatureForm.PKCS7) throw SigningException("Cannot convert to PKCS7 signature parameters when signature form is ${signatureForm()}")</ID>
     <ID>MaxLineLength:Mapper.kt$}</ID>
     <ID>MaxLineLength:RestKeyProviderService.kt$RestKeyProviderService$return</ID>
-    <ID>MaxLineLength:RestKeyProviderService.kt$RestKeyProviderService$throw SignClientException("Cannot create a REST
-      certificate Service Provider without mode set to REST. Current mode: ${settings.config.type}")
-    </ID>
-    <ID>MaxLineLength:SignatureLevel.kt$SignatureLevel$// XML_NOT_ETSI, XAdES_BES, XAdES_EPES, XAdES_T, XAdES_LT,
-      XAdES_C, XAdES_X, XAdES_XL, XAdES_A, XAdES_BASELINE_B, XAdES_BASELINE_T, XAdES_BASELINE_LT, XAdES_BASELINE_LTA,
-    </ID>
+    <ID>MaxLineLength:RestKeyProviderService.kt$RestKeyProviderService$throw SignClientException("Cannot create a REST certificate Service Provider without mode set to REST. Current mode: ${settings.config.type}")</ID>
+    <ID>MaxLineLength:SignatureLevel.kt$SignatureLevel$// XML_NOT_ETSI, XAdES_BES, XAdES_EPES, XAdES_T, XAdES_LT, XAdES_C, XAdES_X, XAdES_XL, XAdES_A, XAdES_BASELINE_B, XAdES_BASELINE_T, XAdES_BASELINE_LT, XAdES_BASELINE_LTA,</ID>
     <ID>MaxLineLength:SignatureParameters.kt$PadesSignatureFormParameters$*</ID>
     <ID>MaxLineLength:SignatureParameters.kt$Pkcs7SignatureFormParameters$*</ID>
-    <ID>NestedBlockDepth:CertificateUtil.kt$CertificateUtil$ fun downloadExtraCertificates(x509Extension: X509Extension,
-      recursive: Boolean? = true): List&lt;X509Certificate&gt;
-    </ID>
+    <ID>NestedBlockDepth:CertificateUtil.kt$CertificateUtil$ fun downloadExtraCertificates(x509Extension: X509Extension, recursive: Boolean? = true): List&lt;X509Certificate&gt;</ID>
     <ID>NestedBlockDepth:SigUtils.kt$SigUtils$ fun getMDPPermission(doc: PDDocument): Int</ID>
     <ID>NewLineAtEndOfFile:PKCS7Baseline.kt$com.sphereon.vdx.pkcs7.PKCS7Baseline.kt</ID>
     <ID>NewLineAtEndOfFile:PKCS7CMSSignedDataBuilder.kt$com.sphereon.vdx.pkcs7.PKCS7CMSSignedDataBuilder.kt</ID>
-    <ID>ReturnCount:CertificateUtil.kt$CertificateUtil$ fun downloadExtraCertificates(x509Extension: X509Extension,
-      recursive: Boolean? = true): List&lt;X509Certificate&gt;
-    </ID>
+    <ID>ReturnCount:CertificateUtil.kt$CertificateUtil$ fun downloadExtraCertificates(x509Extension: X509Extension, recursive: Boolean? = true): List&lt;X509Certificate&gt;</ID>
     <ID>SwallowedException:Mapper.kt$ce: Exception</ID>
-    <ID>ThrowsCount:ConnectionFactory.kt$ConnectionFactory$fun connection( config: KeyProviderConfig,
-      passwordInputCallback: PasswordInputCallback? = null, kid: String? = null, azureKeyvaultClientConfig:
-      AzureKeyvaultClientConfig? = null ): SignatureTokenConnection
-    </ID>
+    <ID>ThrowsCount:ConnectionFactory.kt$ConnectionFactory$fun connection( config: KeyProviderConfig, passwordInputCallback: PasswordInputCallback? = null, kid: String? = null, azureKeyvaultClientConfig: AzureKeyvaultClientConfig? = null ): SignatureTokenConnection</ID>
     <ID>ThrowsCount:KeyvaultMapper.kt$fun CredentialOpts.toTokenCredential(tenantId: String): TokenCredential</ID>
     <ID>TooGenericExceptionCaught:AbstractSignatureTokenConnection.kt$AbstractSignatureTokenConnection$e: Exception</ID>
     <ID>TooGenericExceptionCaught:Mapper.kt$ce: Exception</ID>
-    <ID>TooManyFunctions:AbstractSignatureTokenConnection.kt$AbstractSignatureTokenConnection :
-      SignatureTokenConnection
-    </ID>
+    <ID>TooManyFunctions:AbstractSignatureTokenConnection.kt$AbstractSignatureTokenConnection : SignatureTokenConnection</ID>
     <ID>TooManyFunctions:Mapper.kt$com.sphereon.vdx.ades.sign.util.Mapper.kt</ID>
     <ID>UnusedPrivateMember:Mapper.kt$signatureAlg: SignatureAlg? = null</ID>
     <ID>UnusedPrivateMember:Mapper.kt$signedData: ByteArray? = null</ID>
     <ID>UnusedPrivateMember:Mapper.kt$signingDate: Instant? = null</ID>
-    <ID>UnusedPrivateMember:PKCS7Service.kt$PKCS7Service$private fun tryEnableCertification( accessPermissions: Int,
-      dssDocument: DSSDocument, document: PDDocument, signature: PDSignature )
-    </ID>
-    <ID>UnusedPrivateMember:PKCS7Service.kt$PKCS7Service$private fun validateAndGetAccessPermissions(document:
-      PDDocument): Int
-    </ID>
+    <ID>UnusedPrivateMember:PKCS7Service.kt$PKCS7Service$private fun tryEnableCertification( accessPermissions: Int, dssDocument: DSSDocument, document: PDDocument, signature: PDSignature )</ID>
+    <ID>UnusedPrivateMember:PKCS7Service.kt$PKCS7Service$private fun validateAndGetAccessPermissions(document: PDDocument): Int</ID>
     <ID>UtilityClassWithPublicConstructor:AdESServiceFactory.kt$AdESServiceFactory</ID>
     <ID>WildcardImport:AbstractKeyProviderService.kt$import com.sphereon.vdx.ades.enums.*</ID>
     <ID>WildcardImport:AbstractKeyProviderService.kt$import com.sphereon.vdx.ades.model.*</ID>
