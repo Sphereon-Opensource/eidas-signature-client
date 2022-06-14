@@ -8,12 +8,10 @@ import eu.europa.esig.dss.model.DSSException
 import eu.europa.esig.dss.model.Digest
 import eu.europa.esig.dss.model.SignatureValue
 import eu.europa.esig.dss.model.ToBeSigned
-import eu.europa.esig.dss.token.AbstractSignatureTokenConnection
 import eu.europa.esig.dss.token.DSSPrivateKeyEntry
 import eu.europa.esig.dss.token.KSPrivateKeyEntry
 import eu.europa.esig.dss.token.SignatureTokenConnection
 import mu.KotlinLogging
-import org.slf4j.LoggerFactory
 import java.security.GeneralSecurityException
 import java.security.NoSuchAlgorithmException
 import java.security.Signature
@@ -154,7 +152,7 @@ abstract class AbstractSignatureTokenConnection : SignatureTokenConnection {
         encryptionAlgorithm: EncryptionAlgorithm,
         maskGenerationFunction: MaskGenerationFunction?
     ): SignatureAlgorithm {
-        val signatureAlgorithm = SignatureAlgorithm.getAlgorithm(
+        return SignatureAlgorithm.getAlgorithm(
             encryptionAlgorithm, null, maskGenerationFunction
         )
             ?: throw UnsupportedOperationException(
@@ -164,7 +162,6 @@ abstract class AbstractSignatureTokenConnection : SignatureTokenConnection {
                     encryptionAlgorithm, maskGenerationFunction
                 )
             )
-        return signatureAlgorithm
     }
 
     /**
