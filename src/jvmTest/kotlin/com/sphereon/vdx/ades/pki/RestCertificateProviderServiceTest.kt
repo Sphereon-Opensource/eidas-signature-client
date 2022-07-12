@@ -63,45 +63,6 @@ class RestCertificateProviderServiceTest {
         private lateinit var key: IKeyEntry
         private lateinit var signInput: SignInput
 
-        private val mockedRESTResponse: String = "{" +
-                "\"keyEntry\": {\n" +
-                "  \"kid\": \"good-user\",\n" +
-                "  \"providerId\": \"rest\",\n" +
-                "  \"encryptionAlgorithm\": \"RSA\",\n" +
-                "  \"certificate\": {\n" +
-                "    \"value\": \"MIID1DCCArygAwIBAgIBCjANBgkqhkiG9w0BAQsFADBNMRAwDgYDVQQDDAdnb29kLWNhMRkwFwYDVQQKDBBOb3dpbmEgU29sdXRpb25zMREwDwYDVQQLDAhQS0ktVEVTVDELMAkGA1UEBhMCTFUwHhcNMjEwNDAxMTUwMDE2WhcNMjMwMjAxMTUwMDE2WjBPMRIwEAYDVQQDDAlnb29kLXVzZXIxGTAXBgNVBAoMEE5vd2luYSBTb2x1dGlvbnMxETAPBgNVBAsMCFBLSS1URVNUMQswCQYDVQQGEwJMVTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMG1XQLFDs+sOTot11luAHEGXgFBc/Y2Nqx0GLX0yj2fGdlgPm2T342OVrnc10/i4PpNuU7M14r23lq4Ovy/bZ92D6Dx3fCIzLXG44c2HzbEEgJ9i+eDuvZZtQjKFDDYXXq762O4XQI3fdC79+gD/A1xTEKIfKl2YozeQm0GdH6Glr1+qMOUzvgxJeagb8XFpbACl800GijCpl87IC1lkH0eRdqQ0YBQALiGMMHVJ7++PK//Em0zYoC2Voe3lfz2IYTSJtwvda4GzuXTunL/6CXsIMWfPXM/2c2yvZthfQySCuF5LpL+aRHq27VKLLSNAXj93Tc6GItGWR2TCJ92WokCAwEAAaOBvDCBuTAOBgNVHQ8BAf8EBAMCBkAwgYcGCCsGAQUFBwEBBHsweTA5BggrBgEFBQcwAYYtaHR0cDovL2Rzcy5ub3dpbmEubHUvcGtpLWZhY3Rvcnkvb2NzcC9nb29kLWNhMDwGCCsGAQUFBzAChjBodHRwOi8vZHNzLm5vd2luYS5sdS9wa2ktZmFjdG9yeS9jcnQvZ29vZC1jYS5jcnQwHQYDVR0OBBYEFMlVsVjS0AsZNBNcTPHLRGAtD5YmMA0GCSqGSIb3DQEBCwUAA4IBAQAXBQjQSHexe5QksRo+Jt66mgYr9HJUQrOGkex0k1GQXm+919uJnPGLyXzHW0CZCCA+EzyOqAKXaIbPEgR3UKlkZ9UkhRZ7aC2SUrRLnBvP8IqTc/JJuZaXjQJQ5yNHrWfnAW6m6smC8WsVFAhtUmzlaHAz6MP7tK9dJsCe6vBPyjUbDiJqRthEZ7n8x9ZI3Y2nO0ZHuGdpFSTlu9GY3+A96ENUEo9xDaPrdU/wEZobeS28BQozPcN00naDoIjkl14y/VBEf8pDCfHeLbTARsAh+TCS6wFq5ChNE/WnxkBZpOt+EAU7XMXOVEJPNggQegIIRdCs8kYXxY1e6Q42vNaS\",\n" +
-                "    \"serialNumber\": \"302503097311715737064467329723821046857\",\n" +
-                "    \"issuerDN\": \"CN=Ensured Document Signing CA, O=Ensured B.V., L=Heerhugowaard, ST=Noord-Holland, C=NL\",\n" +
-                "    \"subjectDN\": \"EMAILADDRESS=signature@esignum.io, CN=Afdeling beheer, OU=Afdeling beheer, O=Sphereon B.V., ST=Utrecht, C=NL\",\n" +
-                "    \"notBefore\": \"2021-08-31T00:00:00Z\",\n" +
-                "    \"notAfter\": \"2024-08-30T23:59:59Z\"\n" +
-                "  },\n" +
-                "  \"certificateChain\": [{\n" +
-                "    \"value\": \"MIID1DCCArygAwIBAgIBCjANBgkqhkiG9w0BAQsFADBNMRAwDgYDVQQDDAdnb29kLWNhMRkwFwYDVQQKDBBOb3dpbmEgU29sdXRpb25zMREwDwYDVQQLDAhQS0ktVEVTVDELMAkGA1UEBhMCTFUwHhcNMjEwNDAxMTUwMDE2WhcNMjMwMjAxMTUwMDE2WjBPMRIwEAYDVQQDDAlnb29kLXVzZXIxGTAXBgNVBAoMEE5vd2luYSBTb2x1dGlvbnMxETAPBgNVBAsMCFBLSS1URVNUMQswCQYDVQQGEwJMVTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMG1XQLFDs+sOTot11luAHEGXgFBc/Y2Nqx0GLX0yj2fGdlgPm2T342OVrnc10/i4PpNuU7M14r23lq4Ovy/bZ92D6Dx3fCIzLXG44c2HzbEEgJ9i+eDuvZZtQjKFDDYXXq762O4XQI3fdC79+gD/A1xTEKIfKl2YozeQm0GdH6Glr1+qMOUzvgxJeagb8XFpbACl800GijCpl87IC1lkH0eRdqQ0YBQALiGMMHVJ7++PK//Em0zYoC2Voe3lfz2IYTSJtwvda4GzuXTunL/6CXsIMWfPXM/2c2yvZthfQySCuF5LpL+aRHq27VKLLSNAXj93Tc6GItGWR2TCJ92WokCAwEAAaOBvDCBuTAOBgNVHQ8BAf8EBAMCBkAwgYcGCCsGAQUFBwEBBHsweTA5BggrBgEFBQcwAYYtaHR0cDovL2Rzcy5ub3dpbmEubHUvcGtpLWZhY3Rvcnkvb2NzcC9nb29kLWNhMDwGCCsGAQUFBzAChjBodHRwOi8vZHNzLm5vd2luYS5sdS9wa2ktZmFjdG9yeS9jcnQvZ29vZC1jYS5jcnQwHQYDVR0OBBYEFMlVsVjS0AsZNBNcTPHLRGAtD5YmMA0GCSqGSIb3DQEBCwUAA4IBAQAXBQjQSHexe5QksRo+Jt66mgYr9HJUQrOGkex0k1GQXm+919uJnPGLyXzHW0CZCCA+EzyOqAKXaIbPEgR3UKlkZ9UkhRZ7aC2SUrRLnBvP8IqTc/JJuZaXjQJQ5yNHrWfnAW6m6smC8WsVFAhtUmzlaHAz6MP7tK9dJsCe6vBPyjUbDiJqRthEZ7n8x9ZI3Y2nO0ZHuGdpFSTlu9GY3+A96ENUEo9xDaPrdU/wEZobeS28BQozPcN00naDoIjkl14y/VBEf8pDCfHeLbTARsAh+TCS6wFq5ChNE/WnxkBZpOt+EAU7XMXOVEJPNggQegIIRdCs8kYXxY1e6Q42vNaS\",\n" +
-                "    \"serialNumber\": \"167175289155186690600771983098001197179\",\n" +
-                "    \"issuerDN\": \"CN=Ensured Root CA, O=Ensured B.V., L=Heerhugowaard, ST=Noord-Holland, C=NL\",\n" +
-                "    \"subjectDN\": \"EMAILADDRESS=signature@esignum.io, CN=Afdeling beheer, OU=Afdeling beheer, O=Sphereon B.V., ST=Utrecht, C=NL\",\n" +
-                "    \"notBefore\": \"2021-08-31T00:00:00Z\",\n" +
-                "    \"notAfter\": \"2024-08-30T23:59:59Z\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"value\": \"MIID6jCCAtKgAwIBAgIBBDANBgkqhkiG9w0BAQsFADBNMRAwDgYDVQQDDAdyb290LWNhMRkwFwYDVQQKDBBOb3dpbmEgU29sdXRpb25zMREwDwYDVQQLDAhQS0ktVEVTVDELMAkGA1UEBhMCTFUwHhcNMjEwNDAxMTUwMDE1WhcNMjMwMjAxMTUwMDE1WjBNMRAwDgYDVQQDDAdnb29kLWNhMRkwFwYDVQQKDBBOb3dpbmEgU29sdXRpb25zMREwDwYDVQQLDAhQS0ktVEVTVDELMAkGA1UEBhMCTFUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQC4wVcOTmqmu8d8x0sEiNJCTumrClvl15Y7kOgWX7gUXg4GYgL2e1s0+iO+ib2j89Uh0sYMzjugOiicxgdm/GBfOgAZPe6u1RPFm/eQpYCn18LixYNND4DGBEH0a2UPwnbtzrSLyIKKDN4/q3QitSVWS6YpeiTi6baFYA2z5JiYTdHTR9WYiaTm7T8gIPkO/lLQU+E7yEPlxjLYHMxPwXbtTWPhKim7ANc1Gnlp3nSiLe3vPrngi4ZwnZ45SpKaYmWm3pwmNQ+aZCLXo3Q6ghW3hd98Oq0E4kFDSx2xpGdA5TRLPaWFKayB1aGPlSaePyuDfjE0PigzTiE/M6GsvVUvAgMBAAGjgdQwgdEwDgYDVR0PAQH/BAQDAgEGMEEGA1UdHwQ6MDgwNqA0oDKGMGh0dHA6Ly9kc3Mubm93aW5hLmx1L3BraS1mYWN0b3J5L2NybC9yb290LWNhLmNybDBMBggrBgEFBQcBAQRAMD4wPAYIKwYBBQUHMAKGMGh0dHA6Ly9kc3Mubm93aW5hLmx1L3BraS1mYWN0b3J5L2NydC9yb290LWNhLmNydDAdBgNVHQ4EFgQU5N2O67uUmMdemeCUf+N7xeHPJGUwDwYDVR0TAQH/BAUwAwEB/zANBgkqhkiG9w0BAQsFAAOCAQEAXr4rbRBGydpP11oD3Usyu6StRsxEz537O9xCkF8n1JvGGXPoX/IxSxJObLJIHsxB04kZ1f0uC0uGOh2vAUWfh+YiO6725B5OAb3xS89RZ0O0w7662ZAdlPyomo6CjR6YdL2YkkBmMRB9RUjVO03vQdrKNcXtuVWIIomBorHW92HFudNbxjnetjtNZDarYKImN7o2IwzI2ounv48k2Rm60EDmAl5r2gMQCNvx5BTmMft72SHzEe/4X8TwNTqP4UE8T913ebaMM+1zKWBOCOLdUVXxIvVW41Ijdf6OZtFbsJvdSlKNU4858DKa/Mc32txWjGOLKJHl/Y+TpJGePoU8Ug==\",\n" +
-                "    \"serialNumber\": \"83569999647285597530259398446403690441\",\n" +
-                "    \"issuerDN\": \"CN=USERTrust RSA Certification Authority, O=Ensured B.V., L=Heerhugowaard, ST=Noord-Holland, C=NL\",\n" +
-                "    \"subjectDN\": \"EMAILADDRESS=signature@esignum.io, CN=Afdeling beheer, OU=Afdeling beheer, O=Sphereon B.V., ST=Utrecht, C=NL\",\n" +
-                "    \"notBefore\": \"2021-08-31T00:00:00Z\",\n" +
-                "    \"notAfter\": \"2024-08-30T23:59:59Z\"\n" +
-                "  },\n" +
-                "  {\n" +
-                "    \"value\": \"MIIDVzCCAj+gAwIBAgIBATANBgkqhkiG9w0BAQ0FADBNMRAwDgYDVQQDDAdyb290LWNhMRkwFwYDVQQKDBBOb3dpbmEgU29sdXRpb25zMREwDwYDVQQLDAhQS0ktVEVTVDELMAkGA1UEBhMCTFUwHhcNMjEwMzAxMTUwMDE0WhcNMjMwMzAxMTUwMDE0WjBNMRAwDgYDVQQDDAdyb290LWNhMRkwFwYDVQQKDBBOb3dpbmEgU29sdXRpb25zMREwDwYDVQQLDAhQS0ktVEVTVDELMAkGA1UEBhMCTFUwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCgO1nOJjRKVVuXuCQQWA2K1g2zot1wLTcyxIVkT3KxQhRmGd75Wvetz7Bi4iuYc8s0E3DPd2HngGjEC0sIRwBmsEoUEUZkYJ2tfs5eUkX+EuJmfnbDuVClyyt0tjNOwo2SM6e3CsAFIRKDUIqalOZP6+xwA8F/+B7BIcAoGrAl/dteeZ7IvGi/JDz/GiaRWZz9jnOJREpyZgwaOKjF4O6lV97ha5JlTFuakK+TG2ahRWZVf6As9q8nv7mUbEfh6Ue/Iq/ChhnGqcxowHOBUaEBxaw2vj9qFva5uUQ7XDZnHfP1lJrIU+jWhIHw8gDhoGf0WLQ7FXFk5oLuTWBcWlX1AgMBAAGjQjBAMA4GA1UdDwEB/wQEAwIBBjAdBgNVHQ4EFgQURuOmisVqD2N+rHEOU7tCZMG0BPAwDwYDVR0TAQH/BAUwAwEB/zANBgkqhkiG9w0BAQ0FAAOCAQEAJW+bA3sRNwXnN9xW2W9sieu/6LQKr8YD/uYCXMfmiWmBmNW+0bLRE5uy42rZC3TcPfsveA4TYAErLERkhNCDXnePoM6Sb9YeIXts0PNRVX6K4urHF32m1zHplwCcl8XmbE1ZDnu461lYywLxGeN+/3iHLWAU5ehAZYzarrUNnllDTAiqEB4dSg/+gdjeRzdloPlqX/qgcvC9dQUMNAmf4PFVQUXL8ik0j1Xf6ET8gDx6W9eEAezh/6yz6UzvU4zhf8sRdMqkG3L/eEA8CZ69wsA5iHg5GC9JSq+b/gKMeqTTwjEvECz+5UgbBXfA495eCJLr+bL3NFr7sPSNfsSBog==\",\n" +
-                "    \"serialNumber\": \"76359301477803385872276235234032301461\",\n" +
-                "    \"issuerDN\": \"CN=AAA Certificate Services, O=Ensured B.V., L=Heerhugowaard, ST=Noord-Holland, C=NL\",\n" +
-                "    \"subjectDN\": \"EMAILADDRESS=signature@esignum.io, CN=Afdeling beheer, OU=Afdeling beheer, O=Sphereon B.V., ST=Utrecht, C=NL\",\n" +
-                "    \"notBefore\": \"2021-08-31T00:00:00Z\",\n" +
-                "    \"notAfter\": \"2024-08-30T23:59:59Z\"\n" +
-                "  }]\n" +
-                "}}"
-
         private fun constructRestClientConfig(baseUrl: String? = "http://mocked"): RestClientConfig {
             return RestClientConfig(
                 baseUrl = baseUrl
@@ -134,7 +95,7 @@ class RestCertificateProviderServiceTest {
             } returns ApiResponse(
                 200,
                 emptyMap(),
-                JSON.getDefault().mapper.readValue(mockedRESTResponse, KeyResponse::class.java)
+                JSON.getDefault().mapper.readValue(this::class.java.classLoader.getResource("keyEntry.json"), KeyResponse::class.java)
             )
 
             signInput = SignInput("data".toByteArray(), SignMode.DOCUMENT, Clock.System.now(), DigestAlg.SHA256)
