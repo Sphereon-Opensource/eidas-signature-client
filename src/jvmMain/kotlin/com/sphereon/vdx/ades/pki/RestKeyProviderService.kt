@@ -13,6 +13,7 @@ import com.sphereon.vdx.ades.rest.client.api.KeysApi
 import com.sphereon.vdx.ades.rest.client.api.SigningApi
 import com.sphereon.vdx.ades.rest.client.auth.HttpBearerAuth
 import com.sphereon.vdx.ades.rest.client.auth.OAuth
+import com.sphereon.vdx.ades.rest.client.model.ConfigKeyBinding
 import com.sphereon.vdx.ades.rest.client.model.CreateSignature
 import com.sphereon.vdx.ades.rest.client.model.DigestAlgorithm
 import com.sphereon.vdx.ades.rest.client.model.SignMode
@@ -43,18 +44,17 @@ open class RestKeyProviderService(
         val signingClient = newSigningApi()
         val signature = signingClient.createSignature(
             CreateSignature()
-                /*.binding(
-                    ConfigCertificateBinding()
-                        .certificateProviderId(settings.id)
-                        .certificateAlias(keyEntry.kid)
-                        .signatureConfigId(null)
-                )*/
                 .signInput(
                     com.sphereon.vdx.ades.rest.client.model.SignInput()
-                        .signMode(SignMode.valueOf(signInput.signMode.name))
-                        .input(signInput.input)
                         .name(signInput.name)
+                        .input(signInput.input)
+                        .signMode(SignMode.valueOf(signInput.signMode.name))
                         .digestAlgorithm(signInput.digestAlgorithm?.name?.let { DigestAlgorithm.valueOf(it) })
+                        .signingDate(java.time.Instant.ofEpochSecond(signInput.signingDate.epochSeconds))
+                        .binding(ConfigKeyBinding()
+                            .kid(keyEntry.kid)
+                            .keyProviderId(settings.id)
+                        )
                 )
         )
         return Signature(
@@ -92,8 +92,7 @@ open class RestKeyProviderService(
             certificateChain = certData.keyEntry.certificateChain?.map {
                 CertificateUtil.toX509Certificate(it.value).toCertificate()
             },
-            // fixme: Needs to come from response
-            encryptionAlgorithm = CryptoAlg.RSA
+            encryptionAlgorithm = CryptoAlg.valueOf(certData.keyEntry.encryptionAlgorithm.value)
         )
 
         cacheService.put(kid, key)
