@@ -50,7 +50,7 @@ open class RestKeyProviderService(
                         .input(signInput.input)
                         .signMode(SignMode.valueOf(signInput.signMode.name))
                         .digestAlgorithm(signInput.digestAlgorithm?.name?.let { DigestAlgorithm.valueOf(it) })
-                        .signingDate(signInput.signingDate as java.time.Instant)
+                        .signingDate(java.time.Instant.ofEpochSecond(signInput.signingDate.epochSeconds))
                         .binding(ConfigKeyBinding()
                             .kid(keyEntry.kid)
                             .keyProviderId(settings.id)
@@ -92,7 +92,7 @@ open class RestKeyProviderService(
             certificateChain = certData.keyEntry.certificateChain?.map {
                 CertificateUtil.toX509Certificate(it.value).toCertificate()
             },
-            encryptionAlgorithm = certData.keyEntry.encryptionAlgorithm as CryptoAlg
+            encryptionAlgorithm = CryptoAlg.valueOf(certData.keyEntry.encryptionAlgorithm.value)
         )
 
         cacheService.put(kid, key)
