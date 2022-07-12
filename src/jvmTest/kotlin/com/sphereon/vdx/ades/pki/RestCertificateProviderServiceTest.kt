@@ -45,10 +45,16 @@ class RestCertificateProviderServiceTest {
     }
 
     @Test
-    fun `Should create document signature`() {
+    fun `Should create signature`() {
         val signature = keyProvider.createSignature(signInput, key)
 
         assertNotNull(signature)
+        assertEquals(KID_REST, signature.providerId)
+        assertNotNull(signature.signMode)
+        assertNotNull(signature.algorithm)
+        assertNotNull(signature.date)
+        assertNotNull(signature.keyEntry)
+        assertEquals(key, signature.keyEntry)
     }
 
     companion object {
@@ -153,7 +159,7 @@ class RestCertificateProviderServiceTest {
             } returns CreateSignatureResponse()
                 .signature(
                     Signature()
-                        .value("c2lnbmF0dXJl".toByteArray())
+                        .value("ZGF0YQ==".toByteArray())
                         .algorithm(SignatureAlgorithm.RSA_SHA256)
                         .signMode(com.sphereon.vdx.ades.rest.client.model.SignMode.DOCUMENT)
                         .binding(
