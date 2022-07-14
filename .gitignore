@@ -1,0 +1,10 @@
+# Logs
+logs
+*.log
+
+
+build
+.idea
+.gradle
+*.swp
+*~
