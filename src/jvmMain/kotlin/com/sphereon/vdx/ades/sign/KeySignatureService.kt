@@ -140,4 +140,13 @@ open class KeySignatureService(val keyProvider: IKeyProviderService) : IKeySigna
     }
 
 
+    override fun simpleSign(origData: OrigData,
+                            keyEntry: IKeyEntry,
+                            signMode: SignMode,
+                            signatureConfiguration: SignatureConfiguration): SignOutput {
+        val signInput: SignInput = determineSignInput(origData, keyEntry, signMode, signatureConfiguration)
+        val digestInput = digest(signInput)
+        val signature = createSignature(digestInput, keyEntry)
+        return sign(origData, signature, signatureConfiguration)
+    }
 }

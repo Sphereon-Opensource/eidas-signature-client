@@ -69,4 +69,19 @@ interface IKeySignatureService : ISimpleSignatureService {
      */
     @Throws(SigningException::class)
     fun sign(origData: OrigData, signature: Signature, signatureConfiguration: SignatureConfiguration): SignOutput
+
+    /**
+     * This method create the `signOutput` the provided configuration
+     *
+     * @param origData The orignal data/file
+     * @param keyEntry The key to use
+     * @param signMode The signmode to use
+     * @param signatureConfiguration The configuration
+     *
+     * @return Sign input, which can be fed to the createSignature or digest methods
+     */
+    fun simpleSign(origData: OrigData,
+                   keyEntry: IKeyEntry,
+                   signMode: SignMode,
+                   signatureConfiguration: SignatureConfiguration): SignOutput
 }
