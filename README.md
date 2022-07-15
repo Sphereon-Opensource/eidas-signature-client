@@ -681,6 +681,42 @@ The result of the above is a new file which is the input PDF, but now signed.
   }
 }
 ````
+## simpleSign an original data
+This method takes the original input document, and applies the previous methods one by one:
+first `determineSignInput` and using the out put for `digest`, then creates signature by calling `createSignature` and at last signs the original data with calling `sign` and returns the signed data.
+````kotlin
+val signOutput = signingService.simpleSign(origData, keyEntry, SignMode.DOCUMENT, signatureConfiguration)
+````
+The result of the above is a new file which is the input PDF, but now signed.
+
+````json lines
+        {
+            // The signed data/document
+            "value": "JVBERi0xLjYNJ....4cmVmCjc2NzUwCiUlRU9GCg==",
+            "signMode": "DIGEST",
+            "digestAlgorithm": "SHA256",
+            "name": "input-pades-baseline-b.pdf",
+            "mimeType": "application/pdf",
+            "signature": {
+            "value": "SoSsp+Mut3....XEDqEVw==",
+            "algorithm": "RSA_SHA256",
+            "signMode": "DIGEST",
+            "certificate": {
+            "value": "MIID1DCC....XxY1e6Q42vNaS"
+            },
+            "certificateChain": [
+              {
+                "value": "MIID1DCC....XxY1e6Q42vNaS"
+              },
+              {
+                "value": "MIID6jCC....Y+TpJGePoU8Ug=="
+              },
+              {
+                "value": "MIIDVzCCAj....PSNfsSBog=="
+              }
+            ]}
+        }
+````
 
 ## Check whether a signature is valid
 
