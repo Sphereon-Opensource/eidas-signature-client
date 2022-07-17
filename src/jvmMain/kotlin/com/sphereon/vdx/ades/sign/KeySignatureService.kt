@@ -28,7 +28,7 @@ open class KeySignatureService(val keyProvider: IKeyProviderService) : IKeySigna
         val digest = DSSUtils.digest(signInput.digestAlgorithm.toDSS(), signInput.input)
 
         logger.info { "Created a digest for signInput named '${signInput.name}' with date ${signInput.signingDate}, signature mode '${signInput.signMode.name}' and digest mode '${signInput.digestAlgorithm.name}'" }
-        return logger.exit(SignInput(digest, SignMode.DIGEST, signInput.signingDate, signInput.digestAlgorithm, signInput.name))
+        return logger.exit(SignInput(digest, SignMode.DIGEST, signInput.signingDate, signInput.digestAlgorithm, signInput.name, signInput.binding))
     }
 
     override fun createSignature(signInput: SignInput, keyEntry: IKeyEntry): Signature {
@@ -83,7 +83,11 @@ open class KeySignatureService(val keyProvider: IKeyProviderService) : IKeySigna
             name = origData.name,
             signMode = signMode,
             digestAlgorithm = signatureConfiguration.signatureParameters.digestAlgorithm,
-            signingDate = signatureParameters.bLevel().signingDate.toInstant().toKotlinInstant()
+            signingDate = signatureParameters.bLevel().signingDate.toInstant().toKotlinInstant(),
+            binding = ConfigKeyBinding(
+                kid = keyEntry.kid,
+                keyProviderId = keyProvider.settings.id
+            )
         )
 
         logger.info { "Determined sign input for data with name '${origData.name}', key id '${keyEntry.kid}' in mode ${signatureForm.name}. Signing date: ${signInput.signingDate}" }

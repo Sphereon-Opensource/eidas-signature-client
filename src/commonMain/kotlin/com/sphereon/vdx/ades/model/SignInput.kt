@@ -11,8 +11,8 @@ data class SignInput(
     val signMode: SignMode,
     val signingDate: Instant,
     val digestAlgorithm: DigestAlg?,
-    val name: String? = "document"
-
+    val name: String? = "document",
+    val binding: ConfigKeyBinding
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -25,6 +25,7 @@ data class SignInput(
         if (signingDate != other.signingDate) return false
         if (digestAlgorithm != other.digestAlgorithm) return false
         if (name != other.name) return false
+        if (binding != other.binding) return false
 
         return true
     }
@@ -35,6 +36,7 @@ data class SignInput(
         result = 31 * result + signingDate.hashCode()
         result = 31 * result + (digestAlgorithm?.hashCode() ?: 0)
         result = 31 * result + (name?.hashCode() ?: 0)
+        result = 31 * result + (binding?.hashCode() ?: 0)
         return result
     }
 }

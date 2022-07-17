@@ -2,6 +2,7 @@ import com.sphereon.vdx.ades.enums.DigestAlg
 import com.sphereon.vdx.ades.enums.MaskGenFunction
 import com.sphereon.vdx.ades.enums.SignMode
 import com.sphereon.vdx.ades.enums.SignatureAlg
+import com.sphereon.vdx.ades.model.ConfigKeyBinding
 import com.sphereon.vdx.ades.model.SignInput
 import kotlinx.datetime.Clock
 import org.apache.commons.codec.binary.Hex
@@ -15,15 +16,18 @@ class SimpleKeySigningSignTests : AbstractAdESTest() {
 
     @Test
     fun `Given an input with signmode DOCUMENT the sign method should sign the document`() {
+        val signingService = constructKeySignatureService(keystoreFilename = "user_a_rsa.p12", password = "password")
+        val keyEntry = signingService.keyProvider.getKey("certificate")!!
         val signInput = SignInput(
             input = "test".toByteArray(),
             signMode = SignMode.DOCUMENT,
             digestAlgorithm = DigestAlg.SHA256,
-            signingDate = Clock.System.now()
+            signingDate = Clock.System.now(),
+            binding = ConfigKeyBinding(
+                kid = keyEntry.kid,
+                keyProviderId = signingService.keyProvider.settings.id
+            )
         )
-
-        val signingService = constructKeySignatureService(keystoreFilename = "user_a_rsa.p12", password = "password")
-        val keyEntry = signingService.keyProvider.getKey("certificate")!!
         val signature = signingService.createSignature(signInput, keyEntry)
         assertNotNull(signature)
         assertEquals(SignatureAlg.RSA_SHA256, signature.algorithm)
@@ -33,21 +37,23 @@ class SimpleKeySigningSignTests : AbstractAdESTest() {
         )
 
         assertTrue(signingService.isValidSignature(signInput, signature, keyEntry.publicKey))
-
     }
 
     @Test
     fun `Given an input with signmode DIGEST the sign method should sign the document`() {
+        val signingService = constructKeySignatureService(keystoreFilename = "user_a_rsa.p12", password = "password")
+        val keyEntry = signingService.keyProvider.getKey("certificate")!!
 //        println(Hex.encodeHexString(MessageDigest.getInstance("SHA-256").digest("test".toByteArray())))
         val signInput = SignInput(
             input = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08".toByteArray(),
             signMode = SignMode.DIGEST,
             digestAlgorithm = DigestAlg.SHA256,
-            signingDate = Clock.System.now()
+            signingDate = Clock.System.now(),
+            binding = ConfigKeyBinding(
+                kid = keyEntry.kid,
+                keyProviderId = signingService.keyProvider.settings.id
+            )
         )
-
-        val signingService = constructKeySignatureService(keystoreFilename = "user_a_rsa.p12", password = "password")
-        val keyEntry = signingService.keyProvider.getKey("certificate")!!
         val signature = signingService.createSignature(signInput, keyEntry)
         assertNotNull(signature)
         assertEquals(SignatureAlg.RSA_SHA256, signature.algorithm)
@@ -61,15 +67,18 @@ class SimpleKeySigningSignTests : AbstractAdESTest() {
 
     @Test
     fun `Given an input with signmode DOCUMENT and maskgen function 1 the sign method should sign the document`() {
+        val signingService = constructKeySignatureService(keystoreFilename = "user_a_rsa.p12", password = "password")
+        val keyEntry = signingService.keyProvider.getKey("certificate")!!
         val signInput = SignInput(
             input = "test".toByteArray(),
             signMode = SignMode.DOCUMENT,
             digestAlgorithm = DigestAlg.SHA256,
-            signingDate = Clock.System.now()
+            signingDate = Clock.System.now(),
+            binding = ConfigKeyBinding(
+                kid = keyEntry.kid,
+                keyProviderId = signingService.keyProvider.settings.id
+            )
         )
-
-        val signingService = constructKeySignatureService(keystoreFilename = "user_a_rsa.p12", password = "password")
-        val keyEntry = signingService.keyProvider.getKey("certificate")!!
         val signature = signingService.createSignature(signInput, keyEntry, MaskGenFunction.MGF1)
         assertNotNull(signature)
         assertEquals(SignatureAlg.RSA_SSA_PSS_SHA256_MGF1, signature.algorithm)
@@ -82,21 +91,23 @@ class SimpleKeySigningSignTests : AbstractAdESTest() {
 
     @Test
     fun `Given an input with signmode DIGEST and maskgen function 1 the sign method should sign the document`() {
+        val signingService = constructKeySignatureService(keystoreFilename = "user_a_rsa.p12", password = "password")
+        val keyEntry = signingService.keyProvider.getKey("certificate")!!
         val signInput = SignInput(
             input = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08".toByteArray(),
             signMode = SignMode.DIGEST,
             digestAlgorithm = DigestAlg.SHA256,
-            signingDate = Clock.System.now()
+            signingDate = Clock.System.now(),
+            binding = ConfigKeyBinding(
+                kid = keyEntry.kid,
+                keyProviderId = signingService.keyProvider.settings.id
+            )
         )
-
-        val signingService = constructKeySignatureService(keystoreFilename = "user_a_rsa.p12", password = "password")
-        val keyEntry = signingService.keyProvider.getKey("certificate")!!
         val signature = signingService.createSignature(signInput, keyEntry, MaskGenFunction.MGF1)
         assertNotNull(signature)
         assertEquals(SignatureAlg.RSA_SSA_PSS_SHA256_MGF1, signature.algorithm)
         // Since we use a MGF1 in this test, the signature is randomized
         assertNotNull(signature.value)
-
 
         assertTrue(signingService.isValidSignature(signInput, signature/*.copy(algorithm = SignatureAlg.RSA_SSA_PSS_RAW_MGF1)*/, keyEntry))
     }

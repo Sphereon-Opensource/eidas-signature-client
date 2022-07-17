@@ -1,15 +1,11 @@
-package com.sphereon.vdx.ades.pki
+package com.sphereon.vdx.ades.sign
 
 import com.sphereon.vdx.ades.enums.MaskGenFunction
 import com.sphereon.vdx.ades.enums.SignMode
 import com.sphereon.vdx.ades.enums.SignatureAlg
 import com.sphereon.vdx.ades.model.*
-import com.sphereon.vdx.ades.sign.IKidSignatureService
 
 abstract class AbstractSignatureProviderService() : IKidSignatureService {
-//    override val keyProvider: IKeyProviderService
-//        get() = KeyProviderSettings
-
     override fun determineSignInput(
         origData: OrigData,
         kid: String,

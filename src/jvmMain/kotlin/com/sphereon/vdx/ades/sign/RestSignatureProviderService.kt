@@ -1,13 +1,12 @@
-package com.sphereon.vdx.ades.pki
+package com.sphereon.vdx.ades.sign
 
-import AbstractCacheObjectSerializer
-import com.sphereon.vdx.ades.Base64Serializer
+import com.sphereon.vdx.ades.PKIException
 import com.sphereon.vdx.ades.SignClientException
 import com.sphereon.vdx.ades.enums.DigestAlg
-import com.sphereon.vdx.ades.enums.MaskGenFunction
 import com.sphereon.vdx.ades.enums.SignMode
-import com.sphereon.vdx.ades.enums.SignatureAlg
 import com.sphereon.vdx.ades.model.*
+import com.sphereon.vdx.ades.pki.IKeyProviderService
+import com.sphereon.vdx.ades.pki.RestClientConfig
 import com.sphereon.vdx.ades.rest.client.ApiClient
 import com.sphereon.vdx.ades.rest.client.api.SigningApi
 import com.sphereon.vdx.ades.rest.client.auth.HttpBearerAuth
@@ -16,23 +15,19 @@ import com.sphereon.vdx.ades.rest.client.model.ConfigKeyBinding
 import com.sphereon.vdx.ades.rest.client.model.DetermineSignInput
 import com.sphereon.vdx.ades.rest.client.model.Digest
 import com.sphereon.vdx.ades.rest.client.model.DigestAlgorithm
-import com.sphereon.vdx.ades.sign.IKidSignatureService
 import kotlinx.datetime.Instant
 
 private const val BEARER_LITERAL = "bearer"
 private const val OAUTH2_LITERAL = "oauth2"
 
 open class RestSignatureProviderService(
-    settings: KeyProviderSettings,
-    val restClientConfig: RestClientConfig,
-    override val keyProvider: IKeyProviderService
-) :
-    AbstractSignatureProviderService() { //    AbstractSignatureProviderService() {
-
+    override val keyProvider: IKeyProviderService,
+    val restClientConfig: RestClientConfig
+) : AbstractSignatureProviderService() {
     private val apiClient: ApiClient
+    private val delegate = KeySignatureService(keyProvider)
 
     init {
-        //assertRestSettings()
         apiClient = newApiClient()
         initAuth()
     }
@@ -53,7 +48,8 @@ open class RestSignatureProviderService(
     private fun initAuth() {
         if (restClientConfig.oAuth2 != null) {
             val auth = OAuth(
-                restClientConfig.baseUrl ?: throw SignClientException("Base url for the REST Signature service has not been set"),
+                restClientConfig.baseUrl
+                    ?: throw SignClientException("Base url for the REST Signature service has not been set"),
                 restClientConfig.oAuth2.tokenUrl
             )
             auth.setFlow(restClientConfig.oAuth2.flow)
@@ -69,7 +65,7 @@ open class RestSignatureProviderService(
         }
     }
 
-    fun newSigningApi(): SigningApi {
+    private fun newSigningApi(): SigningApi {
         return SigningApi(apiClient)
     }
 
@@ -86,12 +82,11 @@ open class RestSignatureProviderService(
                     .content(origData.value)
                     .mimeType(origData.mimeType))
                 .signMode(com.sphereon.vdx.ades.rest.client.model.SignMode.valueOf(signMode.name))
-                .binding(ConfigKeyBinding()
+                .binding(
+                    ConfigKeyBinding()
                     .kid(kid)
-                    //.keyProviderId(settings.id) // TODO fix
-                    )
-                //.signatureFormParametersOverride(signatureConfiguration.signatureParameters) // TODO fix
-
+                    .keyProviderId(keyProvider.settings.id)
+                )
         )
 
         return SignInput(
@@ -100,16 +95,15 @@ open class RestSignatureProviderService(
             signingDate = Instant.fromEpochSeconds(signInputResponse.signInput.signingDate.epochSecond),
             digestAlgorithm = DigestAlg.valueOf(signInputResponse.signInput.digestAlgorithm.name),
             name = signInputResponse.signInput.name,
+            binding = ConfigKeyBinding(
+                kid = signInputResponse.signInput.binding.kid,
+                signatureConfigId = signInputResponse.signInput.binding.signatureConfigId,
+                keyProviderId = signInputResponse.signInput.binding.keyProviderId
+            )
         )
-
-//        @kotlinx.serialization.Serializable(with = Base64Serializer::class) val input: ByteArray,
-//        val signMode: SignMode,
-//        val signingDate: Instant,
-//        val digestAlgorithm: DigestAlg?,
-//        val name: String? = "document"
     }
 
-    override fun digestImpl(signInput: SignInput): SignInput { // TODO how do i get a kid here for the signInput binding?
+    override fun digestImpl(signInput: SignInput): SignInput {
         val digest = newSigningApi().digest(
             Digest().signInput(
                 com.sphereon.vdx.ades.rest.client.model.SignInput()
@@ -118,19 +112,25 @@ open class RestSignatureProviderService(
                     .signMode(com.sphereon.vdx.ades.rest.client.model.SignMode.valueOf(signInput.signMode.name))
                     .digestAlgorithm(signInput.digestAlgorithm?.name?.let { DigestAlgorithm.valueOf(it) })
                     .signingDate(java.time.Instant.ofEpochSecond(signInput.signingDate.epochSeconds))
-//                    .binding(ConfigKeyBinding()
-//                        .kid(keyEntry.kid)
-//                        .keyProviderId(settings.id)
-//                    )
+                    .binding(ConfigKeyBinding()
+                        .kid(signInput.binding.kid)
+                        .signatureConfigId(signInput.binding.signatureConfigId)
+                        .keyProviderId(signInput.binding.keyProviderId)
+                    )
             )
         )
 
-        return SignInput(
+        return SignInput( // TODO refactor both returns to fun
             input = digest.signInput.input,
             signMode = SignMode.valueOf(digest.signInput.signMode.name),
             signingDate = Instant.fromEpochSeconds(digest.signInput.signingDate.epochSecond),
             digestAlgorithm = DigestAlg.valueOf(digest.signInput.digestAlgorithm.name),
             name = digest.signInput.name,
+            binding = ConfigKeyBinding(
+                kid = digest.signInput.binding.kid,
+                signatureConfigId = digest.signInput.binding.signatureConfigId,
+                keyProviderId = digest.signInput.binding.keyProviderId
+            )
         )
     }
 
@@ -140,7 +140,8 @@ open class RestSignatureProviderService(
         signMode: SignMode,
         signatureConfiguration: SignatureConfiguration
     ): SignOutput {
-        TODO("Not yet implemented")
+        val keyEntry = keyProvider.getKey(kid) ?: throw PKIException("Could not retrieve key entry for kid $kid")
+        return delegate.sign(origData, keyEntry, signMode, signatureConfiguration)
     }
 
     override fun signImpl(
@@ -148,7 +149,7 @@ open class RestSignatureProviderService(
         signature: Signature,
         signatureConfiguration: SignatureConfiguration
     ): SignOutput {
-        TODO("Not yet implemented")
+        return delegate.sign(origData, signature, signatureConfiguration)
     }
 
 }

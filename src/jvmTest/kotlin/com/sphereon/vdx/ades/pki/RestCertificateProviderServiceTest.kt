@@ -10,6 +10,7 @@ import com.sphereon.vdx.ades.rest.client.JSON
 import com.sphereon.vdx.ades.rest.client.api.KeysApi
 import com.sphereon.vdx.ades.rest.client.api.SigningApi
 import com.sphereon.vdx.ades.rest.client.model.*
+import com.sphereon.vdx.ades.rest.client.model.ConfigKeyBinding
 import com.sphereon.vdx.ades.rest.client.model.Signature
 import io.mockk.every
 import io.mockk.mockk
@@ -98,7 +99,17 @@ class RestCertificateProviderServiceTest {
                 JSON.getDefault().mapper.readValue(this::class.java.classLoader.getResource("keyEntry.json"), KeyResponse::class.java)
             )
 
-            signInput = SignInput("data".toByteArray(), SignMode.DOCUMENT, Clock.System.now(), DigestAlg.SHA256)
+            signInput = SignInput(
+                input = "data".toByteArray(),
+                signMode = SignMode.DOCUMENT,
+                signingDate = Clock.System.now(),
+                digestAlgorithm = DigestAlg.SHA256,
+                binding = com.sphereon.vdx.ades.model.ConfigKeyBinding(
+                    kid = KID_REST,
+                    signatureConfigId = "1",
+                    keyProviderId = KID_REST
+                )
+            )
             every {
                 signingApiMock.createSignature(
                     CreateSignature()
