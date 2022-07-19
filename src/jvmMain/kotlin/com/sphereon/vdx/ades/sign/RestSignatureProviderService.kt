@@ -65,7 +65,7 @@ open class RestSignatureProviderService(
         }
     }
 
-    private fun newSigningApi(): SigningApi {
+    fun newSigningApi(): SigningApi {
         return SigningApi(apiClient)
     }
 
@@ -75,19 +75,17 @@ open class RestSignatureProviderService(
         signMode: SignMode,
         signatureConfiguration: SignatureConfiguration
     ): SignInput {
-        val signInputResponse = newSigningApi().determineSignInput(
-            DetermineSignInput()
-                .origData(com.sphereon.vdx.ades.rest.client.model.OrigData()
-                    .name(origData.name)
-                    .content(origData.value)
-                    .mimeType(origData.mimeType))
-                .signMode(com.sphereon.vdx.ades.rest.client.model.SignMode.valueOf(signMode.name))
-                .binding(
-                    ConfigKeyBinding()
+        val signInputResponse = newSigningApi().determineSignInput(DetermineSignInput()
+            .origData(com.sphereon.vdx.ades.rest.client.model.OrigData()
+                .name(origData.name)
+                .content(origData.value)
+                .mimeType(origData.mimeType))
+            .signMode(com.sphereon.vdx.ades.rest.client.model.SignMode.valueOf(signMode.name))
+            .binding(
+                ConfigKeyBinding()
                     .kid(kid)
                     .keyProviderId(keyProvider.settings.id)
-                )
-        )
+            ))
 
         return SignInput(
             input = signInputResponse.signInput.input,
