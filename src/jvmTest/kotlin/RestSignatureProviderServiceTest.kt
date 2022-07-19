@@ -36,10 +36,10 @@ class RestSignatureProviderServiceTest {
 
         assertNotNull(signInput)
         assertNotNull(signInput.input)
-        assertNotNull(signInput.signMode)
-        assertNotNull(signInput.digestAlgorithm)
+        assertEquals(com.sphereon.vdx.ades.rest.client.model.SignMode.valueOf(signInput.signMode.name), com.sphereon.vdx.ades.rest.client.model.SignMode.DOCUMENT)
+        assertEquals(com.sphereon.vdx.ades.rest.client.model.DigestAlgorithm.valueOf(signInput.digestAlgorithm!!.name), com.sphereon.vdx.ades.rest.client.model.DigestAlgorithm.SHA256)
         assertNotNull(signInput.signingDate)
-        assertNotNull(signInput.name)
+        assertEquals(signInput.name, FILE_NAME)
         assertNotNull(signInput.binding)
         assertEquals(signInput.binding.kid, KID_REST)
         assertEquals(signInput.binding.keyProviderId, KID_REST)

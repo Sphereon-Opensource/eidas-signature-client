@@ -1,5 +1,6 @@
 package com.sphereon.vdx.ades.sign
 
+import com.sphereon.vdx.ades.PKIException
 import com.sphereon.vdx.ades.enums.MaskGenFunction
 import com.sphereon.vdx.ades.enums.SignMode
 import com.sphereon.vdx.ades.enums.SignatureAlg
@@ -20,18 +21,15 @@ abstract class AbstractSignatureProviderService() : IKidSignatureService {
     }
 
     override fun createSignature(signInput: SignInput, kid: String): Signature {
-        val key = keyProvider.getKey(kid)
-        return keyProvider.createSignature(signInput, key!!) // TODO fix !!
+        return keyProvider.createSignature(signInput, getKey(kid))
     }
 
     override fun createSignature(signInput: SignInput, kid: String, mgf: MaskGenFunction): Signature {
-        val key = keyProvider.getKey(kid)
-        return keyProvider.createSignature(signInput, key!!, mgf) // TODO fix !!
+        return keyProvider.createSignature(signInput, getKey(kid), mgf)
     }
 
     override fun createSignature(signInput: SignInput, kid: String, signatureAlgorithm: SignatureAlg): Signature {
-        val key = keyProvider.getKey(kid)
-        return keyProvider.createSignature(signInput, key!!, signatureAlgorithm) // TODO fix !!
+        return keyProvider.createSignature(signInput, getKey(kid), signatureAlgorithm)
     }
 
     override fun isValidSignature(signInput: SignInput, signature: Signature, publicKey: Key): Boolean {
@@ -39,8 +37,7 @@ abstract class AbstractSignatureProviderService() : IKidSignatureService {
     }
 
     override fun isValidSignature(signInput: SignInput, signature: Signature, kid: String): Boolean {
-        val key = keyProvider.getKey(kid)
-        return keyProvider.isValidSignature(signInput, signature, key!!) // TODO fix !!
+        return keyProvider.isValidSignature(signInput, signature, getKey(kid))
     }
 
     override fun sign(
@@ -67,4 +64,8 @@ abstract class AbstractSignatureProviderService() : IKidSignatureService {
     protected abstract fun signImpl(origData: OrigData, kid: String, signMode: SignMode, signatureConfiguration: SignatureConfiguration): SignOutput
 
     protected abstract fun signImpl(origData: OrigData, signature: Signature, signatureConfiguration: SignatureConfiguration): SignOutput
+
+    private fun getKey(kid: String): IKeyEntry {
+        return keyProvider.getKey(kid) ?: throw PKIException("Could not retrieve key entry for kid $kid")
+    }
 }
