@@ -78,5 +78,42 @@ class PAdESSigningSignTests : AbstractAdESTest() {
 
     }
 
+    @Test
+    fun `Given an input with signmode DOCUMENT the simpleSign method should sign the document`() {
+        val pdfDocInput = this::class.java.classLoader.getResource("test-unsigned.pdf")
+        val origData = OrigData(value = pdfDocInput.readBytes(), name = "test-unsigned.pdf")
 
+        val signingService = constructKeySignatureService(keystoreFilename = "good-user.p12", password = "ks-password")
+        val keyEntry = signingService.keyProvider.getKey("good-user")!!
+        val signatureConfiguration = SignatureConfiguration(
+
+            signatureParameters = SignatureParameters(
+                signaturePackaging = SignaturePackaging.ENVELOPED,
+                digestAlgorithm = DigestAlg.SHA256,
+                encryptionAlgorithm = CryptoAlg.RSA,
+                signatureAlgorithm = SignatureAlg.RSA_SHA256,
+                signatureLevelParameters = SignatureLevelParameters(
+                    signatureLevel = SignatureLevel.PAdES_BASELINE_B,
+                ),
+                signatureFormParameters = SignatureFormParameters(
+                    padesSignatureFormParameters = PadesSignatureFormParameters(
+                        signerName = "Test Case",
+                        contactInfo = "support@sphereon.com",
+                        reason = "Test",
+                        location = "Online"
+                    )
+                )
+            ),
+        )
+
+        val signOutput = signingService.simpleSign(origData, keyEntry, SignMode.DOCUMENT, signatureConfiguration)
+        assertNotNull(signOutput)
+        val documentValidator = SignedDocumentValidator.fromDocument(InMemoryDocument(signOutput.value, signOutput.name))
+        documentValidator.setCertificateVerifier(CommonCertificateVerifier())
+
+        assertEquals(1, documentValidator.signatures.size)
+        val diagData = documentValidator.diagnosticData
+        assertEquals(1, diagData.signatures.size)
+        assertEquals(3, diagData.usedCertificates.size)
+    }
 }
