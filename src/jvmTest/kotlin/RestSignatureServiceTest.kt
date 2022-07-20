@@ -8,20 +8,16 @@ import com.sphereon.vdx.ades.model.KeyEntry
 import com.sphereon.vdx.ades.model.OrigData
 import com.sphereon.vdx.ades.model.SignInput
 import com.sphereon.vdx.ades.model.Signature
-import com.sphereon.vdx.ades.pki.RestCertificateProviderServiceTest
 import com.sphereon.vdx.ades.pki.RestClientConfig
 import com.sphereon.vdx.ades.pki.RestKeyProviderService
-import com.sphereon.vdx.ades.rest.client.ApiResponse
 import com.sphereon.vdx.ades.rest.client.JSON
 import com.sphereon.vdx.ades.rest.client.api.SigningApi
 import com.sphereon.vdx.ades.rest.client.model.*
 import com.sphereon.vdx.ades.rest.client.model.ConfigKeyBinding
-import com.sphereon.vdx.ades.rest.client.model.SignatureFormParameters
 import com.sphereon.vdx.ades.sign.RestSignatureService
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
-import kotlinx.datetime.Clock
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.time.Instant
@@ -117,6 +113,22 @@ class RestSignatureServiceTest {
         )
 
         assertNotNull(signOutput)
+        assertEquals("test-signed-pades-baseline-b.pdf", signOutput.name)
+        assertNotNull(signOutput.value)
+        assertEquals(SignMode.DIGEST, signOutput.signMode)
+        assertEquals(DigestAlg.SHA256, signOutput.digestAlgorithm)
+        assertEquals("application/pdf", signOutput.mimeType)
+        assertNotNull(signOutput.signature)
+        assertNotNull(signOutput.signature.value)
+        assertEquals(SignatureAlg.RSA_RAW, signOutput.signature.algorithm)
+        assertEquals(SignMode.DIGEST, signOutput.signature.signMode)
+        assertEquals("0e9f0606-19b6-462e-8f34-7967df710579", signOutput.signature.providerId)
+        assertNotNull(signOutput.signature.date)
+        assertNotNull(signOutput.signature.keyEntry)
+        assertEquals( "test-cert-1657621300286", signOutput.signature.keyEntry.kid)
+        assertNotNull(signOutput.signature.keyEntry.publicKey)
+        assertNotNull(signOutput.signature.keyEntry.certificate)
+        assertEquals(4, signOutput.signature.keyEntry.certificateChain?.size)
     }
 
     companion object {
