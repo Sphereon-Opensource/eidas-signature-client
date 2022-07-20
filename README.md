@@ -509,7 +509,7 @@ The Signature Service allows you to create and verify signatures, as well as cre
 
 ## Initialize the Signature Service
 
-The Signature service want to have a Key Provider as single argument. If you want to use multiple Key Providers you will have to
+The Signature service wants to have a Key Provider as single argument. If you want to use multiple Key Providers you will have to
 instantiate multiple signature services.
 
 ````kotlin
@@ -1254,4 +1254,4 @@ The simplest way to include DSS to your Maven project is to add a repository int
 
 ## Gradle build (local maven repo)
 
-	gradlew clean deployToMavenLocal
+	gradlew clean publishToMavenLocal
