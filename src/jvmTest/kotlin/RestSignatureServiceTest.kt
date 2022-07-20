@@ -67,6 +67,7 @@ class RestSignatureServiceTest {
         )
 
         assertNotNull(digest)
+        assertNotNull(digest.input)
         assertEquals(digest.name, FILE_NAME)
         assertEquals(com.sphereon.vdx.ades.rest.client.model.SignMode.valueOf(digest.signMode.name), com.sphereon.vdx.ades.rest.client.model.SignMode.DIGEST)
         assertNotNull(digest.binding)
