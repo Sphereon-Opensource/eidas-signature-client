@@ -1,19 +1,27 @@
 package com.sphereon.vdx.ades.sign
 
 import com.sphereon.vdx.ades.PKIException
-import com.sphereon.vdx.ades.enums.*
+
 import com.sphereon.vdx.ades.enums.MaskGenFunction
 import com.sphereon.vdx.ades.enums.SignMode
-import com.sphereon.vdx.ades.model.*
-import com.sphereon.vdx.ades.model.Key
+import com.sphereon.vdx.ades.enums.SignatureAlg
 import com.sphereon.vdx.ades.model.OrigData
 import com.sphereon.vdx.ades.model.SignInput
-import com.sphereon.vdx.ades.model.SignOutput
 import com.sphereon.vdx.ades.model.Signature
+import com.sphereon.vdx.ades.model.Key
+import com.sphereon.vdx.ades.model.SignatureConfiguration
+import com.sphereon.vdx.ades.model.SignOutput
+import com.sphereon.vdx.ades.model.IKeyEntry
 import com.sphereon.vdx.ades.pki.IKeyProviderService
 import com.sphereon.vdx.ades.rest.client.api.SigningApi
-import com.sphereon.vdx.ades.rest.client.model.*
-import com.sphereon.vdx.ades.sign.util.*
+import com.sphereon.vdx.ades.rest.client.model.DetermineSignInput
+import com.sphereon.vdx.ades.rest.client.model.Digest
+import com.sphereon.vdx.ades.rest.client.model.MergeSignature
+import com.sphereon.vdx.ades.sign.util.toRestClientSignInput
+import com.sphereon.vdx.ades.sign.util.toLocalSignInput
+import com.sphereon.vdx.ades.sign.util.toRestClientOrigData
+import com.sphereon.vdx.ades.sign.util.toRestClientSignature
+import com.sphereon.vdx.ades.sign.util.toLocalSignOutput
 
 open class RestClientSignatureService(final override val keyProvider: IKeyProviderService, val restSigningClient: SigningApi) : IKidSignatureService {
     private val delegate = KeySignatureService(keyProvider)
@@ -74,7 +82,8 @@ open class RestClientSignatureService(final override val keyProvider: IKeyProvid
     }
 
     override fun sign(origData: OrigData, signature: Signature, signatureConfiguration: SignatureConfiguration): SignOutput {
-        val mergeSignatureResponse = restSigningClient.mergeSignature(MergeSignature()
+        val mergeSignatureResponse = restSigningClient.mergeSignature(
+            MergeSignature()
             .origData(origData.toRestClientOrigData())
             .signature(signature.toRestClientSignature())
         )
