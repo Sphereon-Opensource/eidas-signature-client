@@ -7,7 +7,11 @@ import com.sphereon.vdx.ades.enums.CryptoAlg
 import com.sphereon.vdx.ades.enums.KeyProviderType
 import com.sphereon.vdx.ades.enums.MaskGenFunction
 import com.sphereon.vdx.ades.enums.SignatureAlg
-import com.sphereon.vdx.ades.model.*
+import com.sphereon.vdx.ades.model.KeyProviderSettings
+import com.sphereon.vdx.ades.model.IKeyEntry
+import com.sphereon.vdx.ades.model.SignInput
+import com.sphereon.vdx.ades.model.Signature
+import com.sphereon.vdx.ades.model.KeyEntry
 import com.sphereon.vdx.ades.rest.client.ApiClient
 import com.sphereon.vdx.ades.rest.client.api.KeysApi
 import com.sphereon.vdx.ades.rest.client.api.SigningApi
@@ -20,12 +24,12 @@ import com.sphereon.vdx.ades.rest.client.model.SignMode
 import com.sphereon.vdx.ades.sign.util.CertificateUtil
 import com.sphereon.vdx.ades.sign.util.toCertificate
 import com.sphereon.vdx.ades.sign.util.toKey
-
+import org.apache.http.HttpStatus
 
 private const val BEARER_LITERAL = "bearer"
 private const val OAUTH2_LITERAL = "oauth2"
 
-open class RestKeyProviderService(
+open class RestClientKeyProviderService(
     settings: KeyProviderSettings,
     val restClientConfig: RestClientConfig,
     cacheObjectSerializer: AbstractCacheObjectSerializer<String, IKeyEntry>? = null
@@ -79,7 +83,7 @@ open class RestKeyProviderService(
 
         val certApi = newKeysApi()
         val certResponse = certApi.getKeyWithHttpInfo(settings.id, kid)
-        if (certResponse.statusCode == 404) {
+        if (certResponse.statusCode == HttpStatus.SC_NOT_FOUND) {
             return null
         }
         val certData = certResponse.data
@@ -100,13 +104,15 @@ open class RestKeyProviderService(
     }
 
     fun oAuth(): OAuth {
-        return if (apiClient.authentications.containsKey(OAUTH2_LITERAL)) apiClient.getAuthentication(OAUTH2_LITERAL) as OAuth else throw SignClientException(
+        return if (apiClient.authentications.containsKey(OAUTH2_LITERAL)) apiClient.getAuthentication(OAUTH2_LITERAL) as OAuth
+        else throw SignClientException(
             "OAuth2 authentication not configured for REST client"
         )
     }
 
     fun bearerAuth(): HttpBearerAuth {
-        return if (apiClient.authentications.containsKey(BEARER_LITERAL)) apiClient.getAuthentication(BEARER_LITERAL) as HttpBearerAuth else throw SignClientException(
+        return if (apiClient.authentications.containsKey(BEARER_LITERAL)) apiClient.getAuthentication(BEARER_LITERAL) as HttpBearerAuth
+        else throw SignClientException(
             "Bearer auth not configured for REST client"
         )
     }
@@ -153,7 +159,9 @@ open class RestKeyProviderService(
 
     private fun assertRestSettings() {
         if (settings.config.type != KeyProviderType.REST) {
-            throw SignClientException("Cannot create a REST certificate Service Provider without mode set to REST. Current mode: ${settings.config.type}")
+            throw SignClientException(
+                "Cannot create a REST certificate Service Provider without mode set to REST. Current mode: ${settings.config.type}"
+            )
         }
         /*if (restClientConfig == null) {
             throw SignClientException("Cannot create a REST certificate Service Provider without a REST config")

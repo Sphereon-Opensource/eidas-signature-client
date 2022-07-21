@@ -16,7 +16,7 @@ object KeyProviderServiceFactory {
     ): IKeyProviderService {
         return when (settings.config.type) {
             KeyProviderType.REST -> {
-                RestKeyProviderService(
+                RestClientKeyProviderService(
                     settings,
                     restClientConfig
                         ?: throw SignClientException("Cannot create REST key provider without providing a REST client config"),

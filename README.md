@@ -275,7 +275,7 @@ keyProvider = AzureKeyvaultKeyProviderService(providerSettings, keyvaultConfig)
 
 The REST Key Provider uses REST to get Keys/Certificates It also exposes the createSignature and verifySignature methods as REST endpoints.
 Lastly other methods like creating a digest, determineSignInput and placing the signature in the original document could also be executed remotely if
-desired. This is however handled by the RESTSignatureService.
+desired. This is however handled by the RESTClientSignatureService.
 
 ### Authentication and Authorization support
 
@@ -307,7 +307,7 @@ val restConfig = RestClientConfig(
     )
 )
 
-val restKeyProvider = RestKeyProviderService(keyProviderSettings, restConfig)
+val restKeyProvider = RestClientKeyProviderService(keyProviderSettings, restConfig)
 // Use the respective methods to get certificate or sign at this point. It will use oAuth2 to request a token and refresh tokens
 
 // If oauth2 access is needed the oauth() method can be used. For instance to renew the access token
@@ -338,7 +338,7 @@ val restConfig = RestClientConfig(
     )
 )
 
-val restKeyProvider = RestKeyProviderService(keyProviderSettings, restConfig)
+val restKeyProvider = RestClientKeyProviderService(keyProviderSettings, restConfig)
 // Use the respective methods to get certificate or sign at this point. It will use the bearer token in every request
 
 // If the bearer token needs to be updated
@@ -509,7 +509,7 @@ The Signature Service allows you to create and verify signatures, as well as cre
 
 ## Initialize the Signature Service
 
-The Signature service want to have a Key Provider as single argument. If you want to use multiple Key Providers you will have to
+The Signature service wants to have a Key Provider as single argument. If you want to use multiple Key Providers you will have to
 instantiate multiple signature services.
 
 ````kotlin
@@ -1291,4 +1291,4 @@ The simplest way to include DSS to your Maven project is to add a repository int
 
 ## Gradle build (local maven repo)
 
-	gradlew clean deployToMavenLocal
+	gradlew clean publishToMavenLocal
