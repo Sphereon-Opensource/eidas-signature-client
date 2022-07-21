@@ -60,7 +60,7 @@ class RestCertificateProviderServiceTest {
 
     companion object {
         private val KID_REST: String = "rest"
-        private lateinit var keyProvider: RestKeyProviderService
+        private lateinit var keyProvider: RestClientKeyProviderService
         private lateinit var key: IKeyEntry
         private lateinit var signInput: SignInput
 
@@ -87,7 +87,7 @@ class RestCertificateProviderServiceTest {
 
         }
 
-        private fun setupKeyProviderMock(): RestKeyProviderService {
+        private fun setupKeyProviderMock(): RestClientKeyProviderService {
             val certApiMock = mockk<KeysApi>()
             val signingApiMock = mockk<SigningApi>()
 
@@ -142,7 +142,7 @@ class RestCertificateProviderServiceTest {
                         .date(Instant.now())
                 )
 
-            val keyProvider = spyk(RestKeyProviderService(constructKeyProviderSettings(), constructRestClientConfig()))
+            val keyProvider = spyk(RestClientKeyProviderService(constructKeyProviderSettings(), constructRestClientConfig()))
             every {
                 keyProvider.newKeysApi()
             } returns certApiMock

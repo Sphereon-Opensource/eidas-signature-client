@@ -679,7 +679,7 @@ fun com.sphereon.vdx.ades.rest.client.model.SignInput.toLocalSignInput(): SignIn
     )
 }
 
-fun IKeyEntry.toRestKeyEntry(providerId: String): com.sphereon.vdx.ades.rest.client.model.KeyEntry {
+fun IKeyEntry.toRestClientKeyEntry(providerId: String): com.sphereon.vdx.ades.rest.client.model.KeyEntry {
     return com.sphereon.vdx.ades.rest.client.model.KeyEntry()
         .kid(this.kid)
         .encryptionAlgorithm(CryptoAlgorithm.valueOf(this.encryptionAlgorithm.name))
@@ -710,12 +710,12 @@ fun IKeyEntry.toRestKeyEntry(providerId: String): com.sphereon.vdx.ades.rest.cli
         })
 }
 
-fun Signature.toRestSignature(): com.sphereon.vdx.ades.rest.client.model.Signature {
+fun Signature.toRestClientSignature(): com.sphereon.vdx.ades.rest.client.model.Signature {
     return com.sphereon.vdx.ades.rest.client.model.Signature()
         .value(this.value)
         .algorithm(com.sphereon.vdx.ades.rest.client.model.SignatureAlgorithm.valueOf(this.algorithm.name))
         .signMode(com.sphereon.vdx.ades.rest.client.model.SignMode.valueOf(this.signMode.name))
-        .keyEntry(this.keyEntry.toRestKeyEntry(this.providerId))
+        .keyEntry(this.keyEntry.toRestClientKeyEntry(this.providerId))
         .date(java.time.Instant.ofEpochSecond(this.date.epochSeconds))
         .binding(com.sphereon.vdx.ades.rest.client.model.ConfigKeyBinding()
             .kid(this.keyEntry.kid)
@@ -723,27 +723,27 @@ fun Signature.toRestSignature(): com.sphereon.vdx.ades.rest.client.model.Signatu
         )
 }
 
-fun OrigData.toRestOrigData(): com.sphereon.vdx.ades.rest.client.model.OrigData {
+fun OrigData.toRestClientOrigData(): com.sphereon.vdx.ades.rest.client.model.OrigData {
   return com.sphereon.vdx.ades.rest.client.model.OrigData()
       .name(this.name)
       .content(this.value)
       .mimeType(this.mimeType)
 }
 
-fun ConfigKeyBinding.toRestConfigKeyBinding(): com.sphereon.vdx.ades.rest.client.model.ConfigKeyBinding {
+fun ConfigKeyBinding.toRestClientConfigKeyBinding(): com.sphereon.vdx.ades.rest.client.model.ConfigKeyBinding {
    return com.sphereon.vdx.ades.rest.client.model.ConfigKeyBinding()
        .kid(this.kid)
        .signatureConfigId(this.signatureConfigId)
        .keyProviderId(this.keyProviderId)
 }
 
-fun SignInput.toRestSignInput(): com.sphereon.vdx.ades.rest.client.model.SignInput {
+fun SignInput.toRestClientSignInput(): com.sphereon.vdx.ades.rest.client.model.SignInput {
     return com.sphereon.vdx.ades.rest.client.model.SignInput()
         .name(this.name)
         .input(this.input)
         .signMode(com.sphereon.vdx.ades.rest.client.model.SignMode.valueOf(this.signMode.name))
         .digestAlgorithm(this.digestAlgorithm?.name?.let { com.sphereon.vdx.ades.rest.client.model.DigestAlgorithm.valueOf(it) })
         .signingDate(java.time.Instant.ofEpochSecond(this.signingDate.epochSeconds))
-        .binding(this.binding.toRestConfigKeyBinding())
+        .binding(this.binding.toRestClientConfigKeyBinding())
 }
 

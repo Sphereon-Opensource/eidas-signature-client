@@ -25,7 +25,7 @@ import com.sphereon.vdx.ades.sign.util.toKey
 private const val BEARER_LITERAL = "bearer"
 private const val OAUTH2_LITERAL = "oauth2"
 
-open class RestKeyProviderService(
+open class RestClientKeyProviderService(
     settings: KeyProviderSettings,
     val restClientConfig: RestClientConfig,
     cacheObjectSerializer: AbstractCacheObjectSerializer<String, IKeyEntry>? = null

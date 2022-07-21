@@ -15,12 +15,12 @@ import com.sphereon.vdx.ades.rest.client.api.SigningApi
 import com.sphereon.vdx.ades.rest.client.model.*
 import com.sphereon.vdx.ades.sign.util.*
 
-open class RestSignatureService(final override val keyProvider: IKeyProviderService, val restSigningClient: SigningApi) : IKidSignatureService {
+open class RestClientSignatureService(final override val keyProvider: IKeyProviderService, val restSigningClient: SigningApi) : IKidSignatureService {
     private val delegate = KeySignatureService(keyProvider)
 
     override fun digest(signInput: SignInput): SignInput {
         val digest = restSigningClient.digest(Digest()
-            .signInput(signInput.toRestSignInput())
+            .signInput(signInput.toRestClientSignInput())
         )
 
         return digest.signInput.toLocalSignInput()
@@ -55,7 +55,7 @@ open class RestSignatureService(final override val keyProvider: IKeyProviderServ
     ): SignInput {
         val signInputResponse = restSigningClient.determineSignInput(
             DetermineSignInput()
-                .origData(origData.toRestOrigData())
+                .origData(origData.toRestClientOrigData())
                 .signMode(com.sphereon.vdx.ades.rest.client.model.SignMode.valueOf(signMode.name))
                 .binding(com.sphereon.vdx.ades.rest.client.model.ConfigKeyBinding()
                     .kid(kid)
@@ -75,8 +75,8 @@ open class RestSignatureService(final override val keyProvider: IKeyProviderServ
 
     override fun sign(origData: OrigData, signature: Signature, signatureConfiguration: SignatureConfiguration): SignOutput {
         val mergeSignatureResponse = restSigningClient.mergeSignature(MergeSignature()
-            .origData(origData.toRestOrigData())
-            .signature(signature.toRestSignature())
+            .origData(origData.toRestClientOrigData())
+            .signature(signature.toRestClientSignature())
         )
 
         return mergeSignatureResponse.signOutput.toLocalSignOutput()
