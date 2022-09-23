@@ -36,7 +36,7 @@ data class SignInput(
         result = 31 * result + signingDate.hashCode()
         result = 31 * result + (digestAlgorithm?.hashCode() ?: 0)
         result = 31 * result + (name?.hashCode() ?: 0)
-        result = 31 * result + (binding.hashCode() ?: 0)
+        result = 31 * result + (binding.hashCode())
         return result
     }
 }

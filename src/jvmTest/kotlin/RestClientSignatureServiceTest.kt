@@ -234,7 +234,7 @@ class RestClientSignatureServiceTest {
             } returns JSON.getDefault().mapper.readValue(this::class.java.classLoader.getResource("mergeSignatureResponse.json"), MergeSignatureResponse::class.java)
 
             val keyProvider = spyk(RestClientKeyProviderService(constructKeyProviderSettings(), constructRestClientConfig()))
-            val restClientSignatureService = spyk(RestClientSignatureService(keyProvider, signingApiMock));
+            val restClientSignatureService = spyk(RestClientSignatureService(keyProvider, signingApiMock))
 
             return restClientSignatureService
         }

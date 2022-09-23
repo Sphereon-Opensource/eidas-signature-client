@@ -16,20 +16,20 @@ open class KidSignatureService(final override val keyProvider: IKeyProviderServi
         return delegate.digest(signInput)
     }
 
-    override fun createSignature(signInput: SignInput, kid: String): Signature {
-        return delegate.createSignature(signInput, getKey(kid))
+    override fun createSignature(signInput: SignInput): Signature {
+        return delegate.createSignature(signInput, getKey(signInput.binding.kid))
     }
 
-    override fun createSignature(signInput: SignInput, kid: String, mgf: MaskGenFunction): Signature {
-        return delegate.createSignature(signInput, getKey(kid), mgf)
+    override fun createSignature(signInput: SignInput, mgf: MaskGenFunction): Signature {
+        return delegate.createSignature(signInput, getKey(signInput.binding.kid), mgf)
     }
 
-    override fun createSignature(signInput: SignInput, kid: String, signatureAlgorithm: SignatureAlg): Signature {
-        return delegate.createSignature(signInput, getKey(kid), signatureAlgorithm)
+    override fun createSignature(signInput: SignInput, signatureAlgorithm: SignatureAlg): Signature {
+        return delegate.createSignature(signInput, getKey(signInput.binding.kid), signatureAlgorithm)
     }
 
-    override fun isValidSignature(signInput: SignInput, signature: Signature, kid: String): Boolean {
-        return delegate.isValidSignature(signInput, signature, getKey(kid))
+    override fun isValidSignature(signInput: SignInput, signature: Signature): Boolean {
+        return delegate.isValidSignature(signInput, signature, getKey(signInput.binding.kid))
     }
 
 

@@ -50,15 +50,13 @@ interface IKidSignatureService {
      * the given `keyEntry`.
      *
      * @param signInput
-     * The data that need to be signed
-     * @param kid
-     * The key identifier
+     * The data that need to be signed. Needs a kid binding
      * @return the signature value representation with the used algorithm and the binary value
      * @throws SigningException
      * If there is any problem during the signature process
      */
     @Throws(SigningException::class)
-    fun createSignature(signInput: SignInput, kid: String): Signature
+    fun createSignature(signInput: SignInput): Signature
 
 
     /**
@@ -66,11 +64,9 @@ interface IKidSignatureService {
      * the given `keyEntry`.
      *
      * @param signInput
-     * The data that need to be signed
+     * The data that need to be signed. Needs a kid binding
      * @param mgf
      * the mask generation function
-     * @param kid
-     * The key identifier
      * @return the signature value representation with the used algorithm and the binary value
      * @throws SigningException
      * If there is any problem during the signature process
@@ -78,7 +74,6 @@ interface IKidSignatureService {
     @Throws(SigningException::class)
     fun createSignature(
         signInput: SignInput,
-        kid: String,
         mgf: MaskGenFunction
     ): Signature
 
@@ -87,10 +82,8 @@ interface IKidSignatureService {
      * the given `keyEntry`.
      *
      * @param signInput
-     * The data that need to be signed
+     * The data that need to be signed. Needs a kid binding
      * @param signatureAlgorithm
-     * the Signature Algorithm
-     * @param kid
      * The key identifier
      * @return the signature value representation with the used algorithm and the binary value
      * @throws SigningException
@@ -99,14 +92,13 @@ interface IKidSignatureService {
     @Throws(SigningException::class)
     fun createSignature(
         signInput: SignInput,
-        kid: String,
         signatureAlgorithm: SignatureAlg
     ): Signature
 
     fun isValidSignature(signInput: SignInput, signature: Signature, publicKey: Key): Boolean
 
 
-    fun isValidSignature(signInput: SignInput, signature: Signature, kid: String): Boolean
+    fun isValidSignature(signInput: SignInput, signature: Signature): Boolean
 
     /**
      *

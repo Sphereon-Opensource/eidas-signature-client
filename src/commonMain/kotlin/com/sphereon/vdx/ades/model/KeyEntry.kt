@@ -10,6 +10,7 @@ import kotlinx.serialization.modules.subclass
 
 val serializers = SerializersModule {
 
+    // Ensures we can do polymorphic serialization of the both Key and Private Key entries using the IKeyEntry interface
     polymorphic(IKeyEntry::class) {
         subclass(PrivateKeyEntry::class)
         subclass(KeyEntry::class)
@@ -17,6 +18,9 @@ val serializers = SerializersModule {
 }
 val json = Json { serializersModule = serializers }
 
+/**
+ * The Key Entry interface which is the base interface for all Key entries.
+ */
 interface IKeyEntry {
     val attributes: Set<Attribute>?
     val kid: String
@@ -26,11 +30,17 @@ interface IKeyEntry {
     val encryptionAlgorithm: CryptoAlg
 }
 
+/**
+ * A Key entry with a private key.
+ */
 interface IPrivateKeyEntry : IKeyEntry {
     val privateKey: Key
 }
 
 
+/**
+ * Implementation of the Key Entry interface for a public key and optional certificate.
+ */
 @kotlinx.serialization.Serializable
 @SerialName("KeyEntry")
 data class KeyEntry(
@@ -69,6 +79,12 @@ data class KeyEntry(
     }
 }
 
+/**
+ * Implementation of the Private Key Entry interface for a private/public keypair and optional certificate.
+ *
+ * Please note that it does not subclass the KeyEntry class, because these are Kotlin data classes (meaning no inheritance).
+ * Always use the interfaces for arguments and return values!
+ */
 @kotlinx.serialization.Serializable
 @SerialName("PrivateKeyEntry")
 data class PrivateKeyEntry(
@@ -109,7 +125,9 @@ data class PrivateKeyEntry(
     }
 }
 
-
+/**
+ * A Key can represent a public or private key. Whether it is a public or private key is determined by the class/object using this class.
+ */
 @kotlinx.serialization.Serializable
 data class Key(
     val algorithm: CryptoAlg,

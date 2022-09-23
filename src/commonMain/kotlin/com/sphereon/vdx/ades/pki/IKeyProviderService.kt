@@ -5,8 +5,14 @@ import com.sphereon.vdx.ades.model.IKeyEntry
 import com.sphereon.vdx.ades.model.KeyProviderSettings
 import com.sphereon.vdx.ades.sign.ISimpleSignatureService
 
+/**
+ * The interface for the PKI service adds key functionality to the simple signature interface.
+ */
 interface IKeyProviderService : ISimpleSignatureService {
 
+    /**
+     * The Key Provider Settings
+     */
     val settings: KeyProviderSettings
 
     /**
