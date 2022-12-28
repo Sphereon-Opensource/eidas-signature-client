@@ -123,9 +123,8 @@ class PKCS7Service(
         assertSigningCertificateValid(parameters)
         val signatureValueChecked = ensureSignatureValue(parameters.signatureAlgorithm, signatureValue)
         val encodedData: ByteArray = generateSignedData(toSignDocument, parameters, signatureValueChecked)
-        val pdfSignatureService = pdfObjFactory.newPAdESSignatureService()
-        val pAdESSignatureParameters = parameters.toPAdESSignatureParameters()
-        var signature = pdfSignatureService.sign(toSignDocument, encodedData, pAdESSignatureParameters)
+        val pdfSignatureService = PdfBoxSignatureService()
+        var signature = pdfSignatureService.sign(toSignDocument, encodedData, parameters)
         // TODO extendSignatures?
         parameters.reinit()
         signature.name = this.getFinalFileName(toSignDocument, SigningOperation.SIGN, SignatureLevel.CAdES_A)

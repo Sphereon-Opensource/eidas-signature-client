@@ -1,10 +1,13 @@
 import com.sphereon.vdx.ades.enums.*
 import com.sphereon.vdx.ades.model.*
+import com.sphereon.vdx.ades.sign.util.toDigest
 import eu.europa.esig.dss.model.InMemoryDocument
 import eu.europa.esig.dss.validation.CommonCertificateVerifier
 import eu.europa.esig.dss.validation.SignedDocumentValidator
+import org.apache.commons.io.IOUtils
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
+import java.io.FileOutputStream
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -45,6 +48,7 @@ class PKCS7SigningSignTests : AbstractAdESTest() {
             signMode = SignMode.DOCUMENT,
             signatureConfiguration = signatureConfiguration
         )
+        println("digest1 ${signInput.toDigest()}")
 
 //        println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(signInput))
 
@@ -57,6 +61,19 @@ class PKCS7SigningSignTests : AbstractAdESTest() {
         val signOutput = signingService.sign(origData, signature, signatureConfiguration)
 //        println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(signOutput))
         assertNotNull(signOutput)
+
+        val origData2 = OrigData(value = signOutput.value, name = "test-unsigned.pdf")
+        val signInput2 = signingService.determineSignInput(
+            origData = origData2,
+            keyEntry = keyEntry,
+            signMode = SignMode.DOCUMENT,
+            signatureConfiguration = signatureConfiguration
+        )
+        println("digest2 ${signInput2.toDigest()}")
+
+        FileOutputStream(signOutput.name!!).use {
+            it.write(signOutput.value)
+        }
 
 
         assertTrue(signingService.isValidSignature(digestInput, signature, signature.keyEntry))
