@@ -41,11 +41,15 @@ data class Header(
     val values: List<String>? = mutableListOf()
 )
 
+private const val SECOND = 1000L
+private const val ONE = 1
+private const val FIFTEEN = 15
+
 @kotlinx.serialization.Serializable
 data class ExponentialBackoffRetryOpts(
     val maxRetries: Int? = 10,
-    val baseDelayInMS: Long? = 1 * 1000,
-    val maxDelayInMS: Long? = 15 * 1000
+    val baseDelayInMS: Long? = ONE * SECOND,
+    val maxDelayInMS: Long? = FIFTEEN * SECOND
 )
 
 /**

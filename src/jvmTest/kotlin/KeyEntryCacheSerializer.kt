@@ -12,7 +12,7 @@ import javax.cache.configuration.Configuration
 
 
 class KeyEntryCacheSerializer : Serializer<IKeyEntry>,
-    AbstractCacheObjectSerializer<String, IKeyEntry>(PrivateKeyEntry.serializer() as KSerializer<IKeyEntry>) {
+    AbstractCacheObjectSerializer<String, IKeyEntry>(serializer = PrivateKeyEntry.serializer() as KSerializer<IKeyEntry>) {
     override fun cacheConfiguration(cacheTTLInSeconds: Long?): Configuration<String, IKeyEntry> {
         return Eh107Configuration.fromEhcacheCacheConfiguration(
             CacheConfigurationBuilder.newCacheConfigurationBuilder(

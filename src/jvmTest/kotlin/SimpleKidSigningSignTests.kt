@@ -12,14 +12,14 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
-private const val CERTIFICATE = "certificate"
+private const val KID = "certificate"
 
 class SimpleKidSigningSignTests : AbstractAdESTest() {
 
     @Test
     fun `Given an input with signmode DOCUMENT the sign method should sign the document`() {
         val signingService = constructKidSignatureService(enableCache = true, keystoreFilename = "user_a_rsa.p12", password = "password")
-        val keyEntry = signingService.keyProvider.getKey(CERTIFICATE)!!
+        val keyEntry = signingService.keyProvider.getKey(KID)!!
         val signInput = SignInput(
             input = "test".toByteArray(),
             signMode = SignMode.DOCUMENT,
@@ -30,7 +30,7 @@ class SimpleKidSigningSignTests : AbstractAdESTest() {
                 keyProviderId = signingService.keyProvider.settings.id
             )
         )
-        val signature = signingService.createSignature(signInput, CERTIFICATE)
+        val signature = signingService.createSignature(signInput)
         assertNotNull(signature)
         assertEquals(SignatureAlg.RSA_SHA256, signature.algorithm)
         assertContentEquals(
@@ -44,7 +44,7 @@ class SimpleKidSigningSignTests : AbstractAdESTest() {
     @Test
     fun `Given an input with signmode DIGEST the sign method should sign the document`() {
         val signingService = constructKidSignatureService(enableCache = true, keystoreFilename = "user_a_rsa.p12", password = "password")
-        val keyEntry = signingService.keyProvider.getKey(CERTIFICATE)!!
+        val keyEntry = signingService.keyProvider.getKey(KID)!!
         val signInput = SignInput(
             input = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08".toByteArray(),
             signMode = SignMode.DIGEST,
@@ -56,23 +56,23 @@ class SimpleKidSigningSignTests : AbstractAdESTest() {
             )
         )
         assertNotNull(keyEntry)
-        val signature = signingService.createSignature(signInput, CERTIFICATE)
+        val signature = signingService.createSignature(signInput)
         assertNotNull(signature)
         assertEquals(SignatureAlg.RSA_SHA256, signature.algorithm)
         assertContentEquals(
             Hex.decodeHex("232a30e81b52e3520faad55f9ac57ea0160fc150e140f0f4a451a3512e7bdb0d2e7f8ea9270868c32d1af387cb49bea8317540c0031e436eb70b09d747123e5f869e89eecac780d36e6db24a452b6f7fa66bd85884d491d0bd09406aa1dd3f5ccd24a05fa38b1d3fc7d7b68c7b7a3d8fa944b644139856c756b55e3cd9b8a40b4b01cb442a1d4aaadd1a1cbdf7b2957697e59c39e336d4f0a486683787348405d0b000e0c6d13c0336c6b29f6d1dc9e29e66ae6faa54604b28a1a8c15f91b7241545ceed6ca7ecd128b931f727bb38dd7bbf999f4a65df6302dcf5c9074ca565e6490da3d3c9589f569a3a9d3a87032ed31bf009305b7963bf738c7a3d7c89db"),
             signature.value
         )
-        signingService.keyProvider.getKey(CERTIFICATE)!!
-        signingService.keyProvider.getKey(CERTIFICATE)!!
+        signingService.keyProvider.getKey(KID)!!
+        signingService.keyProvider.getKey(KID)!!
 
-        assertTrue(signingService.isValidSignature(signInput, signature, CERTIFICATE))
+        assertTrue(signingService.isValidSignature(signInput, signature))
     }
 
     @Test
     fun `Given an input with signmode DOCUMENT and maskgen function 1 the sign method should sign the document`() {
         val signingService = constructKidSignatureService(enableCache = false, keystoreFilename = "user_a_rsa.p12", password = "password")
-        val keyEntry = signingService.keyProvider.getKey(CERTIFICATE)!!
+        val keyEntry = signingService.keyProvider.getKey(KID)!!
         val signInput = SignInput(
             input = "test".toByteArray(),
             signMode = SignMode.DOCUMENT,
@@ -83,7 +83,7 @@ class SimpleKidSigningSignTests : AbstractAdESTest() {
                 keyProviderId = signingService.keyProvider.settings.id
             )
         )
-        val signature = signingService.createSignature(signInput, CERTIFICATE, MaskGenFunction.MGF1)
+        val signature = signingService.createSignature(signInput, MaskGenFunction.MGF1)
         assertNotNull(signature)
         assertEquals(SignatureAlg.RSA_SSA_PSS_SHA256_MGF1, signature.algorithm)
         // Since we use a MGF1 in this test, the signature is randomized
@@ -95,7 +95,7 @@ class SimpleKidSigningSignTests : AbstractAdESTest() {
     @Test
     fun `Given an input with signmode DIGEST and maskgen function 1 the sign method should sign the document`() {
         val signingService = constructKidSignatureService(enableCache = false, keystoreFilename = "user_a_rsa.p12", password = "password")
-        val keyEntry = signingService.keyProvider.getKey(CERTIFICATE)!!
+        val keyEntry = signingService.keyProvider.getKey(KID)!!
         val signInput = SignInput(
             input = "9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08".toByteArray(),
             signMode = SignMode.DIGEST,
@@ -107,12 +107,12 @@ class SimpleKidSigningSignTests : AbstractAdESTest() {
             )
         )
         assertNotNull(keyEntry)
-        val signature = signingService.createSignature(signInput, CERTIFICATE, MaskGenFunction.MGF1)
+        val signature = signingService.createSignature(signInput, MaskGenFunction.MGF1)
         assertNotNull(signature)
         assertEquals(SignatureAlg.RSA_SSA_PSS_SHA256_MGF1, signature.algorithm)
         // Since we use a MGF1 in this test, the signature is randomized
         assertNotNull(signature.value)
 
-        assertTrue(signingService.isValidSignature(signInput, signature, CERTIFICATE))
+        assertTrue(signingService.isValidSignature(signInput, signature))
     }
 }

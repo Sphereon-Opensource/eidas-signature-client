@@ -23,7 +23,7 @@ import com.sphereon.vdx.ades.sign.util.toRestClientOrigData
 import com.sphereon.vdx.ades.sign.util.toRestClientSignature
 import com.sphereon.vdx.ades.sign.util.toLocalSignOutput
 
-open class RestClientSignatureService(final override val keyProvider: IKeyProviderService, val restSigningClient: SigningApi) : IKidSignatureService {
+open class RestClientSignatureService(final override val keyProvider: IKeyProviderService, private val restSigningClient: SigningApi) : IKidSignatureService {
     private val delegate = KeySignatureService(keyProvider)
 
     override fun digest(signInput: SignInput): SignInput {
@@ -34,20 +34,20 @@ open class RestClientSignatureService(final override val keyProvider: IKeyProvid
         return digest.signInput.toLocalSignInput()
     }
 
-    override fun createSignature(signInput: SignInput, kid: String): Signature {
-        return delegate.createSignature(signInput, getKey(kid))
+    override fun createSignature(signInput: SignInput): Signature {
+        return delegate.createSignature(signInput, getKey(signInput.binding.kid))
     }
 
-    override fun createSignature(signInput: SignInput, kid: String, mgf: MaskGenFunction): Signature {
-        return delegate.createSignature(signInput, getKey(kid), mgf)
+    override fun createSignature(signInput: SignInput, mgf: MaskGenFunction): Signature {
+        return delegate.createSignature(signInput, getKey(signInput.binding.kid), mgf)
     }
 
-    override fun createSignature(signInput: SignInput, kid: String, signatureAlgorithm: SignatureAlg): Signature {
-        return delegate.createSignature(signInput, getKey(kid), signatureAlgorithm)
+    override fun createSignature(signInput: SignInput, signatureAlgorithm: SignatureAlg): Signature {
+        return delegate.createSignature(signInput, getKey(signInput.binding.kid), signatureAlgorithm)
     }
 
-    override fun isValidSignature(signInput: SignInput, signature: Signature, kid: String): Boolean {
-        return delegate.isValidSignature(signInput, signature, getKey(kid))
+    override fun isValidSignature(signInput: SignInput, signature: Signature): Boolean {
+        return delegate.isValidSignature(signInput, signature, getKey(signInput.binding.kid))
     }
 
 
@@ -76,7 +76,7 @@ open class RestClientSignatureService(final override val keyProvider: IKeyProvid
 
     override fun sign(origData: OrigData, kid: String, signMode: SignMode, signatureConfiguration: SignatureConfiguration): SignOutput {
         val signInput = determineSignInput(origData, kid, signMode, signatureConfiguration)
-        val signature = createSignature(signInput, kid)
+        val signature = createSignature(signInput)
 
         return sign(origData, signature, signatureConfiguration)
     }

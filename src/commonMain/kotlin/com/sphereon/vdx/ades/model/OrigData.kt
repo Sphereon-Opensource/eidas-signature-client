@@ -2,6 +2,10 @@ package com.sphereon.vdx.ades.model
 
 import com.sphereon.vdx.ades.Base64Serializer
 
+/**
+ * Represent the orginal data at the start of a signature/digest process or data which gets included in a signature.
+ * This data eventually will be merged with a signature
+ */
 @kotlinx.serialization.Serializable
 data class OrigData(
     @kotlinx.serialization.Serializable(with = Base64Serializer::class) val value: ByteArray,

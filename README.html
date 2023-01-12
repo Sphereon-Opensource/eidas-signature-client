@@ -1,0 +1,2148 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="pandoc" name="generator"/>
+  <meta content="width=device-width, initial-scale=1.0, user-scalable=yes" name="viewport"/>
+  <title>README</title>
+  <style>
+      html {
+          line-height: 1.5;
+          font-family: Georgia, serif;
+          font-size: 20px;
+          color: #1a1a1a;
+          background-color: #fdfdfd;
+      }
+
+      body {
+          margin: 0 auto;
+          max-width: 36em;
+          padding-left: 50px;
+          padding-right: 50px;
+          padding-top: 50px;
+          padding-bottom: 50px;
+          hyphens: auto;
+          overflow-wrap: break-word;
+          text-rendering: optimizeLegibility;
+          font-kerning: normal;
+      }
+
+      @media (max-width: 600px) {
+          body {
+              font-size: 0.9em;
+              padding: 1em;
+          }
+
+          h1 {
+              font-size: 1.8em;
+          }
+      }
+
+      @media print {
+          body {
+              background-color: transparent;
+              color: black;
+              font-size: 12pt;
+          }
+
+          p, h2, h3 {
+              orphans: 3;
+              widows: 3;
+          }
+
+          h2, h3, h4 {
+              page-break-after: avoid;
+          }
+      }
+
+      p {
+          margin: 1em 0;
+      }
+
+      a {
+          color: #1a1a1a;
+      }
+
+      a:visited {
+          color: #1a1a1a;
+      }
+
+      img {
+          max-width: 100%;
+      }
+
+      h1, h2, h3, h4, h5, h6 {
+          margin-top: 1.4em;
+      }
+
+      h5, h6 {
+          font-size: 1em;
+          font-style: italic;
+      }
+
+      h6 {
+          font-weight: normal;
+      }
+
+      ol, ul {
+          padding-left: 1.7em;
+          margin-top: 1em;
+      }
+
+      li > ol, li > ul {
+          margin-top: 0;
+      }
+
+      blockquote {
+          margin: 1em 0 1em 1.7em;
+          padding-left: 1em;
+          border-left: 2px solid #e6e6e6;
+          color: #606060;
+      }
+
+      code {
+          font-family: Menlo, Monaco, 'Lucida Console', Consolas, monospace;
+          font-size: 85%;
+          margin: 0;
+      }
+
+      pre {
+          margin: 1em 0;
+          overflow: auto;
+      }
+
+      pre code {
+          padding: 0;
+          overflow: visible;
+          overflow-wrap: normal;
+      }
+
+      .sourceCode {
+          background-color: transparent;
+          overflow: visible;
+      }
+
+      hr {
+          background-color: #1a1a1a;
+          border: none;
+          height: 1px;
+          margin: 1em 0;
+      }
+
+      table {
+          margin: 1em 0;
+          border-collapse: collapse;
+          width: 100%;
+          overflow-x: auto;
+          display: block;
+          font-variant-numeric: lining-nums tabular-nums;
+      }
+
+      table caption {
+          margin-bottom: 0.75em;
+      }
+
+      tbody {
+          margin-top: 0.5em;
+          border-top: 1px solid #1a1a1a;
+          border-bottom: 1px solid #1a1a1a;
+      }
+
+      th {
+          border-top: 1px solid #1a1a1a;
+          padding: 0.25em 0.5em 0.25em 0.5em;
+      }
+
+      td {
+          padding: 0.125em 0.5em 0.25em 0.5em;
+      }
+
+      header {
+          margin-bottom: 4em;
+          text-align: center;
+      }
+
+      #TOC li {
+          list-style: none;
+      }
+
+      #TOC ul {
+          padding-left: 1.3em;
+      }
+
+      #TOC > ul {
+          padding-left: 0;
+      }
+
+      #TOC a:not(:hover) {
+          text-decoration: none;
+      }
+
+      code {
+          white-space: pre-wrap;
+      }
+
+      span.smallcaps {
+          font-variant: small-caps;
+      }
+
+      span.underline {
+          text-decoration: underline;
+      }
+
+      div.column {
+          display: inline-block;
+          vertical-align: top;
+          width: 50%;
+      }
+
+      div.hanging-indent {
+          margin-left: 1.5em;
+          text-indent: -1.5em;
+      }
+
+      ul.task-list {
+          list-style: none;
+      }
+
+      pre > code.sourceCode {
+          white-space: pre;
+          position: relative;
+      }
+
+      pre > code.sourceCode > span {
+          display: inline-block;
+          line-height: 1.25;
+      }
+
+      pre > code.sourceCode > span:empty {
+          height: 1.2em;
+      }
+
+      .sourceCode {
+          overflow: visible;
+      }
+
+      code.sourceCode > span {
+          color: inherit;
+          text-decoration: inherit;
+      }
+
+      div.sourceCode {
+          margin: 1em 0;
+      }
+
+      pre.sourceCode {
+          margin: 0;
+      }
+
+      @media screen {
+          div.sourceCode {
+              overflow: auto;
+          }
+      }
+
+      @media print {
+          pre > code.sourceCode {
+              white-space: pre-wrap;
+          }
+
+          pre > code.sourceCode > span {
+              text-indent: -5em;
+              padding-left: 5em;
+          }
+      }
+
+      pre.numberSource code {
+          counter-reset: source-line 0;
+      }
+
+      pre.numberSource code > span {
+          position: relative;
+          left: -4em;
+          counter-increment: source-line;
+      }
+
+      pre.numberSource code > span > a:first-child::before {
+          content: counter(source-line);
+          position: relative;
+          left: -1em;
+          text-align: right;
+          vertical-align: baseline;
+          border: none;
+          display: inline-block;
+          -webkit-touch-callout: none;
+          -webkit-user-select: none;
+          -khtml-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+          padding: 0 4px;
+          width: 4em;
+          color: #aaaaaa;
+      }
+
+      pre.numberSource {
+          margin-left: 3em;
+          border-left: 1px solid #aaaaaa;
+          padding-left: 4px;
+      }
+
+      div.sourceCode {
+      }
+
+      @media screen {
+          pre > code.sourceCode > span > a:first-child::before {
+              text-decoration: underline;
+          }
+      }
+
+      code span.al {
+          color: #ff0000;
+          font-weight: bold;
+      }
+
+      /* Alert */
+      code span.an {
+          color: #60a0b0;
+          font-weight: bold;
+          font-style: italic;
+      }
+
+      /* Annotation */
+      code span.at {
+          color: #7d9029;
+      }
+
+      /* Attribute */
+      code span.bn {
+          color: #40a070;
+      }
+
+      /* BaseN */
+      code span.bu {
+      }
+
+      /* BuiltIn */
+      code span.cf {
+          color: #007020;
+          font-weight: bold;
+      }
+
+      /* ControlFlow */
+      code span.ch {
+          color: #4070a0;
+      }
+
+      /* Char */
+      code span.cn {
+          color: #880000;
+      }
+
+      /* Constant */
+      code span.co {
+          color: #60a0b0;
+          font-style: italic;
+      }
+
+      /* Comment */
+      code span.cv {
+          color: #60a0b0;
+          font-weight: bold;
+          font-style: italic;
+      }
+
+      /* CommentVar */
+      code span.do {
+          color: #ba2121;
+          font-style: italic;
+      }
+
+      /* Documentation */
+      code span.dt {
+          color: #902000;
+      }
+
+      /* DataType */
+      code span.dv {
+          color: #40a070;
+      }
+
+      /* DecVal */
+      code span.er {
+          color: #ff0000;
+          font-weight: bold;
+      }
+
+      /* Error */
+      code span.ex {
+      }
+
+      /* Extension */
+      code span.fl {
+          color: #40a070;
+      }
+
+      /* Float */
+      code span.fu {
+          color: #06287e;
+      }
+
+      /* Function */
+      code span.im {
+      }
+
+      /* Import */
+      code span.in {
+          color: #60a0b0;
+          font-weight: bold;
+          font-style: italic;
+      }
+
+      /* Information */
+      code span.kw {
+          color: #007020;
+          font-weight: bold;
+      }
+
+      /* Keyword */
+      code span.op {
+          color: #666666;
+      }
+
+      /* Operator */
+      code span.ot {
+          color: #007020;
+      }
+
+      /* Other */
+      code span.pp {
+          color: #bc7a00;
+      }
+
+      /* Preprocessor */
+      code span.sc {
+          color: #4070a0;
+      }
+
+      /* SpecialChar */
+      code span.ss {
+          color: #bb6688;
+      }
+
+      /* SpecialString */
+      code span.st {
+          color: #4070a0;
+      }
+
+      /* String */
+      code span.va {
+          color: #19177c;
+      }
+
+      /* Variable */
+      code span.vs {
+          color: #4070a0;
+      }
+
+      /* VerbatimString */
+      code span.wa {
+          color: #60a0b0;
+          font-weight: bold;
+          font-style: italic;
+      }
+
+      /* Warning */
+      .display.math {
+          display: block;
+          text-align: center;
+          margin: 0.5rem auto;
+      }
+  </style>
+  <!--[if lt IE 9]>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<!--suppress HtmlDeprecatedAttribute -->
+<p><a href="https://sphereon.com"><img alt="Sphereon"
+                                       src="./resources/sphereon.png"/></a></p>
+<p><strong>eIDAS Advanced Electronic Signature Client</strong></p>
+<p>The eIDAS Advanced Electronic Signature (AdES) client, allows to sign
+  documents and digests (hashes), using CAdES (CMS, binary data), JAdES
+  (JSON), PAdES (PDF), XAdES (XML) signatures, as defined by the European
+  Telecommunications Standards Institute (ETSI). These signatures are part
+  of the eIDAS legal framework in the European Union. Next to PAdES it can
+  also create and verify PKCS#7 PDF signatures. These are non-ETSI, but
+  are the more common PDF signatures, provided by companies on Adobe’s
+  Approved Trust List.</p>
+<p>The purpose of this client is to easily create and verify eIDAS and
+  PKCS#7 compliant signatures for documents and input data, using
+  certificates which are stored in keystore files (PKCS#12) or using
+  hardware (PKCS#11). Documents can be signed by providing the full
+  document or by generating a hash/digest of the document first.
+  Especially with remote signing REST APIs part of the Sphereon VDX
+  platform, we suggest to create the digest first and then use the
+  signature to merge with the original document. This means you are not
+  sending the full document across the wire, which obviously is better
+  from a privacy and security perspective.</p>
+<h1 id="table-of-contents">Table of Contents</h1>
+<ul>
+  <li><a href="#multiplatform-library-and-rest-api">Multiplatform library
+    and REST API</a></li>
+  <li><a href="#signature-flow">Signature flow</a></li>
+  <li><a href="#certificate-provider-service">Certificate Provider
+    Service</a>
+    <ul>
+      <li><a href="#pkcs12-keystore-certificate-provider-service">PKCS#12
+        Keystore Certificate Provider Service</a>
+        <ul>
+          <li><a
+              href="#use-existing-tooling-to-create-a-certificate-and-pkcs12-keystore">Use
+            existing tooling to create a certificate and PKCS#12 keystore</a>
+            <ul>
+              <li><a href="#creating-a-pkcs12-keystore-using-openssl">Creating a
+                PKCS#12 keystore using OpenSSL</a></li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li><a
+          href="#pkcs11-hardware-security-module-and-card-based-certificate-provider-service">PKCS#11
+        Hardware Security Module and Card based Certificate Provider
+        Service</a></li>
+      <li><a
+          href="#azure-keyvault-or-managed-hsm-certificate-provider-service">Azure
+        Keyvault or Managed HSM Certificate Provider Service</a></li>
+      <li><a href="#rest-certificate-provider">REST Certificate Provider</a>
+        <ul>
+          <li><a href="#authentication-and-authorization-support">Authentication
+            and Authorization support</a>
+            <ul>
+              <li><a href="#oauth2-support">OAuth2 support</a></li>
+              <li><a href="#bearer-token-and-jwt-support">Bearer Token and JWT
+                support</a></li>
+              <li><a href="#oauth2--openid-scopes">OAuth2, OpenID Scopes</a></li>
+              <li><a href="#roles-support">Roles support</a></li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li><a href="#certificate-provider-caching">Certificate Provider
+        caching</a></li>
+      <li><a href="#list-keys--certificates">List keys, certificates</a></li>
+      <li><a href="#get-a-key-certificate-by-kid">Get a key/certificate by
+        kid</a></li>
+      <li><a href="#create-the-signature">Create the signature</a></li>
+    </ul>
+  </li>
+  <li><a href="#signature-service">Signature Service</a>
+    <ul>
+      <li><a href="#initialize-the-signature-service">Initialize the Signature
+        Service</a></li>
+      <li><a href="#determine-sign-input">Determine Sign Input</a></li>
+      <li><a
+          href="#create-a-hash-digest-for-additional-privacy-and-security">Create
+        a hash digest for additional privacy and security</a></li>
+      <li><a href="#create-the-signature-1">Create the signature</a></li>
+      <li><a href="#signing-the-original-data--merging-the-signature">Signing
+        the original data, merging the signature</a></li>
+      <li><a href="#check-whether-a-signature-is-valid">Check whether a
+        signature is valid</a></li>
+    </ul>
+  </li>
+  <li><a href="#pdf-signatures">PDF Signatures</a>
+    <ul>
+      <li><a href="#default-pkcs7-pdf-signature">Default PKCS#7 PDF
+        signature</a>
+        <ul>
+          <li><a href="#pkcs7-configuration-options">PKCS#7 configuration
+            options</a></li>
+          <li><a href="#example-pkcs7-flow">Example PKCS#7 flow</a></li>
+        </ul>
+      </li>
+      <li><a href="#etsi-eidas-pades-detached-pdf-signature">ETSI eIDAS PAdES
+        detached PDF signature</a>
+        <ul>
+          <li><a href="#pades-configuration-options">PAdES configuration
+            options</a></li>
+          <li><a href="#example-pades-flow">Example PAdES flow</a></li>
+        </ul>
+      </li>
+      <li><a href="#visual-pkcs7-and-pades-signatures">Visual PKCS#7 and PAdES
+        signatures</a></li>
+    </ul>
+  </li>
+  <li><a href="#verifiable-credentials-and-ssi">Verifiable Credentials and
+    SSI</a></li>
+  <li><a href="#building-and-running-the-source-code">Building and running
+    the source code</a>
+    <ul>
+      <li><a href="#requirements">Requirements</a></li>
+      <li><a href="#adding-as-maven-dependency">Adding as Maven
+        dependency</a></li>
+      <li><a href="#gradle-build--local-maven-repo-">Gradle build (local maven
+        repo)</a></li>
+    </ul>
+  </li>
+</ul>
+<h1 id="multiplatform-library-and-rest-api">Multiplatform library and
+  REST API</h1>
+<p>This is a multiplatform Kotlin library. Right now it supports Java
+  and Kotlin only. In the future Javascript/Typescript will be added.
+  Please note that a REST API is also available that has integrated this
+  client, allowing to generate and validate signatures using other
+  languages. Next to Java/Kotlin, Javascript/Typescript a .NET SDK is
+  available that integrates with the REST API. SDK code can be generated
+  for other languages based upon the OpenAPI 3 spec provided with the REST
+  API.</p>
+<h1 id="signature-flow">Signature flow</h1>
+<p>Creating a signed AdES document comprises several steps. It starts
+  with the Original Data/Document, for which we first need to determine
+  the Sign Input. The <code>SignInput</code> typically either is the full
+  document, or a part of the document (PDF for instance). The
+  <code>determineSignInput</code> method which requires the input document
+  together with the signature type and configuration as parameters,
+  automatically determines the Sign Input. The determineSignInput can be
+  run locally without the need to use a REST API for instance.</p>
+<p>Next there are two options. Directly signing the
+  <code>SignInput</code> object using the <code>createSignature</code>
+  method, resulting in a signature, or creating a Digest (Hash) of the
+  <code>SignInput</code>. Since the createSignature method could be using
+  a remote REST service or remote Hardware Security Module for instance,
+  it is advisable to use the Digest method in most cases. The Digest
+  method can be run locally, so even if the createSignature method needs
+  to access remote resources, no information from the original
+  data/document would be sent across the wire. The digest method accepts a
+  <code>SignInput</code> object as parameter and results in another
+  <code>SignInput</code> object, with its sign method set to
+  <code>DIGEST</code> instead of the original method of
+  <code>DOCUMENT</code>.</p>
+<p>The <code>createSignature</code> method accepts the
+  <code>SignInput</code> object, which the signMode either being
+  <code>DOCUMENT</code> or <code>DIGEST</code>, depending on which method
+  was chosen. It is using the supplied ‘KeyEntry’ or Key kid string to
+  sign the input object. This can either be done locally or remotely
+  depending on the CertProvider implementation. The end result is a
+  <code>Signature</code> object.</p>
+<p>Lastly the <code>Signature</code> object needs to be merged with the
+  original Document. It really depends on the type of signature being used
+  how this is achieved. The document could for instance become part of the
+  signature (ENVELOPING), the signature could become part of the document
+  (ENVELOPED), or the signature could be detached (DETACHED)</p>
+<p>The picture below gives a schematic overview of the process</p>
+<figure>
+  <img alt="Signature Flow"
+       src="./resources/ades%20signature%20flow.png"/>
+  <figcaption aria-hidden="true">Signature Flow</figcaption>
+</figure>
+<p>It is possible to use multiple so called <em>SignatureServices</em>
+  with the same <em>CertificateProvider</em>. This allows for instance to
+  extract bytes and create a digest/hash from the input file locally,
+  while creating the signature using a REST API or Azure Keyvault for
+  instance. Then the signature is recombined with the original document
+  locally. The <em>createSignature</em> method and its counterpart
+  <em>verifySignature</em> methods are typically ran using a REST API,
+  Keyvault or locally with PKCS#11 hardware Certificate Providers. It is
+  up to the caller to determine whether creating the digest/hash, and
+  placing the signature in the input document also should run remotely or
+  not.</p>
+<p>For non Kotlin/Java environments we advise to setup the eIDAS
+  Signature REST Microservice on premise, which connects to PKCS#11
+  hardware, a QTSP or Azure Keyvault remotely. Then use the REST
+  endpoints, or use an SDK if available for your language. Please note
+  that these SDKs typically have little local processing functionality
+  unlike the Kotlin/Java library. The setup ensures that Personally
+  Identifiable Information (PII) or other sensitive information doesn’t
+  leave your premise, and that only the signature is being created
+  remotely from the Digest/Hash value. It also allows you to use
+  authentication and roles/authorization locally on a per certificate and
+  configuration level.</p>
+<h1 id="certificate-provider-service">Certificate Provider Service</h1>
+<p>The Certificate Provider Service allows to manage public/private keys
+  and Certificates using either a PKCS#12 keystore file as byte array or
+  filepath. It also has support for PKCS#11 hardware (HSM and USB cards)
+  as well as support for a Remote REST Certificate Provider and a Azure
+  Keyvault/Managed HSM Certificate Provider. Next to certificate/key
+  management a Certificate Provider also is responsible for creating and
+  verifying signatures themselves. Other operations, like creating a hash,
+  merging a signature into an input document are handled by a Signature
+  Service instead of the Certificate Provider. A Single Certificate
+  Provider can be shared by different Signature Services, as explained <a
+      href="#signature-flow">above</a></p>
+<p>Given the wide range of supported import/creation methods, this
+  library does not create or import certificates. Please use your method
+  of choice (see <a
+      href="#use-existing-tooling-to-create-a-certificate-and-keystore">below</a>
+  for some pointers).</p>
+<h2 id="pkcs12-keystore-certificate-provider-service">PKCS#12 Keystore
+  Certificate Provider Service</h2>
+<p>The below example in Kotlin sets up a certificate service using a
+  PKCS#12 keystore file at a certain path</p>
+<div class="sourceCode" id="cb1"><pre
+    class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb1-1"><a aria-hidden="true" href="#cb1-1" tabindex="-1"></a><span class="kw">val</span> <span
+    class="va">providerPath</span> <span class="op">=</span> <span class="st">&quot;path/to/pkcs12.p12&quot;</span></span>
+<span id="cb1-2"><a aria-hidden="true" href="#cb1-2" tabindex="-1"></a><span class="kw">val</span> <span class="va">passwordInputCallback</span> <span
+    class="op">=</span> PasswordInputCallback<span class="op">(</span>password <span class="op">=</span> <span
+    class="st">&quot;password&quot;</span><span class="op">.</span>toCharArray<span class="op">())</span></span>
+<span id="cb1-3"><a aria-hidden="true" href="#cb1-3" tabindex="-1"></a><span class="kw">val</span> <span class="va">providerConfig</span> <span
+    class="op">=</span> CertificateProviderConfig<span class="op">(</span></span>
+<span id="cb1-4"><a aria-hidden="true" href="#cb1-4" tabindex="-1"></a>    type <span class="op">=</span> CertificateProviderType<span
+    class="op">.</span>PKCS12<span class="op">,</span></span>
+<span id="cb1-5"><a aria-hidden="true" href="#cb1-5" tabindex="-1"></a>    pkcs12Parameters <span class="op">=</span> KeystoreParameters<span
+    class="op">(</span>providerPath<span class="op">)</span></span>
+<span id="cb1-6"><a aria-hidden="true" href="#cb1-6" tabindex="-1"></a><span class="op">)</span></span>
+<span id="cb1-7"><a aria-hidden="true" href="#cb1-7" tabindex="-1"></a><span class="kw">val</span> <span class="va">certProvider</span> <span
+    class="op">=</span> CertificateProviderService<span class="op">(</span></span>
+<span id="cb1-8"><a aria-hidden="true" href="#cb1-8" tabindex="-1"></a>    CertificateProviderSettings<span class="op">(</span></span>
+<span id="cb1-9"><a aria-hidden="true" href="#cb1-9" tabindex="-1"></a>        id <span class="op">=</span> <span class="st">&quot;my-pkcs12-provider&quot;</span><span
+    class="op">,</span></span>
+<span id="cb1-10"><a aria-hidden="true" href="#cb1-10" tabindex="-1"></a>        providerConfig<span class="op">,</span></span>
+<span id="cb1-11"><a aria-hidden="true" href="#cb1-11" tabindex="-1"></a>        passwordInputCallback</span>
+<span id="cb1-12"><a aria-hidden="true" href="#cb1-12" tabindex="-1"></a>    <span class="op">)</span></span>
+<span id="cb1-13"><a aria-hidden="true" href="#cb1-13" tabindex="-1"></a><span class="op">)</span></span></code></pre>
+</div>
+<h3
+    id="use-existing-tooling-to-create-a-certificate-and-pkcs12-keystore">Use
+  existing tooling to create a certificate and PKCS#12 keystore</h3>
+<p>How to generate and/or import X.509 certificates and PKCS#12
+  keystores is out of scope of this project, but we provide some hints
+  below. There are numerous resources on the internet to create X.509
+  certificates and PKCS#12 keystores.</p>
+<h4 id="creating-a-pkcs12-keystore-using-openssl">Creating a PKCS#12
+  keystore using OpenSSL</h4>
+<p>The private key and certificate must be in Privacy Enhanced Mail
+  (PEM) format (for example, base64-encoded with
+  <code>----BEGIN CERTIFICATE---- and ----END CERTIFICATE----</code>
+  headers and footers).</p>
+<p>Use the following OpenSSL commands to create a PKCS#12 file from your
+  private key and certificate. If you have one certificate, use the CA
+  root certificate.</p>
+<pre><code>openssl pkcs12 -export -in &lt;signed_cert_filename&gt; -inkey &lt;private_key_filename&gt; -name ‘tomcat’ -out keystore.p12</code></pre>
+<p>If you have a chain of certificates, combine the certificates into a
+  single file and use it for the input file, as shown below. The order of
+  certificates must be from server certificate to the CA root
+  certificate.</p>
+<p>See RFC 2246 section 7.4.2 for more information about this order.</p>
+<pre><code>cat &lt;signed_cert_filename&gt; &lt;intermediate.cert&gt; [&lt;intermediate2.cert&gt;] &gt; cert-chain.txt
+openssl pkcs12 -export -in cert-chain.txt -inkey &lt;private_key_filename&gt; -name ‘tomcat’ -out keystore.p12</code></pre>
+<p>When prompted, provide a password for the new keystore.</p>
+<h2
+    id="pkcs11-hardware-security-module-and-card-based-certificate-provider-service">PKCS#11
+  Hardware Security Module and Card based Certificate Provider
+  Service</h2>
+<p>The PKCS#11 Certificate Provider allows you to use Hardware Security
+  Based solutions that can interact using a PKCS#11 interface. It needs
+  access to the driver library in order to operate.</p>
+<div class="sourceCode" id="cb4"><pre
+    class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb4-1"><a aria-hidden="true" href="#cb4-1" tabindex="-1"></a><span class="kw">val</span> <span
+    class="va">passwordInputCallback</span> <span class="op">=</span> PasswordInputCallback<span class="op">(</span>password <span class="op">=</span> <span
+    class="st">&quot;password&quot;</span><span class="op">.</span>toCharArray<span class="op">())</span></span>
+<span id="cb4-2"><a aria-hidden="true" href="#cb4-2" tabindex="-1"></a><span class="kw">val</span> <span class="va">providerConfig</span> <span
+    class="op">=</span> CertificateProviderConfig<span class="op">(</span></span>
+<span id="cb4-3"><a aria-hidden="true" href="#cb4-3" tabindex="-1"></a>    type <span class="op">=</span> CertificateProviderType<span
+    class="op">.</span>PKCS11<span class="op">,</span></span>
+<span id="cb4-4"><a aria-hidden="true" href="#cb4-4" tabindex="-1"></a>    pkcs11Parameters <span class="op">=</span> Pkcs11Parameters<span
+    class="op">(</span></span>
+<span id="cb4-5"><a aria-hidden="true" href="#cb4-5" tabindex="-1"></a>        pkcs11LibraryPath <span class="op">=</span> <span class="st">&quot;/usr/lib/opensc-pkcs11.so&quot;</span><span
+    class="op">,</span> <span class="co">// The PKCS11 driver path</span></span>
+<span id="cb4-6"><a aria-hidden="true" href="#cb4-6" tabindex="-1"></a>        slotId <span class="op">=</span> <span class="dv">0</span><span
+    class="op">,</span></span>
+<span id="cb4-7"><a aria-hidden="true" href="#cb4-7" tabindex="-1"></a>        slotListIndex <span class="op">=</span> <span
+    class="dv">2</span></span>
+<span id="cb4-8"><a aria-hidden="true" href="#cb4-8" tabindex="-1"></a>    <span class="op">)</span></span>
+<span id="cb4-9"><a aria-hidden="true" href="#cb4-9" tabindex="-1"></a><span class="op">)</span></span>
+<span id="cb4-10"><a aria-hidden="true" href="#cb4-10" tabindex="-1"></a><span class="kw">val</span> <span class="va">certProvider</span> <span
+    class="op">=</span> CertificateProviderService<span class="op">(</span></span>
+<span id="cb4-11"><a aria-hidden="true" href="#cb4-11" tabindex="-1"></a>    CertificateProviderSettings<span class="op">(</span></span>
+<span id="cb4-12"><a aria-hidden="true" href="#cb4-12" tabindex="-1"></a>        id <span class="op">=</span> <span class="st">&quot;my-pkcs11-provider&quot;</span><span
+    class="op">,</span></span>
+<span id="cb4-13"><a aria-hidden="true" href="#cb4-13" tabindex="-1"></a>        providerConfig<span class="op">,</span></span>
+<span id="cb4-14"><a aria-hidden="true" href="#cb4-14" tabindex="-1"></a>        passwordInputCallback</span>
+<span id="cb4-15"><a aria-hidden="true" href="#cb4-15" tabindex="-1"></a>    <span class="op">)</span></span>
+<span id="cb4-16"><a aria-hidden="true" href="#cb4-16" tabindex="-1"></a><span class="op">)</span></span></code></pre>
+</div>
+<div class="sourceCode" id="cb5"><pre
+    class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb5-1"><a aria-hidden="true" href="#cb5-1" tabindex="-1"></a><span class="kw">class</span> Pkcs11Parameters<span
+    class="op">(</span></span>
+<span id="cb5-2"><a aria-hidden="true" href="#cb5-2" tabindex="-1"></a>    /** <span class="va">The</span> <span class="va">path</span> <span
+    class="va">to</span> <span class="va">the</span> <span class="va">library</span>  */</span>
+<span id="cb5-3"><a aria-hidden="true" href="#cb5-3" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">pkcs11LibraryPath</span><span
+    class="op">:</span> <span class="dt">String</span><span class="op">?</span> <span class="op">=</span> null<span class="op">,</span></span>
+<span id="cb5-4"><a aria-hidden="true" href="#cb5-4" tabindex="-1"></a></span>
+<span id="cb5-5"><a aria-hidden="true" href="#cb5-5" tabindex="-1"></a>    /** <span class="va">The</span> <span class="va">callback</span> <span
+    class="va">to</span> <span class="va">enter</span> <span class="va">a</span> <span class="va">password</span>/<span class="va">pincode</span>  */</span>
+<span id="cb5-6"><a aria-hidden="true" href="#cb5-6" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">callback</span><span
+    class="op">:</span> <span class="dt">PasswordInputCallback</span><span class="op">?</span> <span class="op">=</span> null<span class="op">,</span></span>
+<span id="cb5-7"><a aria-hidden="true" href="#cb5-7" tabindex="-1"></a></span>
+<span id="cb5-8"><a aria-hidden="true" href="#cb5-8" tabindex="-1"></a>    /** <span class="va">The</span> <span class="va">slot</span> <span
+    class="va">Id</span> <span class="va">to</span> <span class="va">use</span>  */</span>
+<span id="cb5-9"><a aria-hidden="true" href="#cb5-9" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">slotId</span><span class="op">:</span> <span
+    class="dt">Int</span><span class="op">?</span> <span class="op">=</span> <span class="dv">0</span><span class="op">,</span></span>
+<span id="cb5-10"><a aria-hidden="true" href="#cb5-10" tabindex="-1"></a></span>
+<span id="cb5-11"><a aria-hidden="true" href="#cb5-11" tabindex="-1"></a>    /** <span class="va">The</span> <span class="va">slot</span> <span
+    class="va">list</span> <span class="va">index</span> <span class="va">to</span> <span class="va">use</span>  */</span>
+<span id="cb5-12"><a aria-hidden="true" href="#cb5-12" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">slotListIndex</span><span
+    class="op">:</span> <span class="dt">Int</span><span class="op">?</span> <span class="op">=</span> -<span class="dv">1</span><span
+    class="op">,</span></span>
+<span id="cb5-13"><a aria-hidden="true" href="#cb5-13" tabindex="-1"></a></span>
+<span id="cb5-14"><a aria-hidden="true" href="#cb5-14" tabindex="-1"></a>    /** <span class="va">Additional</span> <span
+    class="va">PKCS11</span> <span class="va">config</span>  */</span>
+<span id="cb5-15"><a aria-hidden="true" href="#cb5-15" tabindex="-1"></a>    <span class="kw">val</span> <span
+    class="va">extraPkcs11Config</span><span class="op">:</span> <span class="dt">String</span><span class="op">?</span> <span class="op">=</span> null</span>
+<span id="cb5-16"><a aria-hidden="true" href="#cb5-16" tabindex="-1"></a><span class="op">)</span></span></code></pre>
+</div>
+<h2
+    id="azure-keyvault-or-managed-hsm-certificate-provider-service">Azure
+  Keyvault or Managed HSM Certificate Provider Service</h2>
+<p>An Azure Keyvault Certificate Provider uses Azure Keyvault and Azure
+  Managed HSM to retrieve certificates, create the Signature and verify a
+  signature. The below example in Kotlin sets up a Certificate Service
+  using Azure Keyvault or Azure Managed HSM. Both Keyvault and Managed HSM
+  support Hardware Security Modules. The Managed HSM service is
+  Microsoft’s solution for an HSM not shared with other
+  customers/tenants.</p>
+<p><strong>Note:</strong> <em>Although the Azure Certificate Provider
+  should work with Azure Managed HSM, the library is not being tested
+  against Azure Managed HSM, as opposed to Azure Keyvault.</em></p>
+<div class="sourceCode" id="cb6"><pre
+    class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb6-1"><a aria-hidden="true" href="#cb6-1" tabindex="-1"></a><span class="kw">val</span> <span
+    class="va">providerConfig</span> <span class="op">=</span> CertificateProviderConfig<span class="op">(</span></span>
+<span id="cb6-2"><a aria-hidden="true" href="#cb6-2" tabindex="-1"></a>    type <span class="op">=</span> CertificateProviderType<span
+    class="op">.</span>AZURE_KEYVAULT</span>
+<span id="cb6-3"><a aria-hidden="true" href="#cb6-3" tabindex="-1"></a><span class="op">)</span></span>
+<span id="cb6-4"><a aria-hidden="true" href="#cb6-4" tabindex="-1"></a><span class="kw">val</span> <span class="va">keyvaultConfig</span> <span
+    class="op">=</span> AzureKeyvaultClientConfig<span class="op">(</span></span>
+<span id="cb6-5"><a aria-hidden="true" href="#cb6-5" tabindex="-1"></a>    keyvaultUrl <span class="op">=</span> <span class="st">&quot;https://your-keyvault-here.vault.azure.net/&quot;</span><span
+    class="op">,</span></span>
+<span id="cb6-6"><a aria-hidden="true" href="#cb6-6" tabindex="-1"></a>    tenantId <span class="op">=</span> <span class="st">&quot;&lt;your-directory-id-as-shown-in-keyvault-properties&gt;&quot;</span><span
+    class="op">,</span></span>
+<span id="cb6-7"><a aria-hidden="true" href="#cb6-7" tabindex="-1"></a>    credentialOpts <span class="op">=</span> CredentialOpts<span
+    class="op">(</span></span>
+<span id="cb6-8"><a aria-hidden="true" href="#cb6-8" tabindex="-1"></a>        credentialMode <span class="op">=</span> CredentialMode<span
+    class="op">.</span>SERVICE_CLIENT_SECRET<span class="op">,</span> <span class="co">// Use a client id and secret to authenticate as an app</span></span>
+<span id="cb6-9"><a aria-hidden="true" href="#cb6-9" tabindex="-1"></a>        secretCredentialOpts <span
+    class="op">=</span> SecretCredentialOpts<span class="op">(</span></span>
+<span id="cb6-10"><a aria-hidden="true" href="#cb6-10" tabindex="-1"></a>            clientId <span class="op">=</span> <span class="st">&quot;&lt;client id which has access to keyvault&gt;&quot;</span><span
+    class="op">,</span></span>
+<span id="cb6-11"><a aria-hidden="true" href="#cb6-11" tabindex="-1"></a>            clientSecret <span class="op">=</span> <span class="st">&quot;&lt;client secret belonging to client id&gt;&quot;</span></span>
+<span id="cb6-12"><a aria-hidden="true" href="#cb6-12" tabindex="-1"></a>        <span class="op">)</span></span>
+<span id="cb6-13"><a aria-hidden="true" href="#cb6-13" tabindex="-1"></a>    <span class="op">),</span></span>
+<span id="cb6-14"><a aria-hidden="true" href="#cb6-14" tabindex="-1"></a>    hsmType <span class="op">=</span> HSMType<span class="op">.</span>KEYVAULT<span
+    class="op">,</span> <span class="co">// Either KEYVAULT as HSM (FIPS140 Level-2), or MANAGED_HSM</span></span>
+<span id="cb6-15"><a aria-hidden="true" href="#cb6-15" tabindex="-1"></a>    applicationId <span class="op">=</span> <span class="st">&quot;your-application-id-or-name&quot;</span><span
+    class="op">,</span> <span class="co">// This can be randomly choosen</span></span>
+<span id="cb6-16"><a aria-hidden="true" href="#cb6-16" tabindex="-1"></a>    exponentialBackoffRetryOpts <span class="op">=</span> ExponentialBackoffRetryOpts<span
+    class="op">(</span></span>
+<span id="cb6-17"><a aria-hidden="true" href="#cb6-17" tabindex="-1"></a>        maxTries <span class="op">=</span> <span class="dv">10</span><span
+    class="op">,</span> <span class="co">// let&#39;s try max 10 times</span></span>
+<span id="cb6-18"><a aria-hidden="true" href="#cb6-18" tabindex="-1"></a>        baseDelayInMS <span class="op">=</span> <span
+    class="dv">500</span><span class="op">,</span> <span class="co">// Wait 0,5 seconds the first time</span></span>
+<span id="cb6-19"><a aria-hidden="true" href="#cb6-19" tabindex="-1"></a>        maxDelayInMS <span class="op">=</span> <span class="dv">15000</span> <span
+    class="co">// Wait for max 15 seconds eventually</span></span>
+<span id="cb6-20"><a aria-hidden="true" href="#cb6-20" tabindex="-1"></a>    <span class="op">)</span></span>
+<span id="cb6-21"><a aria-hidden="true" href="#cb6-21" tabindex="-1"></a><span class="op">)</span></span>
+<span id="cb6-22"><a aria-hidden="true" href="#cb6-22" tabindex="-1"></a></span>
+<span id="cb6-23"><a aria-hidden="true" href="#cb6-23" tabindex="-1"></a><span class="kw">val</span> <span class="va">providerSettings</span> <span
+    class="op">=</span> CertificateProviderSettings<span class="op">(</span></span>
+<span id="cb6-24"><a aria-hidden="true" href="#cb6-24" tabindex="-1"></a>    id <span class="op">=</span> <span class="st">&quot;my-keyvault-provider&quot;</span><span
+    class="op">,</span></span>
+<span id="cb6-25"><a aria-hidden="true" href="#cb6-25" tabindex="-1"></a>    providerConfig</span>
+<span id="cb6-26"><a aria-hidden="true" href="#cb6-26" tabindex="-1"></a><span class="op">)</span></span>
+<span id="cb6-27"><a aria-hidden="true" href="#cb6-27" tabindex="-1"></a></span>
+<span id="cb6-28"><a aria-hidden="true" href="#cb6-28" tabindex="-1"></a><span class="co">// From a factory</span></span>
+<span id="cb6-29"><a aria-hidden="true" href="#cb6-29" tabindex="-1"></a><span class="kw">var</span> <span class="va">certProvider</span> <span
+    class="op">=</span> CertificateProviderServiceFactory<span class="op">.</span>createFromConfig<span class="op">(</span>settings <span
+    class="op">=</span> providerSettings<span class="op">,</span> azureKeyvaultClientConfig <span class="op">=</span> keyvaultConfig<span
+    class="op">)</span></span>
+<span id="cb6-30"><a aria-hidden="true" href="#cb6-30" tabindex="-1"></a></span>
+<span id="cb6-31"><a aria-hidden="true" href="#cb6-31" tabindex="-1"></a></span>
+<span id="cb6-32"><a aria-hidden="true" href="#cb6-32" tabindex="-1"></a><span class="co">// Or directly:</span></span>
+<span id="cb6-33"><a aria-hidden="true" href="#cb6-33" tabindex="-1"></a>certProvider <span class="op">=</span> AzureKeyvaultCertificateProviderService<span
+    class="op">(</span>providerSettings<span class="op">,</span> keyvaultConfig<span class="op">)</span></span></code></pre>
+</div>
+<h2 id="rest-certificate-provider">REST Certificate Provider</h2>
+<p>The REST Certificate Provider uses REST to get Keys/Certificates It
+  also exposes the createSignature and verifySignature methods as REST
+  endpoints. Lastly other methods like creating a digest,
+  determineSignInput and placing the signature in the original document
+  could also be executed remotely if desired. This is however handled by
+  the RESTSignatureService.</p>
+<h3 id="authentication-and-authorization-support">Authentication and
+  Authorization support</h3>
+<p>The REST Certificate Provider has OAuth2, OpenID Connect and bearer
+  token support integrated.</p>
+<h4 id="oauth2-support">OAuth2 support</h4>
+<p>The REST Certificate Provider client has support for oAuth2 and by
+  extension OpenID Connect. Access to the OAuth2 functionality can be
+  achieved by invoking the <code>oauth()</code> method on the REST
+  Certificate Provider after providing the appropriate configuration:</p>
+<div class="sourceCode" id="cb7"><pre
+    class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb7-1"><a aria-hidden="true" href="#cb7-1" tabindex="-1"></a><span class="kw">val</span> <span
+    class="va">certProviderSettings</span> <span class="op">=</span> CertificateProviderSettings<span class="op">(</span></span>
+<span id="cb7-2"><a aria-hidden="true" href="#cb7-2" tabindex="-1"></a>    id <span class="op">=</span> <span
+    class="st">&quot;rest-oauth2&quot;</span><span class="op">,</span></span>
+<span id="cb7-3"><a aria-hidden="true" href="#cb7-3" tabindex="-1"></a>    config <span class="op">=</span> CertificateProviderConfig<span class="op">(</span></span>
+<span id="cb7-4"><a aria-hidden="true" href="#cb7-4" tabindex="-1"></a>        cacheEnabled <span class="op">=</span> <span
+    class="kw">true</span><span class="op">,</span></span>
+<span id="cb7-5"><a aria-hidden="true" href="#cb7-5" tabindex="-1"></a>        type <span class="op">=</span> CertificateProviderType<span class="op">.</span>REST<span
+    class="op">,</span></span>
+<span id="cb7-6"><a aria-hidden="true" href="#cb7-6" tabindex="-1"></a>    <span class="op">)</span></span>
+<span id="cb7-7"><a aria-hidden="true" href="#cb7-7" tabindex="-1"></a><span class="op">)</span></span>
+<span id="cb7-8"><a aria-hidden="true" href="#cb7-8" tabindex="-1"></a><span class="kw">val</span> <span class="va">restConfig</span> <span
+    class="op">=</span> RestClientConfig<span class="op">(</span></span>
+<span id="cb7-9"><a aria-hidden="true" href="#cb7-9" tabindex="-1"></a>    baseUrl <span class="op">=</span> <span class="st">&quot;https://example.rest.service/signature/1.0&quot;</span><span
+    class="op">,</span></span>
+<span id="cb7-10"><a aria-hidden="true" href="#cb7-10" tabindex="-1"></a>    oauth2 <span class="op">=</span> OAuth2Config<span
+    class="op">(</span></span>
+<span id="cb7-11"><a aria-hidden="true" href="#cb7-11" tabindex="-1"></a>        tokenUrl <span class="op">=</span> <span class="st">&quot;https://example.auth-server.com/auth/realms/sign-test/protocol/openid-connect/token&quot;</span><span
+    class="op">,</span></span>
+<span id="cb7-12"><a aria-hidden="true" href="#cb7-12" tabindex="-1"></a>        flow <span class="op">=</span> OAuthFlow<span class="op">.</span>APPLICATION<span
+    class="op">,</span>       <span class="co">// Use a clientId/clientSecret</span></span>
+<span id="cb7-13"><a aria-hidden="true" href="#cb7-13" tabindex="-1"></a>        scope <span class="op">=</span> <span class="st">&quot;sign:vdx_sign_cert&quot;</span><span
+    class="op">,</span>       <span class="co">// Request scope, see scope chapter below</span></span>
+<span id="cb7-14"><a aria-hidden="true" href="#cb7-14" tabindex="-1"></a>        clientId <span class="op">=</span> <span class="st">&quot;&lt;client-id&gt;&quot;</span><span
+    class="op">,</span>           <span class="co">// Provided by the IDP administrator</span></span>
+<span id="cb7-15"><a aria-hidden="true" href="#cb7-15" tabindex="-1"></a>        clientSecret <span class="op">=</span> <span class="st">&quot;&lt;client-secret&gt;&quot;</span><span
+    class="op">,</span>   <span class="co">// Provided by the IDP administrator</span></span>
+<span id="cb7-16"><a aria-hidden="true" href="#cb7-16" tabindex="-1"></a>        accessToken <span class="op">=</span> <span class="st">&quot;ey....&quot;</span>              <span
+    class="co">// Typicaly should not be included. Can be used instead of clientId/secret when a static token is being used for instance</span></span>
+<span id="cb7-17"><a aria-hidden="true" href="#cb7-17" tabindex="-1"></a>    <span class="op">)</span></span>
+<span id="cb7-18"><a aria-hidden="true" href="#cb7-18" tabindex="-1"></a><span class="op">)</span></span>
+<span id="cb7-19"><a aria-hidden="true" href="#cb7-19" tabindex="-1"></a></span>
+<span id="cb7-20"><a aria-hidden="true" href="#cb7-20" tabindex="-1"></a><span class="kw">val</span> <span
+    class="va">restCertificateProvider</span> <span class="op">=</span> RestCertificateProviderService<span
+    class="op">(</span>certProviderSettings<span class="op">,</span> restConfig<span class="op">)</span></span>
+<span id="cb7-21"><a aria-hidden="true" href="#cb7-21" tabindex="-1"></a><span class="co">// Use the respective methods to get certificate or sign at this point. It will use oAuth2 to request a token and refresh tokens</span></span>
+<span id="cb7-22"><a aria-hidden="true" href="#cb7-22" tabindex="-1"></a></span>
+<span id="cb7-23"><a aria-hidden="true" href="#cb7-23" tabindex="-1"></a><span class="co">// If oauth2 access is needed the oauth() method can be used. For instance to renew the access token</span></span>
+<span id="cb7-24"><a aria-hidden="true" href="#cb7-24" tabindex="-1"></a>restCertificateProvider<span class="op">.</span>oauth<span
+    class="op">().</span>renewAccessToken<span class="op">()</span></span>
+<span id="cb7-25"><a aria-hidden="true" href="#cb7-25" tabindex="-1"></a></span>
+<span id="cb7-26"><a aria-hidden="true" href="#cb7-26" tabindex="-1"></a><span class="co">// From this point on requests will use the new token</span></span></code></pre>
+</div>
+<h4 id="bearer-token-and-jwt-support">Bearer Token and JWT support</h4>
+<p>The REST Certificate Provider client has support to include bearer
+  tokens (JWTs) in the authentication header. Access to the JWT
+  functionality can be achieved by invoking the bearerAuth() method on the
+  REST Certificate Provider after providing the appropriate
+  configuration:</p>
+<div class="sourceCode" id="cb8"><pre
+    class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb8-1"><a aria-hidden="true" href="#cb8-1" tabindex="-1"></a><span class="kw">val</span> <span
+    class="va">certProviderSettings</span> <span class="op">=</span> CertificateProviderSettings<span class="op">(</span></span>
+<span id="cb8-2"><a aria-hidden="true" href="#cb8-2" tabindex="-1"></a>    id <span class="op">=</span> <span
+    class="st">&quot;rest-bearer&quot;</span><span class="op">,</span></span>
+<span id="cb8-3"><a aria-hidden="true" href="#cb8-3" tabindex="-1"></a>    config <span class="op">=</span> CertificateProviderConfig<span class="op">(</span></span>
+<span id="cb8-4"><a aria-hidden="true" href="#cb8-4" tabindex="-1"></a>        cacheEnabled <span class="op">=</span> <span
+    class="kw">true</span><span class="op">,</span></span>
+<span id="cb8-5"><a aria-hidden="true" href="#cb8-5" tabindex="-1"></a>        type <span class="op">=</span> CertificateProviderType<span class="op">.</span>REST<span
+    class="op">,</span></span>
+<span id="cb8-6"><a aria-hidden="true" href="#cb8-6" tabindex="-1"></a>    <span class="op">)</span></span>
+<span id="cb8-7"><a aria-hidden="true" href="#cb8-7" tabindex="-1"></a><span class="op">)</span></span>
+<span id="cb8-8"><a aria-hidden="true" href="#cb8-8" tabindex="-1"></a><span class="kw">val</span> <span class="va">restConfig</span> <span
+    class="op">=</span> RestClientConfig<span class="op">(</span></span>
+<span id="cb8-9"><a aria-hidden="true" href="#cb8-9" tabindex="-1"></a>    baseUrl <span class="op">=</span> <span class="st">&quot;https://example.rest.service/signature/1.0&quot;</span><span
+    class="op">,</span></span>
+<span id="cb8-10"><a aria-hidden="true" href="#cb8-10" tabindex="-1"></a>    bearerAuth <span class="op">=</span> BearerTokenConfig<span
+    class="op">(</span></span>
+<span id="cb8-11"><a aria-hidden="true" href="#cb8-11" tabindex="-1"></a>        schema <span class="op">=</span> <span
+    class="st">&quot;bearer&quot;</span><span class="op">,</span> <span class="co">// Can be omitted as it is the default</span></span>
+<span id="cb8-12"><a aria-hidden="true" href="#cb8-12" tabindex="-1"></a>        bearerToken <span class="op">=</span> <span class="st">&quot;ey.....ffd&quot;</span> <span
+    class="co">// Usefull to set an initial token or when the token is static</span></span>
+<span id="cb8-13"><a aria-hidden="true" href="#cb8-13" tabindex="-1"></a>    <span class="op">)</span></span>
+<span id="cb8-14"><a aria-hidden="true" href="#cb8-14" tabindex="-1"></a><span class="op">)</span></span>
+<span id="cb8-15"><a aria-hidden="true" href="#cb8-15" tabindex="-1"></a></span>
+<span id="cb8-16"><a aria-hidden="true" href="#cb8-16" tabindex="-1"></a><span class="kw">val</span> <span
+    class="va">restCertificateProvider</span> <span class="op">=</span> RestCertificateProviderService<span
+    class="op">(</span>certProviderSettings<span class="op">,</span> restConfig<span class="op">)</span></span>
+<span id="cb8-17"><a aria-hidden="true" href="#cb8-17" tabindex="-1"></a><span class="co">// Use the respective methods to get certificate or sign at this point. It will use the bearer token in every request</span></span>
+<span id="cb8-18"><a aria-hidden="true" href="#cb8-18" tabindex="-1"></a></span>
+<span id="cb8-19"><a aria-hidden="true" href="#cb8-19" tabindex="-1"></a><span class="co">// If the bearer token needs to be updated</span></span>
+<span id="cb8-20"><a aria-hidden="true" href="#cb8-20" tabindex="-1"></a>restCertificateProvider<span class="op">.</span>bearerAuth<span class="op">().</span>bearerToken <span
+    class="op">=</span> <span class="st">&quot;ey.....&lt;updated.bearer.token&gt;...&quot;</span></span>
+<span id="cb8-21"><a aria-hidden="true" href="#cb8-21" tabindex="-1"></a></span>
+<span id="cb8-22"><a aria-hidden="true" href="#cb8-22" tabindex="-1"></a><span class="co">// From this point on requests will use the new token</span></span></code></pre>
+</div>
+<h4 id="oauth2-openid-scopes">OAuth2, OpenID Scopes</h4>
+<p>The REST Microservice can be configured to support scopes. It is
+  supported for both OAuth2 and OpenID Connect. Scopes are optional and
+  when enabled, protect the API endpoints from users not having access to
+  a certain scope at an endpoint level.</p>
+<p>The available scopes are:</p>
+<ul>
+  <li><strong>read:vdx_sign_cert</strong>: Read/List certificates</li>
+  <li><strong>admin:vdx_sign_cert</strong>: Administer certificated</li>
+  <li><strong>sign:vdx_sign_cert</strong>: Sign using certificates</li>
+  <li><strong>read:vdx_sign_config</strong>: Read configurations</li>
+  <li><strong>admin:vdx_sign_config</strong>: Create and update
+    configurations
+  </li>
+</ul>
+<p>Please note that this doesn’t provide protection at an individual
+  configuration nor certificate level. For these there is role support.
+  The eIDAS REST MS documentation provides more info on this subject.</p>
+<p>To enable scopes, you have to use your IAM solution of choice which
+  supports oAuth2 or OpenID Connect and ensure that the appropriate scopes
+  are requested from the IAM solution. How this works is different per IAM
+  and outside the scope of this README.</p>
+<p>The REST Certificate Provider can set the scopes before requesting
+  the tokens using the configuration as shown <a
+      href="#oauth2-support">above</a>. You can also programaticaly set the
+  scopes:</p>
+<div class="sourceCode" id="cb9"><pre
+    class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb9-1"><a aria-hidden="true" href="#cb9-1" tabindex="-1"></a>restCertificateProvider<span
+    class="op">.</span>oauth<span class="op">()..</span>setScope<span class="op">(</span><span class="st">&quot;sign:vdx_sign_cert&quot;</span><span
+    class="op">)</span></span></code></pre>
+</div>
+<h4 id="roles-support">Roles support</h4>
+<p>The REST Microservice has role based support. It is possible to
+  define roles on individual configurations as well as individual
+  certificates. Meaning you can define which roles and thus users/groups
+  can access and administer certain signing configurations, as well as
+  which users/groups can sign using a particular certificate. This is more
+  finegrained than using the scopes above. Of course both could be used
+  together if desired. The use of roles is explained in the Micro Service
+  documentation. How roles should be made available to the JWT/bearer
+  tokens is outside the scope of this README.</p>
+<h2 id="certificate-provider-caching">Certificate Provider caching</h2>
+<p>Especially for remote Certificate Providers like the REST, Azure and
+  PKCS#11 Certificate Providers it might make sense to enable
+  Key/Certificate caching. This means that a key which has been retrieved
+  recently and which has not hit the configured Time to Live yet, will be
+  returned from the local cache, improving performance. Please be aware
+  that this library is not involved in updating or replacing keys as these
+  are highly implementation specific. As such providing a really high TTL
+  could return a stale Key/Certificate if the Key had been replaced for a
+  certain kid value. Given keys/certificates are not replaced that often
+  in practice this shouldn’t be too much of a problem. Please note that
+  the actual signing using a key/certificate is rarely done using a cached
+  key/certificate itself, given the private key is seldomly included. The
+  <code>createSignature</code> method typically isn’t involved in the
+  caching mechanism.</p>
+<div class="sourceCode" id="cb10"><pre
+    class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb10-1"><a aria-hidden="true" href="#cb10-1" tabindex="-1"></a>CertProviderConfig<span
+    class="op">(</span></span>
+<span id="cb10-2"><a aria-hidden="true" href="#cb10-2" tabindex="-1"></a>    cacheEnabled <span class="op">=</span> <span class="kw">true</span><span
+    class="op">,</span> <span
+    class="co">// Enable caching of keys/certificates. Requires a JSR107 Cache implementation on the classpath! */</span></span>
+<span id="cb10-3"><a aria-hidden="true" href="#cb10-3" tabindex="-1"></a>    cacheTTLInSeconds <span class="op">=</span> <span
+    class="dv">600</span><span class="op">,</span> <span class="co">// How long in seconds should certificates be kept in the cache since last access. Default: 5 min</span></span>
+<span id="cb10-4"><a aria-hidden="true" href="#cb10-4" tabindex="-1"></a><span class="op">)</span></span></code></pre>
+</div>
+<h2 id="list-keys-certificates">List keys, certificates</h2>
+<p>To list all available certificates of the provider one can use the
+  getKeys() method. A list of IKeyEntry objects is being returned. The
+  interface does not expose private keys, as developers typically should
+  not access the private key directly and not every supported
+  implementation gives access to private keys. If you are sure that key
+  contains private keys, you can cas the result to IPrivateKeyEntry.</p>
+<div class="sourceCode" id="cb11"><pre
+    class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb11-1"><a aria-hidden="true" href="#cb11-1" tabindex="-1"></a><span
+    class="kw">val</span> <span class="va">keys</span> <span class="op">=</span> certProvider<span class="op">.</span>getKeys<span
+    class="op">()</span></span>
+<span id="cb11-2"><a aria-hidden="true" href="#cb11-2" tabindex="-1"></a>println<span class="op">(</span>Json <span
+    class="op">{</span> prettyPrint <span class="op">=</span> <span class="kw">true</span><span class="op">;</span> serializersModule <span
+    class="op">=</span> serializers <span class="op">}.</span>encodeToString<span class="op">(</span>keys<span
+    class="op">))</span></span></code></pre>
+</div>
+<div class="sourceCode" id="cb12"><pre
+    class="sourceCode json"><code class="sourceCode json"><span id="cb12-1"><a aria-hidden="true" href="#cb12-1" tabindex="-1"></a><span
+    class="ot">[</span></span>
+<span id="cb12-2"><a aria-hidden="true" href="#cb12-2" tabindex="-1"></a>  <span class="fu">{</span></span>
+<span id="cb12-3"><a aria-hidden="true" href="#cb12-3" tabindex="-1"></a>    <span class="dt">&quot;type&quot;</span><span class="fu">:</span> <span
+    class="st">&quot;PrivateKeyEntry&quot;</span><span class="fu">,</span></span>
+<span id="cb12-4"><a aria-hidden="true" href="#cb12-4" tabindex="-1"></a>    <span class="dt">&quot;kid&quot;</span><span class="fu">:</span> <span
+    class="st">&quot;test-key&quot;</span><span class="fu">,</span></span>
+<span id="cb12-5"><a aria-hidden="true" href="#cb12-5" tabindex="-1"></a>    <span class="dt">&quot;privateKey&quot;</span><span
+    class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb12-6"><a aria-hidden="true" href="#cb12-6" tabindex="-1"></a>      <span class="dt">&quot;algorithm&quot;</span><span class="fu">:</span> <span
+    class="st">&quot;RSA&quot;</span><span class="fu">,</span></span>
+<span id="cb12-7"><a aria-hidden="true" href="#cb12-7" tabindex="-1"></a>      <span class="dt">&quot;value&quot;</span><span
+    class="fu">:</span> <span class="st">&quot;MIIJRAIBAD....lpe53o2VXP&quot;</span><span class="fu">,</span></span>
+<span id="cb12-8"><a aria-hidden="true" href="#cb12-8" tabindex="-1"></a>      <span class="dt">&quot;format&quot;</span><span
+    class="fu">:</span> <span class="st">&quot;PKCS#8&quot;</span></span>
+<span id="cb12-9"><a aria-hidden="true" href="#cb12-9" tabindex="-1"></a>    <span class="fu">},</span></span>
+<span id="cb12-10"><a aria-hidden="true" href="#cb12-10" tabindex="-1"></a>    <span class="dt">&quot;encryptionAlgorithm&quot;</span><span
+    class="fu">:</span> <span class="st">&quot;RSA&quot;</span><span class="fu">,</span></span>
+<span id="cb12-11"><a aria-hidden="true" href="#cb12-11" tabindex="-1"></a>    <span class="dt">&quot;certificate&quot;</span><span
+    class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb12-12"><a aria-hidden="true" href="#cb12-12" tabindex="-1"></a>      <span class="dt">&quot;value&quot;</span><span
+    class="fu">:</span> <span class="st">&quot;MIIE...ybsgEkgc=&quot;</span></span>
+<span id="cb12-13"><a aria-hidden="true" href="#cb12-13" tabindex="-1"></a>    <span class="fu">},</span></span>
+<span id="cb12-14"><a aria-hidden="true" href="#cb12-14" tabindex="-1"></a>    <span class="dt">&quot;certificateChain&quot;</span><span
+    class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb12-15"><a aria-hidden="true" href="#cb12-15" tabindex="-1"></a>      <span class="fu">{</span></span>
+<span id="cb12-16"><a aria-hidden="true" href="#cb12-16" tabindex="-1"></a>        <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span
+    class="st">&quot;MIIE...ybsgEkgc=&quot;</span></span>
+<span id="cb12-17"><a aria-hidden="true" href="#cb12-17" tabindex="-1"></a>      <span class="fu">}</span></span>
+<span id="cb12-18"><a aria-hidden="true" href="#cb12-18" tabindex="-1"></a>    <span class="ot">]</span></span>
+<span id="cb12-19"><a aria-hidden="true" href="#cb12-19" tabindex="-1"></a>  <span class="fu">}</span></span>
+<span id="cb12-20"><a aria-hidden="true" href="#cb12-20" tabindex="-1"></a><span class="ot">]</span></span></code></pre>
+</div>
+<h2 id="get-a-keycertificate-by-kid">Get a key/certificate by
+  kid</h2>
+<p>Use the geKey(kid: String) method to get a single certificate
+  IKeyEntry object by kid if it exists. If it does not exist null is
+  being returned. The IKeyEntry interface does not expose private keys, as
+  developers typically should not access the private key directly and not
+  every supported implementation gives access to private keys. If you are
+  sure that key contains private keys, you can cast the result to
+  IPrivateKeyEntry. Make sure to never sent private keys accoss
+  unprotected network connections!</p>
+<div class="sourceCode" id="cb13"><pre
+    class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb13-1"><a aria-hidden="true" href="#cb13-1" tabindex="-1"></a><span
+    class="kw">val</span> <span class="va">key</span> <span class="op">=</span> certProvider<span class="op">.</span>getKey<span
+    class="op">(</span><span class="st">&quot;test-key&quot;</span><span class="op">)</span></span>
+<span id="cb13-2"><a aria-hidden="true" href="#cb13-2" tabindex="-1"></a>println<span class="op">(</span>Json <span
+    class="op">{</span> prettyPrint <span class="op">=</span> <span class="kw">true</span><span class="op">;</span> serializersModule <span
+    class="op">=</span> serializers <span class="op">}.</span>encodeToString<span class="op">(</span>key<span class="op">))</span></span></code></pre>
+</div>
+<div class="sourceCode" id="cb14"><pre
+    class="sourceCode json"><code class="sourceCode json"><span id="cb14-1"><a aria-hidden="true" href="#cb14-1" tabindex="-1"></a>  <span class="fu">{</span></span>
+<span id="cb14-2"><a aria-hidden="true" href="#cb14-2" tabindex="-1"></a>  <span class="dt">&quot;type&quot;</span><span class="fu">:</span> <span
+    class="st">&quot;PrivateKeyEntry&quot;</span><span class="fu">,</span></span>
+<span id="cb14-3"><a aria-hidden="true" href="#cb14-3" tabindex="-1"></a>  <span class="dt">&quot;kid&quot;</span><span class="fu">:</span> <span
+    class="st">&quot;test-key&quot;</span><span class="fu">,</span></span>
+<span id="cb14-4"><a aria-hidden="true" href="#cb14-4" tabindex="-1"></a>  <span class="dt">&quot;privateKey&quot;</span><span
+    class="fu">:</span> <span class="fu">{</span></span>
+<span id="cb14-5"><a aria-hidden="true" href="#cb14-5" tabindex="-1"></a>    <span class="dt">&quot;algorithm&quot;</span><span
+    class="fu">:</span> <span class="st">&quot;RSA&quot;</span><span class="fu">,</span></span>
+<span id="cb14-6"><a aria-hidden="true" href="#cb14-6" tabindex="-1"></a>    <span class="dt">&quot;value&quot;</span><span class="fu">:</span> <span
+    class="st">&quot;MIIJRAIBAD....lpe53o2VXP&quot;</span><span class="fu">,</span></span>
+<span id="cb14-7"><a aria-hidden="true" href="#cb14-7" tabindex="-1"></a>    <span class="dt">&quot;format&quot;</span><span class="fu">:</span> <span
+    class="st">&quot;PKCS#8&quot;</span></span>
+<span id="cb14-8"><a aria-hidden="true" href="#cb14-8" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb14-9"><a aria-hidden="true" href="#cb14-9" tabindex="-1"></a>  <span class="dt">&quot;encryptionAlgorithm&quot;</span><span
+    class="fu">:</span> <span class="st">&quot;RSA&quot;</span><span class="fu">,</span></span>
+<span id="cb14-10"><a aria-hidden="true" href="#cb14-10" tabindex="-1"></a>  <span class="dt">&quot;certificate&quot;</span><span class="fu">:</span> <span
+    class="fu">{</span></span>
+<span id="cb14-11"><a aria-hidden="true" href="#cb14-11" tabindex="-1"></a>    <span class="dt">&quot;value&quot;</span><span
+    class="fu">:</span> <span class="st">&quot;MIIE...ybsgEkgc=&quot;</span></span>
+<span id="cb14-12"><a aria-hidden="true" href="#cb14-12" tabindex="-1"></a>  <span class="fu">},</span></span>
+<span id="cb14-13"><a aria-hidden="true" href="#cb14-13" tabindex="-1"></a>  <span class="dt">&quot;certificateChain&quot;</span><span
+    class="fu">:</span> <span class="ot">[</span></span>
+<span id="cb14-14"><a aria-hidden="true" href="#cb14-14" tabindex="-1"></a>    <span class="fu">{</span></span>
+<span id="cb14-15"><a aria-hidden="true" href="#cb14-15" tabindex="-1"></a>      <span class="dt">&quot;value&quot;</span><span
+    class="fu">:</span> <span class="st">&quot;MIIE...ybsgEkgc=&quot;</span></span>
+<span id="cb14-16"><a aria-hidden="true" href="#cb14-16" tabindex="-1"></a>    <span class="fu">}</span></span>
+<span id="cb14-17"><a aria-hidden="true" href="#cb14-17" tabindex="-1"></a>  <span class="ot">]</span></span>
+<span id="cb14-18"><a aria-hidden="true" href="#cb14-18" tabindex="-1"></a><span class="fu">}</span></span></code></pre>
+</div>
+<h2 id="create-the-signature">Create the signature</h2>
+<p>Depending on the certificate provider this method could be traversing
+  the network as it might call a signature REST API, or use a
+  network/cloud based Hardware Security Module containing the private key
+  to sign. As such we advise to create the digest hash using a
+  SignatureService beforehand so original documents/data is not being
+  sent. Only the hash digest will traverse the network.</p>
+<div class="sourceCode" id="cb15"><pre
+    class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb15-1"><a aria-hidden="true" href="#cb15-1" tabindex="-1"></a><span
+    class="kw">val</span> <span class="va">signature</span> <span class="op">=</span> certProvider<span class="op">.</span>createSignature<span
+    class="op">(</span>digestInput<span class="op">,</span> keyEntry<span class="op">)</span></span>
+<span id="cb15-2"><a aria-hidden="true" href="#cb15-2" tabindex="-1"></a>println<span class="op">(</span>Json <span
+    class="op">{</span> prettyPrint <span class="op">=</span> <span class="kw">true</span><span class="op">;</span> serializersModule <span
+    class="op">=</span> serializers <span class="op">}.</span>encodeToString<span class="op">(</span>signature<span class="op">))</span></span></code></pre>
+</div>
+<p><code>json lines { // The actual signature "value": "SoSsp+Mut3....XEDqEVw==", "algorithm": "RSA_SHA256", "signMode": "DIGEST", // The certificate
+  used during signing "certificate": { "value": "MIID1D....6Q42vNaS" }, // The certificate chain including the Certificate Authority (CA) last
+  "certificateChain": [ { "value": "MIID1D....6Q42vNaS" }, { "value": "MIID6j....GePoU8Ug==" }, { "value": "MIIDVzC....PSNfsSBog==" } ] }</code></p>
+<h1 id="signature-service">Signature Service</h1>
+<p>The Signature Service allows you to create and verify signatures, as
+  well as creating a hash/digest of input data</p>
+<h2 id="initialize-the-signature-service">Initialize the Signature
+  Service</h2>
+<p>The Signature service want to have a certificate provider as single
+  argument. If you want to use multiple certificate providers you will
+  have to instantiate multiple signature services.</p>
+<div class="sourceCode" id="cb16"><pre
+    class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb16-1"><a aria-hidden="true" href="#cb16-1" tabindex="-1"></a><span
+    class="kw">val</span> <span class="va">signingService</span> <span class="op">=</span> SignatureService<span class="op">(</span>certificateProvider <span
+    class="op">=</span> certProvider<span class="op">)</span></span></code></pre>
+</div>
+<h2 id="determine-sign-input">Determine Sign Input</h2>
+<p>Determines the bytes that will serve as input for the
+  <code>digest</code> or <code>createSignature</code> methods. Since
+  multiple signature types are supported the configuration and key are
+  required te determine the appropriate mode of extraction. For instance
+  Pades signatures do not need a simple digest of the full file contents,
+  depending on whether the PDF document already contains signatures. This
+  method should be called first when creating a signature.</p>
+<div class="sourceCode" id="cb17"><pre
+    class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb17-1"><a aria-hidden="true" href="#cb17-1" tabindex="-1"></a><span
+    class="kw">val</span> <span class="va">padesConfig</span> <span class="op">=</span> SignatureConfiguration<span class="op">(</span></span>
+<span id="cb17-2"><a aria-hidden="true" href="#cb17-2" tabindex="-1"></a>    signatureParameters <span class="op">=</span> SignatureParameters<span
+    class="op">(</span></span>
+<span id="cb17-3"><a aria-hidden="true" href="#cb17-3" tabindex="-1"></a>        <span
+    class="co">// Make sure the signature becomes part of the file</span></span>
+<span id="cb17-4"><a aria-hidden="true" href="#cb17-4" tabindex="-1"></a>        signaturePackaging <span class="op">=</span> SignaturePackaging<span
+    class="op">.</span>ENVELOPED<span class="op">,</span></span>
+<span id="cb17-5"><a aria-hidden="true" href="#cb17-5" tabindex="-1"></a>        <span class="co">// Use RSA and SHA256</span></span>
+<span id="cb17-6"><a aria-hidden="true" href="#cb17-6" tabindex="-1"></a>        digestAlgorithm <span class="op">=</span> DigestAlg<span
+    class="op">.</span>SHA256<span class="op">,</span></span>
+<span id="cb17-7"><a aria-hidden="true" href="#cb17-7" tabindex="-1"></a>        encryptionAlgorithm <span class="op">=</span> CryptoAlg<span
+    class="op">.</span>RSA<span class="op">,</span></span>
+<span id="cb17-8"><a aria-hidden="true" href="#cb17-8" tabindex="-1"></a>        signatureLevelParameters <span class="op">=</span> SignatureLevelParameters<span
+    class="op">(</span></span>
+<span id="cb17-9"><a aria-hidden="true" href="#cb17-9" tabindex="-1"></a>            <span
+    class="co">// Set the level to PAdES baseline B</span></span>
+<span id="cb17-10"><a aria-hidden="true" href="#cb17-10" tabindex="-1"></a>            signatureLevel <span class="op">=</span> SignatureLevel<span
+    class="op">.</span>PAdES_BASELINE_B<span class="op">,</span></span>
+<span id="cb17-11"><a aria-hidden="true" href="#cb17-11" tabindex="-1"></a>        <span class="op">),</span></span>
+<span id="cb17-12"><a aria-hidden="true" href="#cb17-12" tabindex="-1"></a>        signatureFormParameters <span class="op">=</span> SignatureFormParameters<span
+    class="op">(</span></span>
+<span id="cb17-13"><a aria-hidden="true" href="#cb17-13" tabindex="-1"></a>            <span class="co">// PAdES specific parameters</span></span>
+<span id="cb17-14"><a aria-hidden="true" href="#cb17-14" tabindex="-1"></a>            padesSignatureFormParameters <span class="op">=</span> PadesSignatureFormParameters<span
+    class="op">(</span></span>
+<span id="cb17-15"><a aria-hidden="true" href="#cb17-15" tabindex="-1"></a>                signerName <span class="op">=</span> <span class="st">&quot;John Doe&quot;</span><span
+    class="op">,</span></span>
+<span id="cb17-16"><a aria-hidden="true" href="#cb17-16" tabindex="-1"></a>                contactInfo <span class="op">=</span> <span class="st">&quot;support@sphereon.com&quot;</span><span
+    class="op">,</span></span>
+<span id="cb17-17"><a aria-hidden="true" href="#cb17-17" tabindex="-1"></a>                reason <span class="op">=</span> <span class="st">&quot;Test&quot;</span><span
+    class="op">,</span></span>
+<span id="cb17-18"><a aria-hidden="true" href="#cb17-18" tabindex="-1"></a>                location <span class="op">=</span> <span class="st">&quot;Online&quot;</span></span>
+<span id="cb17-19"><a aria-hidden="true" href="#cb17-19" tabindex="-1"></a>            <span class="op">)</span></span>
+<span id="cb17-20"><a aria-hidden="true" href="#cb17-20" tabindex="-1"></a>        <span class="op">)</span></span>
+<span id="cb17-21"><a aria-hidden="true" href="#cb17-21" tabindex="-1"></a>    <span class="op">)</span></span>
+<span id="cb17-22"><a aria-hidden="true" href="#cb17-22" tabindex="-1"></a><span class="op">)</span></span>
+<span id="cb17-23"><a aria-hidden="true" href="#cb17-23" tabindex="-1"></a></span>
+<span id="cb17-24"><a aria-hidden="true" href="#cb17-24" tabindex="-1"></a><span class="kw">val</span> <span class="va">pdfDoc</span> <span
+    class="op">=</span> File<span class="op">(</span><span class="st">&quot;input.pdf&quot;</span><span class="op">)</span></span>
+<span id="cb17-25"><a aria-hidden="true" href="#cb17-25" tabindex="-1"></a><span class="kw">val</span> <span class="va">origData</span> <span
+    class="op">=</span> OrigData<span class="op">(</span>value <span class="op">=</span> pdfDocInput<span class="op">.</span>readBytes<span
+    class="op">(),</span> name <span class="op">=</span> pdfDoc<span class="op">.</span>name<span class="op">)</span></span>
+<span id="cb17-26"><a aria-hidden="true" href="#cb17-26" tabindex="-1"></a><span class="kw">val</span> <span class="va">keyEntry</span> <span
+    class="op">=</span> signingService<span class="op">.</span>certificateProvider<span class="op">.</span>getKey<span class="op">(</span><span
+    class="st">&quot;test-key&quot;</span><span class="op">)!!</span></span>
+<span id="cb17-27"><a aria-hidden="true" href="#cb17-27" tabindex="-1"></a></span>
+<span id="cb17-28"><a aria-hidden="true" href="#cb17-28" tabindex="-1"></a><span class="kw">val</span> <span class="va">signInput</span> <span
+    class="op">=</span> signingService<span class="op">.</span>determineSignInput<span class="op">(</span></span>
+<span id="cb17-29"><a aria-hidden="true" href="#cb17-29" tabindex="-1"></a>    origData <span class="op">=</span> origData<span
+    class="op">,</span></span>
+<span id="cb17-30"><a aria-hidden="true" href="#cb17-30" tabindex="-1"></a>    keyEntry <span class="op">=</span> keyEntry<span
+    class="op">,</span></span>
+<span id="cb17-31"><a aria-hidden="true" href="#cb17-31" tabindex="-1"></a>    signMode <span class="op">=</span> SignMode<span class="op">.</span>DOCUMENT<span
+    class="op">,</span></span>
+<span id="cb17-32"><a aria-hidden="true" href="#cb17-32" tabindex="-1"></a>    signatureConfiguration <span class="op">=</span> signatureConfiguration</span>
+<span id="cb17-33"><a aria-hidden="true" href="#cb17-33" tabindex="-1"></a><span class="op">)</span></span>
+<span id="cb17-34"><a aria-hidden="true" href="#cb17-34" tabindex="-1"></a>println<span class="op">(</span>Json <span class="op">{</span> prettyPrint <span
+    class="op">=</span> <span class="kw">true</span><span class="op">;</span> serializersModule <span class="op">=</span> serializers <span
+    class="op">}.</span>encodeToString<span class="op">(</span>signInput<span class="op">))</span></span></code></pre>
+</div>
+<p>The below SignInput object could be used directly for the
+  createSignature method or a digest can be created first, so that the
+  input data will never traverse a network if a remote Sign REST API or
+  remote Hardware Security Module is being used.</p>
+<p><code>json lines { "input": "MYHeMBgGCSqG....TAkxVAgEK", "signMode": "DOCUMENT", "digestAlgorithm": "SHA256", "name": "input.pdf" }</code></p>
+<h2 id="create-a-hash-digest-for-additional-privacy-and-security">Create
+  a hash digest for additional privacy and security</h2>
+<p>The <code>digest</code> method creates a hash digest out of the
+  SignInput. The hash digest is a one way function that creates the
+  fingerprint of the file. From the digest you cannot get back to the
+  original input data/document. This means any Personally Identifiable
+  Data or Data which needs to stay private will not be available to
+  methods which need access to a remote REST API or remote Hardware
+  Security Module. This obviously is preferable from a privacy and
+  security perspective. It allows users of the library to execute all
+  methods on premise and then depending on the chosen Certificate Provider
+  sign the data either on premise or remotely. In no circumstance will the
+  input data leave the premise.</p>
+<div class="sourceCode" id="cb18"><pre
+    class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb18-1"><a aria-hidden="true" href="#cb18-1" tabindex="-1"></a><span
+    class="kw">val</span> <span class="va">digestInput</span> <span class="op">=</span> signingService<span class="op">.</span>digest<span class="op">(</span>signInput<span
+    class="op">)</span></span>
+<span id="cb18-2"><a aria-hidden="true" href="#cb18-2" tabindex="-1"></a>println<span class="op">(</span>Json <span
+    class="op">{</span> prettyPrint <span class="op">=</span> <span class="kw">true</span><span class="op">;</span> serializersModule <span
+    class="op">=</span> serializers <span class="op">}.</span>encodeToString<span class="op">(</span>digestInput<span
+    class="op">))</span></span></code></pre>
+</div>
+<p>Notice that the below SignInput object is different from the passed
+  in SignInput. The input value is shorter as it now is a hash digest. The
+  signMode moved from <code>DOCUMENT</code> to <code>DIGEST</code> so that
+  the <code>createSignature</code> method knows not to create a hash
+  digest out of the input anymore.</p>
+<p><code>json lines { "input": "fSx6BzHxJ8p3Mn9E52DJ1eNrchfcMa1ZHaSjAi9D5z8=", "signMode": "DIGEST", "digestAlgorithm": "SHA256", "name": "input.pdf"
+  }</code></p>
+<h2 id="create-the-signature-1">Create the signature</h2>
+<p>The default Signature Service implementations delegate this method to
+  the corresponding method of the CertificateProvider, given most
+  CertificateProviders to not expose private keys for security
+  reasons.</p>
+<p>Depending on the certificate provider settings this method could be
+  traversing the network as it might call a signature REST API, or use a
+  network/cloud based Hardware Security Module containing the private key
+  to sign. As such we advise to create the digest beforehand so original
+  documents/data is not being sent. Only the hash digest will traverse the
+  network.</p>
+<div class="sourceCode" id="cb19"><pre
+    class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb19-1"><a aria-hidden="true" href="#cb19-1" tabindex="-1"></a><span
+    class="kw">val</span> <span class="va">signature</span> <span class="op">=</span> signingService<span class="op">.</span>createSignature<span
+    class="op">(</span>digestInput<span class="op">,</span> keyEntry<span class="op">)</span></span>
+<span id="cb19-2"><a aria-hidden="true" href="#cb19-2" tabindex="-1"></a>println<span class="op">(</span>Json <span
+    class="op">{</span> prettyPrint <span class="op">=</span> <span class="kw">true</span><span class="op">;</span> serializersModule <span
+    class="op">=</span> serializers <span class="op">}.</span>encodeToString<span class="op">(</span>signature<span class="op">))</span></span></code></pre>
+</div>
+<p><code>json lines { // The actual signature "value": "SoSsp+Mut3....XEDqEVw==", "algorithm": "RSA_SHA256", "signMode": "DIGEST", // The certificate
+  used during signing "certificate": { "value": "MIID1D....6Q42vNaS" }, // The certificate chain including the Certificate Authority (CA) last
+  "certificateChain": [ { "value": "MIID1D....6Q42vNaS" }, { "value": "MIID6j....GePoU8Ug==" }, { "value": "MIIDVzC....PSNfsSBog==" } ] }</code></p>
+<h2 id="signing-the-original-data-merging-the-signature">Signing the
+  original data, merging the signature</h2>
+<p>This method takes the original input document, the created signature
+  and merges them together to provide a signed output document. It needs
+  access to the configuration to know how and where the signature should
+  be merged with the document.</p>
+<div class="sourceCode" id="cb20"><pre
+    class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb20-1"><a aria-hidden="true" href="#cb20-1" tabindex="-1"></a><span
+    class="kw">val</span> <span class="va">signOutput</span> <span class="op">=</span> signingService<span class="op">.</span>sign<span
+    class="op">(</span>origData<span class="op">,</span> signature<span class="op">,</span> signatureConfiguration<span class="op">)</span></span>
+<span id="cb20-2"><a aria-hidden="true" href="#cb20-2" tabindex="-1"></a></span>
+<span id="cb20-3"><a aria-hidden="true" href="#cb20-3" tabindex="-1"></a><span class="co">// Write the signed bytes to a file</span></span>
+<span id="cb20-4"><a aria-hidden="true" href="#cb20-4" tabindex="-1"></a>File<span class="op">(</span><span
+    class="st">&quot;signed-output.pdf&quot;</span><span class="op">).</span>writeBytes<span class="op">(</span>signOutput<span class="op">.</span>value<span
+    class="op">)</span></span>
+<span id="cb20-5"><a aria-hidden="true" href="#cb20-5" tabindex="-1"></a></span>
+<span id="cb20-6"><a aria-hidden="true" href="#cb20-6" tabindex="-1"></a>println<span class="op">(</span>Json <span
+    class="op">{</span> prettyPrint <span class="op">=</span> <span class="kw">true</span><span class="op">;</span> serializersModule <span
+    class="op">=</span> serializers <span class="op">}.</span>encodeToString<span class="op">(</span>signOutput<span
+    class="op">))</span></span></code></pre>
+</div>
+<p>The result of the above is a new file which is the input PDF, but now
+  signed.</p>
+<p><code>json lines { // The signed data/document "value": "JVBERi0xLjYNJ....4cmVmCjc2NzUwCiUlRU9GCg==", "signMode": "DIGEST", "digestAlgorithm":
+  "SHA256", "name": "input-pades-baseline-b.pdf", "mimeType": "application/pdf", "signature": { "value": "SoSsp+Mut3....XEDqEVw==", "algorithm":
+  "RSA_SHA256", "signMode": "DIGEST", "certificate": { "value": "MIID1DCC....XxY1e6Q42vNaS" }, "certificateChain": [ { "value":
+  "MIID1DCC....XxY1e6Q42vNaS" }, { "value": "MIID6jCC....Y+TpJGePoU8Ug==" }, { "value": "MIIDVzCCAj....PSNfsSBog==" } ] } }</code></p>
+<h2 id="check-whether-a-signature-is-valid">Check whether a signature is
+  valid</h2>
+<p>The default Signature Service implementations delegate this method to
+  the corresponding method of the CertificateProvider.</p>
+<p>In order to check whether a signature is valid the SignInput is
+  needed. If a reference to that data is not available anymore the
+  <code>determineSignInput</code> and depending on whether a hash digest
+  was create the <code>digest</code> method are needed to get back the
+  SignInput object.</p>
+<div class="sourceCode" id="cb21"><pre
+    class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb21-1"><a aria-hidden="true" href="#cb21-1" tabindex="-1"></a><span
+    class="kw">val</span> <span class="va">valid</span> <span class="op">=</span> signingService<span class="op">.</span>isValidSignature<span
+    class="op">(</span>digestInput<span class="op">,</span> signature<span class="op">,</span> signature<span class="op">.</span>certificate<span
+    class="op">!!)</span></span>
+<span id="cb21-2"><a aria-hidden="true" href="#cb21-2" tabindex="-1"></a><span class="co">// Returns a boolean</span></span></code></pre>
+</div>
+<h1 id="pdf-signatures">PDF Signatures</h1>
+<p>This library supports electronically signing PDF documents, including
+  approval and certify signatures as well as visual signatures. Supported
+  PDF signature types are:</p>
+<ul>
+  <li><strong><a
+      href="#default-pkcs7-pdf-signature">adbe.pkcs7.detached</a></strong>,
+    which is the default PDF document signature as used by Adobe and the
+    most common type of signature
+  </li>
+  <li><strong>ETSI.PAdES/ETSI.CAdES.detached</strong>, which is ETSI/eIDAS
+    compliant (needs special Certificates provided by eIDAS Trust Service
+    Providers!)
+  </li>
+</ul>
+<h2 id="default-pkcs7-pdf-signature">Default PKCS#7 PDF signature</h2>
+<p>This is the default PDF Signature type, typically used with
+  Certificates provided by an organization on the Adobe Approved Trusted
+  List (AATL).</p>
+<p>There are 2 types of signatures possible:</p>
+<ul>
+  <li>CERTIFICATION
+    <ul>
+      <li>Can only be applied once to a PDF document!</li>
+      <li>It acts like a seal, which typically is organization or department
+        wide.
+      </li>
+      <li>A blue bar will appear with name of the signer, the company and the
+        CA that issued the Certificate
+      </li>
+      <li>Allows to protect the document for further modifications at several
+        levels
+      </li>
+      <li>Optionally showing an image of the signature. Clickable to show more
+        information
+      </li>
+    </ul>
+  </li>
+  <li>APPROVAL
+    <ul>
+      <li>Can be applied multiple times.</li>
+      <li>This is what typically is being used for people signing the
+        document.
+      </li>
+      <li>It is comparable to a user signing a paper based document.</li>
+      <li>The signature shows the name and additional information.</li>
+      <li>Optionally showing an image of the signature. Clickable to show more
+        information
+      </li>
+    </ul>
+  </li>
+</ul>
+<h3 id="pkcs7-configuration-options">PKCS#7 configuration options</h3>
+<p>The below options are part of a configuration, but can typically also
+  be provided on every invocation. This allows to use the same certificate
+  for instance for signing by multiple people by changing the signerName
+  and related properties.</p>
+<div class="sourceCode" id="cb22"><pre
+    class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb22-1"><a aria-hidden="true" href="#cb22-1" tabindex="-1"></a><span
+    class="kw">class</span> Pkcs7SignatureFormParameters<span class="op">(</span></span>
+<span id="cb22-2"><a aria-hidden="true" href="#cb22-2" tabindex="-1"></a>    /**</span>
+<span id="cb22-3"><a aria-hidden="true" href="#cb22-3" tabindex="-1"></a>     * <span class="va">The</span> <span class="va">signature</span> <span
+    class="va">mode</span><span class="op">,</span> <span class="va">according</span> <span class="va">to</span> <span class="va">the</span> <span
+    class="va">PDF</span> <span class="va">spec</span>. <span class="va">Either</span> <span class="va">needs</span> <span class="va">to</span> <span
+    class="va">be</span> <span class="va">APPROVAL</span> <span class="va">or</span> <span class="va">CERTIFICATION</span>.</span>
+<span id="cb22-4"><a aria-hidden="true" href="#cb22-4" tabindex="-1"></a>     *</span>
+<span id="cb22-5"><a aria-hidden="true" href="#cb22-5" tabindex="-1"></a>     * - <span class="va">CERTIFICATION</span> <span
+    class="va">can</span> <span class="va">only</span> <span class="va">be</span> <span class="va">applied</span> <span class="va">once</span> <span
+    class="va">to</span> <span class="va">a</span> <span class="va">PDF</span> <span class="va">document</span>. <span class="va">It</span> <span
+    class="va">acts</span> <span class="va">like</span> <span class="va">a</span> <span class="va">seal</span><span class="op">,</span> <span
+    class="va">which</span> <span class="va">typically</span> <span class="kw">is</span> <span class="va">organization</span> <span
+    class="va">or</span> <span class="va">department</span> <span class="va">wide</span>.</span>
+<span id="cb22-6"><a aria-hidden="true" href="#cb22-6" tabindex="-1"></a>     * <span class="va">A</span> <span class="va">blue</span> <span
+    class="va">bar</span> <span class="va">will</span> <span class="va">appear</span> <span class="va">with</span> <span class="va">name</span> <span
+    class="va">of</span> <span class="va">the</span> <span class="va">signer</span><span class="op">,</span> <span class="va">the</span> <span
+    class="va">company</span> <span class="va">and</span> <span class="va">the</span> <span class="va">CA</span> <span class="va">that</span> <span
+    class="va">issued</span> <span class="va">the</span> <span class="va">Certificate</span></span>
+<span id="cb22-7"><a aria-hidden="true" href="#cb22-7" tabindex="-1"></a>     * - <span class="va">APPROVAL</span> <span class="va">can</span> <span
+    class="va">be</span> <span class="va">applied</span> <span class="va">multiple</span> <span class="va">times</span>. <span class="va">This</span> <span
+    class="kw">is</span> <span class="va">what</span> <span class="va">typically</span> <span class="kw">is</span> <span class="va">being</span> <span
+    class="va">used</span> <span class="va">for</span> <span class="va">people</span> <span class="va">signing</span> <span
+    class="va">the</span> <span class="va">document</span>. <span class="va">It</span> <span class="kw">is</span> <span
+    class="va">comparable</span> <span class="va">to</span> <span class="va">a</span> <span class="va">user</span> <span
+    class="va">signing</span> <span class="va">a</span> <span class="va">paper</span> <span class="va">based</span> <span class="va">document</span>.</span>
+<span id="cb22-8"><a aria-hidden="true" href="#cb22-8" tabindex="-1"></a>     * <span class="va">The</span> <span class="va">signature</span> <span
+    class="va">shows</span> <span class="va">the</span> <span class="va">name</span> <span class="va">and</span> <span
+    class="va">additional</span> <span class="va">information</span>. <span class="va">Optionally</span> <span class="va">showing</span> <span
+    class="va">an</span> <span class="va">image</span> <span class="va">of</span> <span class="va">the</span> <span class="va">signature</span>. <span
+    class="va">Clickable</span> <span class="va">to</span> <span class="va">show</span> <span class="va">more</span> <span
+    class="va">information</span></span>
+<span id="cb22-9"><a aria-hidden="true" href="#cb22-9" tabindex="-1"></a>     */</span>
+<span id="cb22-10"><a aria-hidden="true" href="#cb22-10" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">mode</span><span
+    class="op">:</span> <span class="dt">PdfSignatureMode</span><span class="op">?</span> <span class="op">=</span> PdfSignatureMode<span
+    class="op">.</span>APPROVAL<span class="op">,</span></span>
+<span id="cb22-11"><a aria-hidden="true" href="#cb22-11" tabindex="-1"></a></span>
+<span id="cb22-12"><a aria-hidden="true" href="#cb22-12" tabindex="-1"></a>    /**</span>
+<span id="cb22-13"><a aria-hidden="true" href="#cb22-13" tabindex="-1"></a>     * <span class="va">This</span> <span class="va">attribute</span> <span
+    class="va">allows</span> <span class="va">to</span> <span class="va">explicitly</span> <span class="va">specify</span> <span class="va">the</span> <span
+    class="va">SignerName</span> (<span class="va">name</span> <span class="va">for</span> <span class="va">the</span> <span class="va">entity</span> <span
+    class="va">signing</span><span class="op">)</span>.</span>
+<span id="cb22-14"><a aria-hidden="true" href="#cb22-14" tabindex="-1"></a>     * The person or authority signing the document.</span>
+<span id="cb22-15"><a aria-hidden="true" href="#cb22-15" tabindex="-1"></a>     */</span>
+<span id="cb22-16"><a aria-hidden="true" href="#cb22-16" tabindex="-1"></a>    <span class="kw">val</span> signerName<span class="op">:</span> <span
+    class="dt">String</span><span class="op">,</span></span>
+<span id="cb22-17"><a aria-hidden="true" href="#cb22-17" tabindex="-1"></a></span>
+<span id="cb22-18"><a aria-hidden="true" href="#cb22-18" tabindex="-1"></a></span>
+<span id="cb22-19"><a aria-hidden="true" href="#cb22-19" tabindex="-1"></a>    /** <span class="dt">The</span> <span class="dt">signature</span> <span
+    class="dt">creation</span> <span class="dt">reason</span>  */</span>
+<span id="cb22-20"><a aria-hidden="true" href="#cb22-20" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">reason</span><span
+    class="op">:</span> <span class="kw">String</span><span class="op">?</span> <span class="op">=</span> <span class="kw">null</span><span
+    class="op">,</span></span>
+<span id="cb22-21"><a aria-hidden="true" href="#cb22-21" tabindex="-1"></a></span>
+<span id="cb22-22"><a aria-hidden="true" href="#cb22-22" tabindex="-1"></a>    <span class="co">/** The contact info  */</span></span>
+<span id="cb22-23"><a aria-hidden="true" href="#cb22-23" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">contactInfo</span><span
+    class="op">:</span> <span class="kw">String</span><span class="op">?</span> <span class="op">=</span> <span class="kw">null</span><span
+    class="op">,</span></span>
+<span id="cb22-24"><a aria-hidden="true" href="#cb22-24" tabindex="-1"></a></span>
+<span id="cb22-25"><a aria-hidden="true" href="#cb22-25" tabindex="-1"></a>    <span class="co">/** The signer&#39;s location  */</span></span>
+<span id="cb22-26"><a aria-hidden="true" href="#cb22-26" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">location</span><span
+    class="op">:</span> <span class="kw">String</span><span class="op">?</span> <span class="op">=</span> <span class="kw">null</span><span
+    class="op">,</span></span>
+<span id="cb22-27"><a aria-hidden="true" href="#cb22-27" tabindex="-1"></a></span>
+<span id="cb22-28"><a aria-hidden="true" href="#cb22-28" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb22-29"><a aria-hidden="true" href="#cb22-29" tabindex="-1"></a><span class="co">     * Defines the preserved space for a signature context. Only change if you know what you are doing</span></span>
+<span id="cb22-30"><a aria-hidden="true" href="#cb22-30" tabindex="-1"></a><span class="co">     *</span></span>
+<span id="cb22-31"><a aria-hidden="true" href="#cb22-31" tabindex="-1"></a><span
+    class="co">     * Default : 9472 (default value in pdfbox)</span></span>
+<span id="cb22-32"><a aria-hidden="true" href="#cb22-32" tabindex="-1"></a><span class="co">     */</span></span>
+<span id="cb22-33"><a aria-hidden="true" href="#cb22-33" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">signatureSize</span><span
+    class="op">:</span> <span class="kw">Int</span><span class="op">?</span> <span class="op">=</span> <span class="dv">9472</span><span
+    class="op">,</span></span>
+<span id="cb22-34"><a aria-hidden="true" href="#cb22-34" tabindex="-1"></a></span>
+<span id="cb22-35"><a aria-hidden="true" href="#cb22-35" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb22-36"><a aria-hidden="true" href="#cb22-36" tabindex="-1"></a><span class="co">     * This attribute allows to override the used Filter for a Signature.</span></span>
+<span id="cb22-37"><a aria-hidden="true" href="#cb22-37" tabindex="-1"></a><span class="co">     *</span></span>
+<span id="cb22-38"><a aria-hidden="true" href="#cb22-38" tabindex="-1"></a><span class="co">     * Default value is Adobe.PPKLite</span></span>
+<span id="cb22-39"><a aria-hidden="true" href="#cb22-39" tabindex="-1"></a><span class="co">     */</span></span>
+<span id="cb22-40"><a aria-hidden="true" href="#cb22-40" tabindex="-1"></a>    <span class="kw">val</span> <span
+    class="va">signatureFilter</span><span class="op">:</span> <span class="kw">String</span><span class="op">?</span> <span class="op">=</span> PdfSignatureFilter<span
+    class="op">.</span>ADOBE_PPKLITE<span class="op">.</span>specName<span class="op">,</span></span>
+<span id="cb22-41"><a aria-hidden="true" href="#cb22-41" tabindex="-1"></a></span>
+<span id="cb22-42"><a aria-hidden="true" href="#cb22-42" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb22-43"><a aria-hidden="true" href="#cb22-43" tabindex="-1"></a><span class="co">     * This attribute allows to override the used subFilter for a Signature.</span></span>
+<span id="cb22-44"><a aria-hidden="true" href="#cb22-44" tabindex="-1"></a><span class="co">     *</span></span>
+<span id="cb22-45"><a aria-hidden="true" href="#cb22-45" tabindex="-1"></a><span class="co">     * Default value is adbe.pkcs7.detached</span></span>
+<span id="cb22-46"><a aria-hidden="true" href="#cb22-46" tabindex="-1"></a><span class="co">     */</span></span>
+<span id="cb22-47"><a aria-hidden="true" href="#cb22-47" tabindex="-1"></a>    <span class="kw">val</span> <span
+    class="va">signatureSubFilter</span><span class="op">:</span> <span class="kw">String</span><span class="op">?</span> <span class="op">=</span> PdfSignatureSubFilter<span
+    class="op">.</span>ADBE_PKCS7_DETACHED<span class="op">.</span>specName<span class="op">,</span></span>
+<span id="cb22-48"><a aria-hidden="true" href="#cb22-48" tabindex="-1"></a></span>
+<span id="cb22-49"><a aria-hidden="true" href="#cb22-49" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb22-50"><a aria-hidden="true" href="#cb22-50" tabindex="-1"></a><span
+    class="co">     * This attribute is used to create visible signature</span></span>
+<span id="cb22-51"><a aria-hidden="true" href="#cb22-51" tabindex="-1"></a><span class="co">     */</span></span>
+<span id="cb22-52"><a aria-hidden="true" href="#cb22-52" tabindex="-1"></a>    <span class="kw">val</span> <span
+    class="va">signatureImageParameters</span><span class="op">:</span> SignatureImageParameters<span class="op">?</span> <span
+    class="op">=</span> <span class="kw">null</span><span class="op">,</span></span>
+<span id="cb22-53"><a aria-hidden="true" href="#cb22-53" tabindex="-1"></a></span>
+<span id="cb22-54"><a aria-hidden="true" href="#cb22-54" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb22-55"><a aria-hidden="true" href="#cb22-55" tabindex="-1"></a><span class="co">     * This attribute allows to set permissions in case of a &quot;certification signature&quot;. That allows to protect for</span></span>
+<span id="cb22-56"><a aria-hidden="true" href="#cb22-56" tabindex="-1"></a><span class="co">     * future change(s).</span></span>
+<span id="cb22-57"><a aria-hidden="true" href="#cb22-57" tabindex="-1"></a><span class="co">     */</span></span>
+<span id="cb22-58"><a aria-hidden="true" href="#cb22-58" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">permission</span><span
+    class="op">:</span> CertificationPermission<span class="op">?</span> <span class="op">=</span> <span class="kw">null</span><span
+    class="op">,</span></span>
+<span id="cb22-59"><a aria-hidden="true" href="#cb22-59" tabindex="-1"></a></span>
+<span id="cb22-60"><a aria-hidden="true" href="#cb22-60" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb22-61"><a aria-hidden="true" href="#cb22-61" tabindex="-1"></a><span class="co">     * Password used to encrypt a PDF</span></span>
+<span id="cb22-62"><a aria-hidden="true" href="#cb22-62" tabindex="-1"></a><span class="co">     */</span></span>
+<span id="cb22-63"><a aria-hidden="true" href="#cb22-63" tabindex="-1"></a>    <span class="kw">val</span> <span
+    class="va">passwordProtection</span><span class="op">:</span> <span class="kw">String</span><span class="op">?</span> <span
+    class="op">=</span> <span class="kw">null</span></span>
+<span id="cb22-64"><a aria-hidden="true" href="#cb22-64" tabindex="-1"></a><span class="op">)</span></span></code></pre>
+</div>
+<h3 id="example-pkcs7-flow">Example PKCS#7 flow</h3>
+<p>Below an example is provided where a local Signing Service and a
+  Local Azure Keyvault Certificate Provider is being used to sign with a
+  certificate on the AATL list, resulting in “blue-bar” signatures. The
+  example key vault settings can be found <a
+      href="#initialize-azure-keyvault-or-managed-hsm-certificate-provider-service">above</a>.
+  The createSignature/verifySignature/getCert(s) methods would use the
+  Azure Keyvault REST API, so we will be creating a digest first to ensure
+  we are not sending the document to Azure Keyvault.</p>
+<div class="sourceCode" id="cb23"><pre
+    class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb23-1"><a aria-hidden="true" href="#cb23-1" tabindex="-1"></a><span
+    class="co">// Gets the file and set the orig data object</span></span>
+<span id="cb23-2"><a aria-hidden="true" href="#cb23-2" tabindex="-1"></a><span class="kw">val</span> <span class="va">pdfDocInput</span> <span
+    class="op">=</span> <span class="kw">this</span><span class="op">::</span><span class="kw">class</span>.java.classLoader.getResource<span
+    class="op">(</span>&quot;<span class="va">example</span>-<span class="va">unsigned</span>.<span class="va">pdf</span>&quot;<span
+    class="op">)</span></span>
+<span id="cb23-3"><a aria-hidden="true" href="#cb23-3" tabindex="-1"></a><span class="kw">val</span> origData = OrigData<span class="op">(</span><span
+    class="va">value</span> <span class="op">=</span> pdfDocInput<span class="op">.</span>readBytes<span class="op">(),</span> <span
+    class="va">name</span> <span class="op">=</span> <span class="st">&quot;example-unsigned.pdf&quot;</span><span class="op">)</span></span>
+<span id="cb23-4"><a aria-hidden="true" href="#cb23-4" tabindex="-1"></a></span>
+<span id="cb23-5"><a aria-hidden="true" href="#cb23-5" tabindex="-1"></a></span>
+<span id="cb23-6"><a aria-hidden="true" href="#cb23-6" tabindex="-1"></a><span class="kw">val</span> certProvider = CertificateProviderServiceFactory.createFromConfig<span
+    class="op">(</span></span>
+<span id="cb23-7"><a aria-hidden="true" href="#cb23-7" tabindex="-1"></a>    <span class="va">settings</span> <span class="op">=</span> providerSettings<span
+    class="op">,</span> // <span class="va">See</span> <span class="va">above</span> <span class="va">for</span> <span
+    class="va">examples</span></span>
+<span id="cb23-8"><a aria-hidden="true" href="#cb23-8" tabindex="-1"></a>    <span class="va">azureKeyvaultClientConfig</span> <span
+    class="op">=</span> keyvaultConfig <span class="co">// See example above</span></span>
+<span id="cb23-9"><a aria-hidden="true" href="#cb23-9" tabindex="-1"></a><span class="op">)</span></span>
+<span id="cb23-10"><a aria-hidden="true" href="#cb23-10" tabindex="-1"></a>// The factory has returned an Azure Keyvault Certificate Provider at this point</span>
+<span id="cb23-11"><a aria-hidden="true" href="#cb23-11" tabindex="-1"></a></span>
+<span id="cb23-12"><a aria-hidden="true" href="#cb23-12" tabindex="-1"></a>// Create a local signature service, which uses kid/strings to denote the certificates to use</span>
+<span id="cb23-13"><a aria-hidden="true" href="#cb23-13" tabindex="-1"></a><span class="kw">val</span> signingService = AliasSignatureService<span
+    class="op">(</span><span class="va">certProvider</span><span class="op">)</span></span>
+<span id="cb23-14"><a aria-hidden="true" href="#cb23-14" tabindex="-1"></a></span>
+<span id="cb23-15"><a aria-hidden="true" href="#cb23-15" tabindex="-1"></a><span class="kw">val</span> kid = &quot;example<span class="op">:</span>3f98a9a740fb41b79e3679cce7a34ba6&quot; // <span
+    class="dt">The</span> <span class="dt">kid</span> <span class="kw">is</span> Azure Keyvault certificate specific and <span
+    class="kw">is</span> <span class="op">&lt;</span>certificate Id<span class="op">&gt;:&lt;</span>version<span class="op">&gt;</span></span>
+<span id="cb23-16"><a aria-hidden="true" href="#cb23-16" tabindex="-1"></a></span>
+<span id="cb23-17"><a aria-hidden="true" href="#cb23-17" tabindex="-1"></a><span class="kw">val</span> <span class="va">signatureConfiguration</span> <span
+    class="op">=</span> SignatureConfiguration<span class="op">(</span></span>
+<span id="cb23-18"><a aria-hidden="true" href="#cb23-18" tabindex="-1"></a>    signatureParameters <span class="op">=</span> SignatureParameters<span
+    class="op">(</span></span>
+<span id="cb23-19"><a aria-hidden="true" href="#cb23-19" tabindex="-1"></a>        signaturePackaging <span
+    class="op">=</span> SignaturePackaging<span class="op">.</span>ENVELOPED<span class="op">,</span></span>
+<span id="cb23-20"><a aria-hidden="true" href="#cb23-20" tabindex="-1"></a>        digestAlgorithm <span class="op">=</span> DigestAlg<span
+    class="op">.</span>SHA256<span class="op">,</span></span>
+<span id="cb23-21"><a aria-hidden="true" href="#cb23-21" tabindex="-1"></a>        encryptionAlgorithm <span class="op">=</span> CryptoAlg<span
+    class="op">.</span>RSA<span class="op">,</span></span>
+<span id="cb23-22"><a aria-hidden="true" href="#cb23-22" tabindex="-1"></a>        signatureAlgorithm <span class="op">=</span> SignatureAlg<span
+    class="op">.</span>RSA_SHA256<span class="op">,</span></span>
+<span id="cb23-23"><a aria-hidden="true" href="#cb23-23" tabindex="-1"></a>        signatureLevelParameters <span class="op">=</span> SignatureLevelParameters<span
+    class="op">(</span></span>
+<span id="cb23-24"><a aria-hidden="true" href="#cb23-24" tabindex="-1"></a>            signatureLevel <span class="op">=</span> SignatureLevel<span
+    class="op">.</span>PKCS7_B<span class="op">,</span> <span class="co">// This sets the mode to PDF PKCS#7 (Basic signature)</span></span>
+<span id="cb23-25"><a aria-hidden="true" href="#cb23-25" tabindex="-1"></a>        <span class="op">),</span></span>
+<span id="cb23-26"><a aria-hidden="true" href="#cb23-26" tabindex="-1"></a>        signatureFormParameters <span class="op">=</span> SignatureFormParameters<span
+    class="op">(</span></span>
+<span id="cb23-27"><a aria-hidden="true" href="#cb23-27" tabindex="-1"></a>            <span class="co">// PKCS#7 specific parameters</span></span>
+<span id="cb23-28"><a aria-hidden="true" href="#cb23-28" tabindex="-1"></a>            pkcs7SignatureFormParameters <span class="op">=</span> Pkcs7SignatureFormParameters<span
+    class="op">(</span></span>
+<span id="cb23-29"><a aria-hidden="true" href="#cb23-29" tabindex="-1"></a>                mode <span class="op">=</span> PdfSignatureMode<span
+    class="op">.</span>APPROVAL<span class="op">,</span>   <span class="co">// Use an approval signature</span></span>
+<span id="cb23-30"><a aria-hidden="true" href="#cb23-30" tabindex="-1"></a>                signerName <span class="op">=</span> <span class="st">&quot;Example User&quot;</span><span
+    class="op">,</span></span>
+<span id="cb23-31"><a aria-hidden="true" href="#cb23-31" tabindex="-1"></a>                contactInfo <span class="op">=</span> <span class="st">&quot;example@sphereon.com&quot;</span><span
+    class="op">,</span></span>
+<span id="cb23-32"><a aria-hidden="true" href="#cb23-32" tabindex="-1"></a>                reason <span class="op">=</span> <span class="st">&quot;Example&quot;</span><span
+    class="op">,</span></span>
+<span id="cb23-33"><a aria-hidden="true" href="#cb23-33" tabindex="-1"></a>                location <span class="op">=</span> <span class="st">&quot;Amsterdam&quot;</span><span
+    class="op">,</span></span>
+<span id="cb23-34"><a aria-hidden="true" href="#cb23-34" tabindex="-1"></a>            <span class="op">)</span></span>
+<span id="cb23-35"><a aria-hidden="true" href="#cb23-35" tabindex="-1"></a>        <span class="op">)</span></span>
+<span id="cb23-36"><a aria-hidden="true" href="#cb23-36" tabindex="-1"></a>    <span class="op">)</span></span>
+<span id="cb23-37"><a aria-hidden="true" href="#cb23-37" tabindex="-1"></a><span class="op">)</span></span>
+<span id="cb23-38"><a aria-hidden="true" href="#cb23-38" tabindex="-1"></a></span>
+<span id="cb23-39"><a aria-hidden="true" href="#cb23-39" tabindex="-1"></a><span class="co">// Locally extract the bytes to be signed from the PDF document</span></span>
+<span id="cb23-40"><a aria-hidden="true" href="#cb23-40" tabindex="-1"></a><span class="kw">val</span> <span class="va">signInput</span> <span
+    class="op">=</span> signingService<span class="op">.</span>determineSignInput<span class="op">(</span></span>
+<span id="cb23-41"><a aria-hidden="true" href="#cb23-41" tabindex="-1"></a>    origData <span class="op">=</span> origData<span
+    class="op">,</span></span>
+<span id="cb23-42"><a aria-hidden="true" href="#cb23-42" tabindex="-1"></a>    kid <span class="op">=</span> kid<span class="op">,</span></span>
+<span id="cb23-43"><a aria-hidden="true" href="#cb23-43" tabindex="-1"></a>    signMode <span class="op">=</span> SignMode<span class="op">.</span>DOCUMENT<span
+    class="op">,</span></span>
+<span id="cb23-44"><a aria-hidden="true" href="#cb23-44" tabindex="-1"></a>    signatureConfiguration <span class="op">=</span> signatureConfiguration</span>
+<span id="cb23-45"><a aria-hidden="true" href="#cb23-45" tabindex="-1"></a><span class="op">)</span></span>
+<span id="cb23-46"><a aria-hidden="true" href="#cb23-46" tabindex="-1"></a></span>
+<span id="cb23-47"><a aria-hidden="true" href="#cb23-47" tabindex="-1"></a><span
+    class="co">// Locally create a hash/digest of the extracted bytes</span></span>
+<span id="cb23-48"><a aria-hidden="true" href="#cb23-48" tabindex="-1"></a><span class="kw">val</span> <span class="va">digestInput</span> <span
+    class="op">=</span> signingService<span class="op">.</span>digest<span class="op">(</span>signInput<span class="op">)</span></span>
+<span id="cb23-49"><a aria-hidden="true" href="#cb23-49" tabindex="-1"></a></span>
+<span id="cb23-50"><a aria-hidden="true" href="#cb23-50" tabindex="-1"></a><span class="co">// Calls Azure Keyvault using the hash/digest and the certificate associated with the kid value</span></span>
+<span id="cb23-51"><a aria-hidden="true" href="#cb23-51" tabindex="-1"></a><span class="kw">val</span> <span class="va">signature</span> <span
+    class="op">=</span> signingService<span class="op">.</span>createSignature<span class="op">(</span>digestInput<span class="op">,</span> kid<span
+    class="op">)</span></span>
+<span id="cb23-52"><a aria-hidden="true" href="#cb23-52" tabindex="-1"></a></span>
+<span id="cb23-53"><a aria-hidden="true" href="#cb23-53" tabindex="-1"></a><span class="co">// Locally combine the original document with the created signature</span></span>
+<span id="cb23-54"><a aria-hidden="true" href="#cb23-54" tabindex="-1"></a><span class="kw">val</span> <span class="va">signOutput</span> <span
+    class="op">=</span> signingService<span class="op">.</span>sign<span class="op">(</span>origData<span class="op">,</span> signature<span
+    class="op">,</span> signatureConfiguration<span class="op">)</span></span></code></pre>
+</div>
+<h2 id="etsi-eidas-pades-detached-pdf-signature">ETSI eIDAS PAdES
+  detached PDF signature</h2>
+<p>This is the eIDAS/ETSI compliant PDF Signature type, used with
+  Certificates provided by eIDAS Trust service providers.</p>
+<h3 id="pades-configuration-options">PAdES configuration options</h3>
+<p>The below options are part of a configuration, but can typically also
+  be provided on every invocation. This allows to use the same certificate
+  for instance for signing by multiple people by changing the signerName
+  and related properties.</p>
+<div class="sourceCode" id="cb24"><pre
+    class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb24-1"><a aria-hidden="true" href="#cb24-1" tabindex="-1"></a><span
+    class="kw">class</span> PadesSignatureFormParameters<span class="op">(</span></span>
+<span id="cb24-2"><a aria-hidden="true" href="#cb24-2" tabindex="-1"></a>    /**</span>
+<span id="cb24-3"><a aria-hidden="true" href="#cb24-3" tabindex="-1"></a>     * <span class="va">This</span> <span class="va">attribute</span> <span
+    class="va">allows</span> <span class="va">to</span> <span class="va">explicitly</span> <span class="va">specify</span> <span class="va">the</span> <span
+    class="va">SignerName</span> (<span class="va">name</span> <span class="va">for</span> <span class="va">the</span> <span
+    class="va">Signature</span><span class="op">)</span>.</span>
+<span id="cb24-4"><a aria-hidden="true" href="#cb24-4" tabindex="-1"></a>     * The person or authority signing the document.</span>
+<span id="cb24-5"><a aria-hidden="true" href="#cb24-5" tabindex="-1"></a>     */</span>
+<span id="cb24-6"><a aria-hidden="true" href="#cb24-6" tabindex="-1"></a>    <span class="kw">val</span> signerName<span class="op">:</span> <span
+    class="dt">String</span>? = <span class="dt">null</span><span class="op">,</span></span>
+<span id="cb24-7"><a aria-hidden="true" href="#cb24-7" tabindex="-1"></a></span>
+<span id="cb24-8"><a aria-hidden="true" href="#cb24-8" tabindex="-1"></a>    /** <span class="dt">The</span> <span class="dt">signature</span> <span
+    class="dt">creation</span> <span class="dt">reason</span>  */</span>
+<span id="cb24-9"><a aria-hidden="true" href="#cb24-9" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">reason</span><span
+    class="op">:</span> <span class="kw">String</span><span class="op">?</span> <span class="op">=</span> <span class="kw">null</span><span
+    class="op">,</span></span>
+<span id="cb24-10"><a aria-hidden="true" href="#cb24-10" tabindex="-1"></a></span>
+<span id="cb24-11"><a aria-hidden="true" href="#cb24-11" tabindex="-1"></a>    <span class="co">/** The contact info  */</span></span>
+<span id="cb24-12"><a aria-hidden="true" href="#cb24-12" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">contactInfo</span><span
+    class="op">:</span> <span class="kw">String</span><span class="op">?</span> <span class="op">=</span> <span class="kw">null</span><span
+    class="op">,</span></span>
+<span id="cb24-13"><a aria-hidden="true" href="#cb24-13" tabindex="-1"></a></span>
+<span id="cb24-14"><a aria-hidden="true" href="#cb24-14" tabindex="-1"></a>    <span class="co">/** The signer&#39;s location  */</span></span>
+<span id="cb24-15"><a aria-hidden="true" href="#cb24-15" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">location</span><span
+    class="op">:</span> <span class="kw">String</span><span class="op">?</span> <span class="op">=</span> <span class="kw">null</span><span
+    class="op">,</span></span>
+<span id="cb24-16"><a aria-hidden="true" href="#cb24-16" tabindex="-1"></a></span>
+<span id="cb24-17"><a aria-hidden="true" href="#cb24-17" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb24-18"><a aria-hidden="true" href="#cb24-18" tabindex="-1"></a><span
+    class="co">     * Defines the preserved space for a signature context</span></span>
+<span id="cb24-19"><a aria-hidden="true" href="#cb24-19" tabindex="-1"></a><span class="co">     *</span></span>
+<span id="cb24-20"><a aria-hidden="true" href="#cb24-20" tabindex="-1"></a><span
+    class="co">     * Default : 9472 (default value in pdfbox)</span></span>
+<span id="cb24-21"><a aria-hidden="true" href="#cb24-21" tabindex="-1"></a><span class="co">     */</span></span>
+<span id="cb24-22"><a aria-hidden="true" href="#cb24-22" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">signatureSize</span><span
+    class="op">:</span> <span class="kw">Int</span><span class="op">?</span> <span class="op">=</span> <span class="dv">9472</span><span
+    class="op">,</span></span>
+<span id="cb24-23"><a aria-hidden="true" href="#cb24-23" tabindex="-1"></a></span>
+<span id="cb24-24"><a aria-hidden="true" href="#cb24-24" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb24-25"><a aria-hidden="true" href="#cb24-25" tabindex="-1"></a><span class="co">     * This attribute allows to override the used Filter for a Signature.</span></span>
+<span id="cb24-26"><a aria-hidden="true" href="#cb24-26" tabindex="-1"></a><span class="co">     *</span></span>
+<span id="cb24-27"><a aria-hidden="true" href="#cb24-27" tabindex="-1"></a><span class="co">     * Default value is Adobe.PPKLite</span></span>
+<span id="cb24-28"><a aria-hidden="true" href="#cb24-28" tabindex="-1"></a><span class="co">     */</span></span>
+<span id="cb24-29"><a aria-hidden="true" href="#cb24-29" tabindex="-1"></a>    <span class="kw">val</span> <span
+    class="va">signatureFilter</span><span class="op">:</span> <span class="kw">String</span><span class="op">?</span> <span class="op">=</span> PdfSignatureFilter<span
+    class="op">.</span>ADOBE_PPKLITE<span class="op">.</span>specName<span class="op">,</span></span>
+<span id="cb24-30"><a aria-hidden="true" href="#cb24-30" tabindex="-1"></a></span>
+<span id="cb24-31"><a aria-hidden="true" href="#cb24-31" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb24-32"><a aria-hidden="true" href="#cb24-32" tabindex="-1"></a><span class="co">     * This attribute allows to override the used subFilter for a Signature.</span></span>
+<span id="cb24-33"><a aria-hidden="true" href="#cb24-33" tabindex="-1"></a><span class="co">     *</span></span>
+<span id="cb24-34"><a aria-hidden="true" href="#cb24-34" tabindex="-1"></a><span class="co">     * Default value is ETSI.CAdES.detached</span></span>
+<span id="cb24-35"><a aria-hidden="true" href="#cb24-35" tabindex="-1"></a><span class="co">     */</span></span>
+<span id="cb24-36"><a aria-hidden="true" href="#cb24-36" tabindex="-1"></a>    <span class="kw">val</span> <span
+    class="va">signatureSubFilter</span><span class="op">:</span> <span class="kw">String</span><span class="op">?</span> <span class="op">=</span> PdfSignatureSubFilter<span
+    class="op">.</span>ETSI_CADES_DETACHED<span class="op">.</span>specName<span class="op">,</span></span>
+<span id="cb24-37"><a aria-hidden="true" href="#cb24-37" tabindex="-1"></a></span>
+<span id="cb24-38"><a aria-hidden="true" href="#cb24-38" tabindex="-1"></a></span>
+<span id="cb24-39"><a aria-hidden="true" href="#cb24-39" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb24-40"><a aria-hidden="true" href="#cb24-40" tabindex="-1"></a><span class="co">     * This attribute is used to create visible signature in PAdES form</span></span>
+<span id="cb24-41"><a aria-hidden="true" href="#cb24-41" tabindex="-1"></a><span class="co">     */</span></span>
+<span id="cb24-42"><a aria-hidden="true" href="#cb24-42" tabindex="-1"></a>    <span class="kw">val</span> <span
+    class="va">signatureImageParameters</span><span class="op">:</span> SignatureImageParameters<span class="op">?</span> <span
+    class="op">=</span> <span class="kw">null</span><span class="op">,</span></span>
+<span id="cb24-43"><a aria-hidden="true" href="#cb24-43" tabindex="-1"></a></span>
+<span id="cb24-44"><a aria-hidden="true" href="#cb24-44" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb24-45"><a aria-hidden="true" href="#cb24-45" tabindex="-1"></a><span class="co">     * This attribute allows to create a &quot;certification signature&quot;. That allows to remove permission(s) in case of</span></span>
+<span id="cb24-46"><a aria-hidden="true" href="#cb24-46" tabindex="-1"></a><span class="co">     * future change(s).</span></span>
+<span id="cb24-47"><a aria-hidden="true" href="#cb24-47" tabindex="-1"></a><span class="co">     */</span></span>
+<span id="cb24-48"><a aria-hidden="true" href="#cb24-48" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">permission</span><span
+    class="op">:</span> CertificationPermission<span class="op">?</span> <span class="op">=</span> <span class="kw">null</span><span
+    class="op">,</span></span>
+<span id="cb24-49"><a aria-hidden="true" href="#cb24-49" tabindex="-1"></a></span>
+<span id="cb24-50"><a aria-hidden="true" href="#cb24-50" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb24-51"><a aria-hidden="true" href="#cb24-51" tabindex="-1"></a><span class="co">     * Password used to encrypt a PDF</span></span>
+<span id="cb24-52"><a aria-hidden="true" href="#cb24-52" tabindex="-1"></a><span class="co">     */</span></span>
+<span id="cb24-53"><a aria-hidden="true" href="#cb24-53" tabindex="-1"></a>    <span class="kw">val</span> <span
+    class="va">passwordProtection</span><span class="op">:</span> <span class="kw">String</span><span class="op">?</span> <span
+    class="op">=</span> <span class="kw">null</span><span class="op">,</span></span>
+<span id="cb24-54"><a aria-hidden="true" href="#cb24-54" tabindex="-1"></a></span>
+<span id="cb24-55"><a aria-hidden="true" href="#cb24-55" tabindex="-1"></a>    <span class="co">/** Defines if the signature shall be created according to ETSI EN 319 122  */</span></span>
+<span id="cb24-56"><a aria-hidden="true" href="#cb24-56" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">en319122</span><span
+    class="op">:</span> <span class="kw">Boolean</span><span class="op">?</span> <span class="op">=</span> <span class="kw">true</span><span
+    class="op">,</span></span>
+<span id="cb24-57"><a aria-hidden="true" href="#cb24-57" tabindex="-1"></a></span>
+<span id="cb24-58"><a aria-hidden="true" href="#cb24-58" tabindex="-1"></a>    <span class="co">/** Content Hints type  */</span></span>
+<span id="cb24-59"><a aria-hidden="true" href="#cb24-59" tabindex="-1"></a>    <span class="kw">val</span> <span
+    class="va">contentHintsType</span><span class="op">:</span> <span class="kw">String</span><span class="op">?</span> <span
+    class="op">=</span> <span class="kw">null</span><span class="op">,</span></span>
+<span id="cb24-60"><a aria-hidden="true" href="#cb24-60" tabindex="-1"></a></span>
+<span id="cb24-61"><a aria-hidden="true" href="#cb24-61" tabindex="-1"></a>    <span class="co">/** Content Hints description  */</span></span>
+<span id="cb24-62"><a aria-hidden="true" href="#cb24-62" tabindex="-1"></a>    <span class="kw">val</span> <span
+    class="va">contentHintsDescription</span><span class="op">:</span> <span class="kw">String</span><span class="op">?</span> <span
+    class="op">=</span> <span class="kw">null</span><span class="op">,</span></span>
+<span id="cb24-63"><a aria-hidden="true" href="#cb24-63" tabindex="-1"></a></span>
+<span id="cb24-64"><a aria-hidden="true" href="#cb24-64" tabindex="-1"></a>    <span class="co">/** Content identifier prefix  */</span></span>
+<span id="cb24-65"><a aria-hidden="true" href="#cb24-65" tabindex="-1"></a>    <span class="kw">val</span> <span
+    class="va">contentIdentifierPrefix</span><span class="op">:</span> <span class="kw">String</span><span class="op">?</span> <span
+    class="op">=</span> <span class="kw">null</span><span class="op">,</span></span>
+<span id="cb24-66"><a aria-hidden="true" href="#cb24-66" tabindex="-1"></a></span>
+<span id="cb24-67"><a aria-hidden="true" href="#cb24-67" tabindex="-1"></a>    <span class="co">/** Content identifier suffix  */</span></span>
+<span id="cb24-68"><a aria-hidden="true" href="#cb24-68" tabindex="-1"></a>    <span class="kw">val</span> <span
+    class="va">contentIdentifierSuffix</span><span class="op">:</span> <span class="kw">String</span><span class="op">?</span> <span
+    class="op">=</span> <span class="kw">null</span></span>
+<span id="cb24-69"><a aria-hidden="true" href="#cb24-69" tabindex="-1"></a></span>
+<span id="cb24-70"><a aria-hidden="true" href="#cb24-70" tabindex="-1"></a><span class="op">)</span></span></code></pre>
+</div>
+<h3 id="example-pades-flow">Example PAdES flow</h3>
+<p>Below an example is provided where a local Signing Service and a
+  Certificate Provider using a Hardware Security Module accessed using the
+  PKCS#12 interface with a certificate provided by a Qualified Trust
+  Service Provider.</p>
+<div class="sourceCode" id="cb25"><pre
+    class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb25-1"><a aria-hidden="true" href="#cb25-1" tabindex="-1"></a><span
+    class="co">// Gets the file and set the orig data object</span></span>
+<span id="cb25-2"><a aria-hidden="true" href="#cb25-2" tabindex="-1"></a><span class="kw">val</span> <span class="va">pdfDocInput</span> <span
+    class="op">=</span> <span class="kw">this</span><span class="op">::</span><span class="kw">class</span>.java.classLoader.getResource<span
+    class="op">(</span>&quot;<span class="va">example</span>-<span class="va">unsigned</span>.<span class="va">pdf</span>&quot;<span
+    class="op">)</span></span>
+<span id="cb25-3"><a aria-hidden="true" href="#cb25-3" tabindex="-1"></a><span class="kw">val</span> origData = OrigData<span class="op">(</span><span
+    class="va">value</span> <span class="op">=</span> pdfDocInput<span class="op">.</span>readBytes<span class="op">(),</span> <span
+    class="va">name</span> <span class="op">=</span> <span class="st">&quot;example-unsigned.pdf&quot;</span><span class="op">)</span></span>
+<span id="cb25-4"><a aria-hidden="true" href="#cb25-4" tabindex="-1"></a></span>
+<span id="cb25-5"><a aria-hidden="true" href="#cb25-5" tabindex="-1"></a></span>
+<span id="cb25-6"><a aria-hidden="true" href="#cb25-6" tabindex="-1"></a><span class="kw">val</span> certProvider = CertificateProviderServiceFactory.createFromConfig<span
+    class="op">(</span></span>
+<span id="cb25-7"><a aria-hidden="true" href="#cb25-7" tabindex="-1"></a>    <span class="va">settings</span> <span class="op">=</span> providerSettings<span
+    class="op">,</span> // <span class="va">See</span> <span class="va">above</span> <span class="va">for</span> <span
+    class="va">examples</span></span>
+<span id="cb25-8"><a aria-hidden="true" href="#cb25-8" tabindex="-1"></a><span class="op">)</span></span>
+<span id="cb25-9"><a aria-hidden="true" href="#cb25-9" tabindex="-1"></a>// The factory has returned a Local Certificate Provider with PKCS#12 HSM support at this point</span>
+<span id="cb25-10"><a aria-hidden="true" href="#cb25-10" tabindex="-1"></a></span>
+<span id="cb25-11"><a aria-hidden="true" href="#cb25-11" tabindex="-1"></a>// Create a local signature service, which uses kid/strings to denote the certificates to use</span>
+<span id="cb25-12"><a aria-hidden="true" href="#cb25-12" tabindex="-1"></a><span class="kw">val</span> signingService = AliasSignatureService<span
+    class="op">(</span><span class="va">certProvider</span><span class="op">)</span></span>
+<span id="cb25-13"><a aria-hidden="true" href="#cb25-13" tabindex="-1"></a></span>
+<span id="cb25-14"><a aria-hidden="true" href="#cb25-14" tabindex="-1"></a><span class="kw">val</span> kid = &quot;example&quot; // The kid <span
+    class="kw">is</span> HSM specific and <span class="kw">is</span> <span class="op">&lt;</span><span class="dt">certificate</span> <span class="dt">Id</span><span
+    class="op">&gt;</span></span>
+<span id="cb25-15"><a aria-hidden="true" href="#cb25-15" tabindex="-1"></a></span>
+<span id="cb25-16"><a aria-hidden="true" href="#cb25-16" tabindex="-1"></a><span class="kw">val</span> signatureConfiguration = SignatureConfiguration<span
+    class="op">(</span></span>
+<span id="cb25-17"><a aria-hidden="true" href="#cb25-17" tabindex="-1"></a>    <span class="va">signatureParameters</span> <span class="op">=</span> SignatureParameters<span
+    class="op">(</span></span>
+<span id="cb25-18"><a aria-hidden="true" href="#cb25-18" tabindex="-1"></a>        signaturePackaging = SignaturePackaging<span class="op">.</span>ENVELOPED,</span>
+<span id="cb25-19"><a aria-hidden="true" href="#cb25-19" tabindex="-1"></a>        digestAlgorithm = DigestAlg<span class="op">.</span>SHA256,</span>
+<span id="cb25-20"><a aria-hidden="true" href="#cb25-20" tabindex="-1"></a>        encryptionAlgorithm = CryptoAlg<span class="op">.</span>RSA,</span>
+<span id="cb25-21"><a aria-hidden="true" href="#cb25-21" tabindex="-1"></a>        signatureAlgorithm = SignatureAlg<span class="op">.</span>RSA_SHA256,</span>
+<span id="cb25-22"><a aria-hidden="true" href="#cb25-22" tabindex="-1"></a>        signatureLevelParameters = SignatureLevelParameters<span
+    class="op">(</span></span>
+<span id="cb25-23"><a aria-hidden="true" href="#cb25-23" tabindex="-1"></a>            signatureLevel = SignatureLevel<span class="op">.</span>PAdES_BASELINE_B, <span
+    class="co">// This sets the mode to PDF PAdES (Basic signature)</span></span>
+<span id="cb25-24"><a aria-hidden="true" href="#cb25-24" tabindex="-1"></a>        <span class="op">)</span>,</span>
+<span id="cb25-25"><a aria-hidden="true" href="#cb25-25" tabindex="-1"></a>        signatureFormParameters = SignatureFormParameters<span
+    class="op">(</span></span>
+<span id="cb25-26"><a aria-hidden="true" href="#cb25-26" tabindex="-1"></a>            <span class="co">// PAdES specific parameters</span></span>
+<span id="cb25-27"><a aria-hidden="true" href="#cb25-27"
+                      tabindex="-1"></a>            padesSignatureFormParameters = PadesSignatureFormParameters<span class="op">(</span></span>
+<span id="cb25-28"><a aria-hidden="true" href="#cb25-28" tabindex="-1"></a>                signerName = <span
+    class="st">&quot;Example User&quot;</span>,</span>
+<span id="cb25-29"><a aria-hidden="true" href="#cb25-29" tabindex="-1"></a>                contactInfo = <span class="st">&quot;example@sphereon.com&quot;</span>,</span>
+<span id="cb25-30"><a aria-hidden="true" href="#cb25-30" tabindex="-1"></a>                location = <span
+    class="st">&quot;Amsterdam&quot;</span>,</span>
+<span id="cb25-31"><a aria-hidden="true" href="#cb25-31" tabindex="-1"></a>            <span class="op">)</span></span>
+<span id="cb25-32"><a aria-hidden="true" href="#cb25-32" tabindex="-1"></a>        <span class="op">)</span></span>
+<span id="cb25-33"><a aria-hidden="true" href="#cb25-33" tabindex="-1"></a>    <span class="op">)</span></span>
+<span id="cb25-34"><a aria-hidden="true" href="#cb25-34" tabindex="-1"></a><span class="op">)</span></span>
+<span id="cb25-35"><a aria-hidden="true" href="#cb25-35" tabindex="-1"></a></span>
+<span id="cb25-36"><a aria-hidden="true" href="#cb25-36" tabindex="-1"></a>// Locally extract the bytes to be signed from the PDF document</span>
+<span id="cb25-37"><a aria-hidden="true" href="#cb25-37" tabindex="-1"></a><span
+    class="kw">val</span> signInput = signingService.determineSignInput<span class="op">(</span></span>
+<span id="cb25-38"><a aria-hidden="true" href="#cb25-38" tabindex="-1"></a>    <span class="va">origData</span> <span
+    class="op">=</span> origData<span class="op">,</span></span>
+<span id="cb25-39"><a aria-hidden="true" href="#cb25-39" tabindex="-1"></a>    <span class="va">kid</span> <span class="op">=</span> kid<span
+    class="op">,</span></span>
+<span id="cb25-40"><a aria-hidden="true" href="#cb25-40" tabindex="-1"></a>    <span class="va">signMode</span> <span
+    class="op">=</span> SignMode<span class="op">.</span>DOCUMENT<span class="op">,</span></span>
+<span id="cb25-41"><a aria-hidden="true" href="#cb25-41" tabindex="-1"></a>    <span class="va">signatureConfiguration</span> <span
+    class="op">=</span> signatureConfiguration</span>
+<span id="cb25-42"><a aria-hidden="true" href="#cb25-42" tabindex="-1"></a><span class="op">)</span></span>
+<span id="cb25-43"><a aria-hidden="true" href="#cb25-43" tabindex="-1"></a></span>
+<span id="cb25-44"><a aria-hidden="true" href="#cb25-44" tabindex="-1"></a>// Locally create a hash/digest of the extracted bytes</span>
+<span id="cb25-45"><a aria-hidden="true" href="#cb25-45" tabindex="-1"></a><span class="kw">val</span> digestInput = signingService.digest<span
+    class="op">(</span><span class="va">signInput</span><span class="op">)</span></span>
+<span id="cb25-46"><a aria-hidden="true" href="#cb25-46" tabindex="-1"></a></span>
+<span id="cb25-47"><a aria-hidden="true" href="#cb25-47" tabindex="-1"></a>// Calls the HSM using the hash/digest and the certificate associated with the kid value</span>
+<span id="cb25-48"><a aria-hidden="true" href="#cb25-48" tabindex="-1"></a><span class="kw">val</span> signature = signingService.createSignature<span
+    class="op">(</span><span class="va">digestInput</span><span class="op">,</span> <span class="va">kid</span><span class="op">)</span></span>
+<span id="cb25-49"><a aria-hidden="true" href="#cb25-49" tabindex="-1"></a></span>
+<span id="cb25-50"><a aria-hidden="true" href="#cb25-50" tabindex="-1"></a>// Locally combine the original document with the created signature</span>
+<span id="cb25-51"><a aria-hidden="true" href="#cb25-51" tabindex="-1"></a><span class="kw">val</span> signOutput = signingService.sign<span
+    class="op">(</span><span class="va">origData</span><span class="op">,</span> <span class="va">signature</span><span class="op">,</span> <span
+    class="va">signatureConfiguration</span><span class="op">)</span></span></code></pre>
+</div>
+<h2 id="visual-pkcs7-and-pades-signatures">Visual PKCS#7 and PAdES
+  signatures</h2>
+<p>It is possible to create visual signatures. These signatures show an
+  image of a ‘wet signature’ by providing an image file, or alternatively
+  they are created from provided text. These visual signatures will show
+  up in the document, and can be clicked upon to show more
+  information.</p>
+<p>Both PAdES and PKCS#7 type of PDF signatures have option to add
+  visual signature options in their respective SignatureFormParameters</p>
+<p>PKCS#7 Signature Form Parameters using an image</p>
+<div class="sourceCode" id="cb26"><pre
+    class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb26-1"><a aria-hidden="true" href="#cb26-1" tabindex="-1"></a><span
+    class="co">/**</span></span>
+<span id="cb26-2"><a aria-hidden="true" href="#cb26-2" tabindex="-1"></a><span class="co"> * This attribute is used to create visible signature inside the Pkcs7FormParameters</span></span>
+<span id="cb26-3"><a aria-hidden="true" href="#cb26-3" tabindex="-1"></a><span class="co"> */</span></span>
+<span id="cb26-4"><a aria-hidden="true" href="#cb26-4" tabindex="-1"></a>signatureImageParameters <span
+    class="op">=</span> SignatureImageParameters<span class="op">(</span></span>
+<span id="cb26-5"><a aria-hidden="true" href="#cb26-5" tabindex="-1"></a>    image <span class="op">=</span> ByteArray<span class="op">(),</span>                <span
+    class="co">// The company logo or &quot;wet signature&quot; image as byte array</span></span>
+<span id="cb26-6"><a aria-hidden="true" href="#cb26-6" tabindex="-1"></a>    zoom <span class="op">=</span> <span class="dv">150</span><span
+    class="op">,</span>                         <span class="co">// Scale the image to 150%, defaults to 100%</span></span>
+<span id="cb26-7"><a aria-hidden="true" href="#cb26-7" tabindex="-1"></a>    imageScaling <span class="op">=</span> ImageScaling<span
+    class="op">.</span>STRETCH<span class="op">,</span><span class="co">// Stretches the image in both directions</span></span>
+<span id="cb26-8"><a aria-hidden="true" href="#cb26-8" tabindex="-1"></a></span>
+<span id="cb26-9"><a aria-hidden="true" href="#cb26-9" tabindex="-1"></a>    signatureFieldParameters <span class="op">=</span> SignatureFieldParameters<span
+    class="op">(</span></span>
+<span id="cb26-10"><a aria-hidden="true" href="#cb26-10" tabindex="-1"></a>        fieldId <span class="op">=</span> <span class="st">&quot;Signature 1&quot;</span><span
+    class="op">,</span>    <span class="co">// Signature field id/name</span></span>
+<span id="cb26-11"><a aria-hidden="true" href="#cb26-11" tabindex="-1"></a>        page <span class="op">=</span> <span class="dv">2</span><span
+    class="op">,</span>                   <span class="co">// Page number where the signature field is added (defaults to 1)</span></span>
+<span id="cb26-12"><a aria-hidden="true" href="#cb26-12" tabindex="-1"></a>        originX <span class="op">=</span> <span class="fl">10f</span><span
+    class="op">,</span>              <span class="co">// Coordinate X where to add the signature field (origin is top/left corner)</span></span>
+<span id="cb26-13"><a aria-hidden="true" href="#cb26-13" tabindex="-1"></a>        originY <span class="op">=</span> <span class="fl">50f</span><span
+    class="op">,</span>              <span class="co">// Coordinate Y where to add the signature field (origin is top/left corner)</span></span>
+<span id="cb26-14"><a aria-hidden="true" href="#cb26-14" tabindex="-1"></a>        width <span class="op">=</span> <span class="fl">100f</span><span
+    class="op">,</span>               <span class="co">// Signature field width</span></span>
+<span id="cb26-15"><a aria-hidden="true" href="#cb26-15" tabindex="-1"></a>        height <span class="op">=</span> <span class="fl">30f</span>                <span
+    class="co">// Signature field height</span></span>
+<span id="cb26-16"><a aria-hidden="true" href="#cb26-16" tabindex="-1"></a>    <span class="op">)</span></span>
+<span id="cb26-17"><a aria-hidden="true" href="#cb26-17" tabindex="-1"></a></span>
+<span id="cb26-18"><a aria-hidden="true" href="#cb26-18" tabindex="-1"></a><span class="op">)</span></span></code></pre>
+</div>
+<p>PKCS#7 Signature Form Parameters using text</p>
+<div class="sourceCode" id="cb27"><pre
+    class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb27-1"><a aria-hidden="true" href="#cb27-1" tabindex="-1"></a><span
+    class="co">/**</span></span>
+<span id="cb27-2"><a aria-hidden="true" href="#cb27-2" tabindex="-1"></a><span class="co"> * This attribute is used to create visible signature inside the Pkcs7FormParameters</span></span>
+<span id="cb27-3"><a aria-hidden="true" href="#cb27-3" tabindex="-1"></a><span class="co"> */</span></span>
+<span id="cb27-4"><a aria-hidden="true" href="#cb27-4" tabindex="-1"></a>signatureImageParameters <span
+    class="op">=</span> SignatureImageParameters<span class="op">(</span></span>
+<span id="cb27-5"><a aria-hidden="true" href="#cb27-5" tabindex="-1"></a>    signatureImageTextParameters <span class="op">=</span> SignatureImageTextParameters<span
+    class="op">(</span></span>
+<span id="cb27-6"><a aria-hidden="true" href="#cb27-6" tabindex="-1"></a>        text <span class="op">=</span> <span class="st">&quot;John Doe, CEO&quot;</span><span
+    class="op">,</span>                 <span class="co">// This variable defines the text</span></span>
+<span id="cb27-7"><a aria-hidden="true" href="#cb27-7" tabindex="-1"></a>        textWrapping <span class="op">=</span> TextWrapping<span
+    class="op">.</span>FILL_BOX<span class="op">,</span>   <span class="co">// Fills the box adjusting the font-size to match</span></span>
+<span id="cb27-8"><a aria-hidden="true" href="#cb27-8" tabindex="-1"></a>        padding <span class="op">=</span> <span class="dv">10</span><span
+    class="op">,</span>                           <span class="co">// padding in pixels, defaults to 5</span></span>
+<span id="cb27-9"><a aria-hidden="true" href="#cb27-9" tabindex="-1"></a>        textColor <span class="op">=</span> <span
+    class="st">&quot;RED&quot;</span><span class="op">,</span></span>
+<span id="cb27-10"><a aria-hidden="true" href="#cb27-10" tabindex="-1"></a>        backgroundColor <span class="op">=</span> <span class="st">&quot;WHITE&quot;</span></span>
+<span id="cb27-11"><a aria-hidden="true" href="#cb27-11" tabindex="-1"></a>    <span class="op">),</span></span>
+<span id="cb27-12"><a aria-hidden="true" href="#cb27-12" tabindex="-1"></a>    signatureFieldParameters <span class="op">=</span> SignatureFieldParameters<span
+    class="op">(</span></span>
+<span id="cb27-13"><a aria-hidden="true" href="#cb27-13" tabindex="-1"></a>        fieldId <span class="op">=</span> <span class="st">&quot;Signature 1&quot;</span><span
+    class="op">,</span>    <span class="co">// Signature field id/name</span></span>
+<span id="cb27-14"><a aria-hidden="true" href="#cb27-14" tabindex="-1"></a>        page <span class="op">=</span> <span class="dv">2</span><span
+    class="op">,</span>                   <span class="co">// Page number where the signature field is added (defaults to 1)</span></span>
+<span id="cb27-15"><a aria-hidden="true" href="#cb27-15" tabindex="-1"></a>        originX <span class="op">=</span> <span class="fl">10f</span><span
+    class="op">,</span>              <span class="co">// Coordinate X where to add the signature field (origin is top/left corner)</span></span>
+<span id="cb27-16"><a aria-hidden="true" href="#cb27-16" tabindex="-1"></a>        originY <span class="op">=</span> <span class="fl">50f</span><span
+    class="op">,</span>              <span class="co">// Coordinate Y where to add the signature field (origin is top/left corner)</span></span>
+<span id="cb27-17"><a aria-hidden="true" href="#cb27-17" tabindex="-1"></a>        width <span class="op">=</span> <span class="fl">100f</span><span
+    class="op">,</span>               <span class="co">// Signature field width</span></span>
+<span id="cb27-18"><a aria-hidden="true" href="#cb27-18" tabindex="-1"></a>        height <span class="op">=</span> <span class="fl">30f</span>                <span
+    class="co">// Signature field height</span></span>
+<span id="cb27-19"><a aria-hidden="true" href="#cb27-19" tabindex="-1"></a>    <span class="op">)</span></span>
+<span id="cb27-20"><a aria-hidden="true" href="#cb27-20" tabindex="-1"></a><span class="op">)</span></span></code></pre>
+</div>
+<p>Signature Image Parameters is the main class to configure Visual
+  Signatures.</p>
+<div class="sourceCode" id="cb28"><pre
+    class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb28-1"><a aria-hidden="true" href="#cb28-1" tabindex="-1"></a><span
+    class="kw">class</span> SignatureImageParameters<span class="op">(</span></span>
+<span id="cb28-2"><a aria-hidden="true" href="#cb28-2" tabindex="-1"></a></span>
+<span id="cb28-3"><a aria-hidden="true" href="#cb28-3" tabindex="-1"></a>    /**</span>
+<span id="cb28-4"><a aria-hidden="true" href="#cb28-4" tabindex="-1"></a>     * <span class="va">This</span> <span class="va">variable</span> <span
+    class="va">contains</span> <span class="va">the</span> <span class="va">image</span> <span class="va">to</span> <span class="va">use</span> (<span
+    class="va">company</span> <span class="va">logo</span><span class="op">,</span>...<span class="op">)</span></span>
+<span id="cb28-5"><a aria-hidden="true" href="#cb28-5" tabindex="-1"></a>     */</span>
+<span id="cb28-6"><a aria-hidden="true" href="#cb28-6" tabindex="-1"></a>    <span class="kw">val</span> image<span class="op">:</span> <span
+    class="dt">ByteArray</span>? = <span class="dt">null</span><span class="op">,</span></span>
+<span id="cb28-7"><a aria-hidden="true" href="#cb28-7" tabindex="-1"></a></span>
+<span id="cb28-8"><a aria-hidden="true" href="#cb28-8" tabindex="-1"></a>    /**</span>
+<span id="cb28-9"><a aria-hidden="true" href="#cb28-9" tabindex="-1"></a>     * <span class="dt">This</span> <span class="dt">variable</span> <span
+    class="dt">defines</span> <span class="dt">a</span> `<span class="dt">SignatureFieldParameters</span>` <span class="dt">like</span> <span
+    class="dt">field</span> <span class="dt">positions</span> <span class="dt">and</span> <span class="dt">dimensions</span></span>
+<span id="cb28-10"><a aria-hidden="true" href="#cb28-10" tabindex="-1"></a>     */</span>
+<span id="cb28-11"><a aria-hidden="true" href="#cb28-11" tabindex="-1"></a>    <span class="kw">val</span> <span
+    class="va">fieldParameters</span><span class="op">:</span> SignatureFieldParameters<span class="op">?</span> <span class="op">=</span> <span
+    class="kw">null</span><span class="op">,</span></span>
+<span id="cb28-12"><a aria-hidden="true" href="#cb28-12" tabindex="-1"></a></span>
+<span id="cb28-13"><a aria-hidden="true" href="#cb28-13" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb28-14"><a aria-hidden="true" href="#cb28-14" tabindex="-1"></a><span class="co">     * This variable defines a percent to zoom the image (100% means no scaling).</span></span>
+<span id="cb28-15"><a aria-hidden="true" href="#cb28-15" tabindex="-1"></a><span class="co">     * Note: This does not touch zooming of the text representation.</span></span>
+<span id="cb28-16"><a aria-hidden="true" href="#cb28-16" tabindex="-1"></a><span class="co">     */</span></span>
+<span id="cb28-17"><a aria-hidden="true" href="#cb28-17" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">zoom</span><span
+    class="op">:</span> <span class="kw">Int</span> <span class="op">=</span> NO_SCALING<span class="op">,</span></span>
+<span id="cb28-18"><a aria-hidden="true" href="#cb28-18" tabindex="-1"></a></span>
+<span id="cb28-19"><a aria-hidden="true" href="#cb28-19" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb28-20"><a aria-hidden="true" href="#cb28-20" tabindex="-1"></a><span class="co">     * This variable defines the color of the image</span></span>
+<span id="cb28-21"><a aria-hidden="true" href="#cb28-21" tabindex="-1"></a><span class="co">     */</span></span>
+<span id="cb28-22"><a aria-hidden="true" href="#cb28-22" tabindex="-1"></a>    <span class="kw">val</span> <span
+    class="va">backgroundColor</span><span class="op">:</span> <span class="kw">String</span><span class="op">?</span> <span class="op">=</span> <span
+    class="kw">null</span><span class="op">,</span></span>
+<span id="cb28-23"><a aria-hidden="true" href="#cb28-23" tabindex="-1"></a></span>
+<span id="cb28-24"><a aria-hidden="true" href="#cb28-24" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb28-25"><a aria-hidden="true" href="#cb28-25" tabindex="-1"></a><span
+    class="co">     * This variable defines the DPI of the image</span></span>
+<span id="cb28-26"><a aria-hidden="true" href="#cb28-26" tabindex="-1"></a><span class="co">     */</span></span>
+<span id="cb28-27"><a aria-hidden="true" href="#cb28-27" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">dpi</span><span
+    class="op">:</span> <span class="kw">Int</span><span class="op">?</span> <span class="op">=</span> <span class="kw">null</span><span
+    class="op">,</span></span>
+<span id="cb28-28"><a aria-hidden="true" href="#cb28-28" tabindex="-1"></a></span>
+<span id="cb28-29"><a aria-hidden="true" href="#cb28-29" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb28-30"><a aria-hidden="true" href="#cb28-30" tabindex="-1"></a><span class="co">     * Use rotation on the PDF page, where the visual signature will be</span></span>
+<span id="cb28-31"><a aria-hidden="true" href="#cb28-31" tabindex="-1"></a><span class="co">     */</span></span>
+<span id="cb28-32"><a aria-hidden="true" href="#cb28-32" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">rotation</span><span
+    class="op">:</span> VisualSignatureRotation<span class="op">?</span> <span class="op">=</span> <span class="kw">null</span><span
+    class="op">,</span></span>
+<span id="cb28-33"><a aria-hidden="true" href="#cb28-33" tabindex="-1"></a></span>
+<span id="cb28-34"><a aria-hidden="true" href="#cb28-34" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb28-35"><a aria-hidden="true" href="#cb28-35" tabindex="-1"></a><span class="co">     * Horizontal alignment of the visual signature on the pdf page</span></span>
+<span id="cb28-36"><a aria-hidden="true" href="#cb28-36" tabindex="-1"></a><span class="co">     */</span></span>
+<span id="cb28-37"><a aria-hidden="true" href="#cb28-37" tabindex="-1"></a></span>
+<span id="cb28-38"><a aria-hidden="true" href="#cb28-38" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">alignmentHorizontal</span><span
+    class="op">:</span> VisualSignatureAlignmentHorizontal<span class="op">?</span> <span class="op">=</span> VisualSignatureAlignmentHorizontal<span
+    class="op">.</span>NONE<span class="op">,</span></span>
+<span id="cb28-39"><a aria-hidden="true" href="#cb28-39" tabindex="-1"></a></span>
+<span id="cb28-40"><a aria-hidden="true" href="#cb28-40" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb28-41"><a aria-hidden="true" href="#cb28-41" tabindex="-1"></a><span class="co">     * Vertical alignment of the visual signature on the pdf page</span></span>
+<span id="cb28-42"><a aria-hidden="true" href="#cb28-42" tabindex="-1"></a><span class="co">     */</span></span>
+<span id="cb28-43"><a aria-hidden="true" href="#cb28-43" tabindex="-1"></a>    <span class="kw">val</span> <span
+    class="va">alignmentVertical</span><span class="op">:</span> VisualSignatureAlignmentVertical<span class="op">?</span> <span class="op">=</span> VisualSignatureAlignmentVertical<span
+    class="op">.</span>NONE<span class="op">,</span></span>
+<span id="cb28-44"><a aria-hidden="true" href="#cb28-44" tabindex="-1"></a></span>
+<span id="cb28-45"><a aria-hidden="true" href="#cb28-45" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb28-46"><a aria-hidden="true" href="#cb28-46" tabindex="-1"></a><span class="co">     * Defines the image scaling behavior within a signature field with a fixed size</span></span>
+<span id="cb28-47"><a aria-hidden="true" href="#cb28-47" tabindex="-1"></a><span class="co">     *</span></span>
+<span id="cb28-48"><a aria-hidden="true" href="#cb28-48" tabindex="-1"></a><span class="co">     * DEFAULT : ImageScaling.STRETCH (stretches the image in both directions to fill the signature field)</span></span>
+<span id="cb28-49"><a aria-hidden="true" href="#cb28-49" tabindex="-1"></a><span class="co">     */</span></span>
+<span id="cb28-50"><a aria-hidden="true" href="#cb28-50" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">imageScaling</span><span
+    class="op">:</span> ImageScaling<span class="op">?</span> <span class="op">=</span> ImageScaling<span class="op">.</span>STRETCH<span
+    class="op">,</span></span>
+<span id="cb28-51"><a aria-hidden="true" href="#cb28-51" tabindex="-1"></a></span>
+<span id="cb28-52"><a aria-hidden="true" href="#cb28-52" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb28-53"><a aria-hidden="true" href="#cb28-53" tabindex="-1"></a><span class="co">     * This variable is use to defines the text to generate on the image</span></span>
+<span id="cb28-54"><a aria-hidden="true" href="#cb28-54" tabindex="-1"></a><span class="co">     */</span></span>
+<span id="cb28-55"><a aria-hidden="true" href="#cb28-55" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">textParameters</span><span
+    class="op">:</span> SignatureImageTextParameters<span class="op">?</span> <span class="op">=</span> <span class="kw">null</span></span>
+<span id="cb28-56"><a aria-hidden="true" href="#cb28-56" tabindex="-1"></a><span class="op">)</span></span></code></pre>
+</div>
+<p>The Signature Field Parameters define the location and dimensions of
+  the signature</p>
+<div class="sourceCode" id="cb29"><pre
+    class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb29-1"><a aria-hidden="true" href="#cb29-1" tabindex="-1"></a><span
+    class="kw">class</span> SignatureFieldParameters<span class="op">(</span></span>
+<span id="cb29-2"><a aria-hidden="true" href="#cb29-2" tabindex="-1"></a>    /** <span class="va">Signature</span> <span class="va">field</span> <span
+    class="va">id</span>/<span class="va">name</span> (<span class="va">optional</span><span class="op">)</span>  */</span>
+<span id="cb29-3"><a aria-hidden="true" href="#cb29-3" tabindex="-1"></a>    <span class="kw">val</span> fieldId<span class="op">:</span> <span
+    class="dt">String</span>? = <span class="dt">null</span><span class="op">,</span></span>
+<span id="cb29-4"><a aria-hidden="true" href="#cb29-4" tabindex="-1"></a></span>
+<span id="cb29-5"><a aria-hidden="true" href="#cb29-5" tabindex="-1"></a>    /** <span class="dt">Page</span> <span class="dt">number</span> <span
+    class="kw">where</span> the signature field <span class="kw">is</span> added  <span class="op">*/</span></span>
+<span id="cb29-6"><a aria-hidden="true" href="#cb29-6" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">page</span><span class="op">:</span> <span
+    class="kw">Int</span> <span class="op">=</span> DEFAULT_FIRST_PAGE<span class="op">,</span></span>
+<span id="cb29-7"><a aria-hidden="true" href="#cb29-7" tabindex="-1"></a></span>
+<span id="cb29-8"><a aria-hidden="true" href="#cb29-8" tabindex="-1"></a>    <span class="co">/** Coordinate X where to add the signature field (origin is top/left corner)  */</span></span>
+<span id="cb29-9"><a aria-hidden="true" href="#cb29-9" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">originX</span><span
+    class="op">:</span> <span class="kw">Float</span> <span class="op">=</span> <span class="fl">0f</span><span class="op">,</span></span>
+<span id="cb29-10"><a aria-hidden="true" href="#cb29-10" tabindex="-1"></a></span>
+<span id="cb29-11"><a aria-hidden="true" href="#cb29-11" tabindex="-1"></a>    <span class="co">/** Coordinate Y where to add the signature field (origin is top/left corner)  */</span></span>
+<span id="cb29-12"><a aria-hidden="true" href="#cb29-12" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">originY</span><span
+    class="op">:</span> <span class="kw">Float</span> <span class="op">=</span> <span class="fl">0f</span><span class="op">,</span></span>
+<span id="cb29-13"><a aria-hidden="true" href="#cb29-13" tabindex="-1"></a></span>
+<span id="cb29-14"><a aria-hidden="true" href="#cb29-14" tabindex="-1"></a>    <span class="co">/** Signature field width  */</span></span>
+<span id="cb29-15"><a aria-hidden="true" href="#cb29-15" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">width</span><span
+    class="op">:</span> <span class="kw">Float</span> <span class="op">=</span> <span class="fl">0f</span><span class="op">,</span></span>
+<span id="cb29-16"><a aria-hidden="true" href="#cb29-16" tabindex="-1"></a></span>
+<span id="cb29-17"><a aria-hidden="true" href="#cb29-17" tabindex="-1"></a>    <span class="co">/** Signature field height  */</span></span>
+<span id="cb29-18"><a aria-hidden="true" href="#cb29-18" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">height</span><span
+    class="op">:</span> <span class="kw">Float</span> <span class="op">=</span> <span class="fl">0f</span></span>
+<span id="cb29-19"><a aria-hidden="true" href="#cb29-19" tabindex="-1"></a><span class="op">)</span></span></code></pre>
+</div>
+<p>Signature Image Text parameters define text and the appearance to
+  place in the visual signature</p>
+<div class="sourceCode" id="cb30"><pre
+    class="sourceCode kotlin"><code class="sourceCode kotlin"><span id="cb30-1"><a aria-hidden="true" href="#cb30-1" tabindex="-1"></a><span
+    class="kw">class</span> SignatureImageTextParameters<span class="op">(</span></span>
+<span id="cb30-2"><a aria-hidden="true" href="#cb30-2" tabindex="-1"></a>    /**</span>
+<span id="cb30-3"><a aria-hidden="true" href="#cb30-3" tabindex="-1"></a>     * <span class="va">This</span> <span class="va">variable</span> <span
+    class="va">allows</span> <span class="va">to</span> <span class="va">add</span> <span class="va">signer</span> <span class="va">name</span> <span
+    class="va">on</span> <span class="va">the</span> <span class="va">image</span> (<span class="kw">by</span> <span class="va">default</span><span
+    class="op">,</span> <span class="va">LEFT</span><span class="op">)</span></span>
+<span id="cb30-4"><a aria-hidden="true" href="#cb30-4" tabindex="-1"></a>     */</span>
+<span id="cb30-5"><a aria-hidden="true" href="#cb30-5" tabindex="-1"></a>    <span class="kw">val</span> signerTextPosition<span
+    class="op">:</span> <span class="dt">SignerTextPosition</span> = <span class="dt">SignerTextPosition</span>.<span class="dt">LEFT</span><span
+    class="op">,</span></span>
+<span id="cb30-6"><a aria-hidden="true" href="#cb30-6" tabindex="-1"></a></span>
+<span id="cb30-7"><a aria-hidden="true" href="#cb30-7" tabindex="-1"></a>    /**</span>
+<span id="cb30-8"><a aria-hidden="true" href="#cb30-8" tabindex="-1"></a>     * <span class="dt">This</span> <span class="dt">variable</span> <span
+    class="dt">defines</span> <span class="dt">the</span> <span class="dt">image</span> <span class="dt">from</span> <span
+    class="dt">text</span> <span class="dt">vertical</span> <span class="dt">alignment</span> <span class="kw">in</span> connection</span>
+<span id="cb30-9"><a aria-hidden="true" href="#cb30-9" tabindex="-1"></a>     <span class="op">*</span> with the image<span
+    class="op">&lt;</span>br<span class="op">&gt;&lt;/</span>br<span class="op">&gt;</span></span>
+<span id="cb30-10"><a aria-hidden="true" href="#cb30-10" tabindex="-1"></a>     <span class="op">*</span> <span class="op">&lt;</span>br<span
+    class="op">&gt;&lt;/</span>br<span class="op">&gt;</span></span>
+<span id="cb30-11"><a aria-hidden="true" href="#cb30-11" tabindex="-1"></a>     <span class="op">*</span> It has effect <span class="cf">when</span> the <span
+    class="op">[</span>SignerPosition<span class="op">][</span>SignerTextPosition<span class="op">]</span> <span class="kw">is</span></span>
+<span id="cb30-12"><a aria-hidden="true" href="#cb30-12" tabindex="-1"></a>     <span class="op">*</span> <span class="op">[</span>LEFT<span
+    class="op">][</span>SignerTextPosition<span class="op">.</span>LEFT<span class="op">]</span> or <span class="op">[</span> RIGHT<span
+    class="op">][</span>SignerTextPosition<span class="op">.</span>RIGHT<span class="op">]</span></span>
+<span id="cb30-13"><a aria-hidden="true" href="#cb30-13" tabindex="-1"></a>     <span class="op">*/</span></span>
+<span id="cb30-14"><a aria-hidden="true" href="#cb30-14" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">signerTextVerticalAlignment</span><span
+    class="op">:</span> SignerTextVerticalAlignment <span class="op">=</span> SignerTextVerticalAlignment<span class="op">.</span>MIDDLE<span
+    class="op">,</span></span>
+<span id="cb30-15"><a aria-hidden="true" href="#cb30-15" tabindex="-1"></a></span>
+<span id="cb30-16"><a aria-hidden="true" href="#cb30-16" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb30-17"><a aria-hidden="true" href="#cb30-17" tabindex="-1"></a><span class="co">     * This variable set the more line text horizontal alignment</span></span>
+<span id="cb30-18"><a aria-hidden="true" href="#cb30-18" tabindex="-1"></a><span class="co">     */</span></span>
+<span id="cb30-19"><a aria-hidden="true" href="#cb30-19" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">signerTextHorizontalAlignment</span><span
+    class="op">:</span> SignerTextHorizontalAlignment <span class="op">=</span> SignerTextHorizontalAlignment<span class="op">.</span>LEFT<span
+    class="op">,</span></span>
+<span id="cb30-20"><a aria-hidden="true" href="#cb30-20" tabindex="-1"></a></span>
+<span id="cb30-21"><a aria-hidden="true" href="#cb30-21" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb30-22"><a aria-hidden="true" href="#cb30-22" tabindex="-1"></a><span
+    class="co">     * This variable defines the text to sign</span></span>
+<span id="cb30-23"><a aria-hidden="true" href="#cb30-23" tabindex="-1"></a><span class="co">     */</span></span>
+<span id="cb30-24"><a aria-hidden="true" href="#cb30-24" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">text</span><span
+    class="op">:</span> <span class="kw">String</span><span class="op">?</span> <span class="op">=</span> <span class="kw">null</span><span
+    class="op">,</span></span>
+<span id="cb30-25"><a aria-hidden="true" href="#cb30-25" tabindex="-1"></a></span>
+<span id="cb30-26"><a aria-hidden="true" href="#cb30-26" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb30-27"><a aria-hidden="true" href="#cb30-27" tabindex="-1"></a><span class="co">     * This variable defines the font to use</span></span>
+<span id="cb30-28"><a aria-hidden="true" href="#cb30-28" tabindex="-1"></a><span class="co">     * (default is PTSerifRegular)</span></span>
+<span id="cb30-29"><a aria-hidden="true" href="#cb30-29" tabindex="-1"></a><span class="co">     */</span></span>
+<span id="cb30-30"><a aria-hidden="true" href="#cb30-30" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">font</span><span
+    class="op">:</span> <span class="kw">String</span><span class="op">?</span> <span class="op">=</span> <span class="kw">null</span><span
+    class="op">,</span></span>
+<span id="cb30-31"><a aria-hidden="true" href="#cb30-31" tabindex="-1"></a></span>
+<span id="cb30-32"><a aria-hidden="true" href="#cb30-32" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb30-33"><a aria-hidden="true" href="#cb30-33" tabindex="-1"></a><span class="co">     * This variable defines how the given text should be wrapped within the signature field&#39;s box</span></span>
+<span id="cb30-34"><a aria-hidden="true" href="#cb30-34" tabindex="-1"></a><span class="co">     *</span></span>
+<span id="cb30-35"><a aria-hidden="true" href="#cb30-35" tabindex="-1"></a><span class="co">     * Default : TextWrapping.FONT_BASED - the text is computed based on the `Font` configuration</span></span>
+<span id="cb30-36"><a aria-hidden="true" href="#cb30-36" tabindex="-1"></a><span class="co">     */</span></span>
+<span id="cb30-37"><a aria-hidden="true" href="#cb30-37" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">textWrapping</span><span
+    class="op">:</span> TextWrapping <span class="op">=</span> TextWrapping<span class="op">.</span>FONT_BASED<span class="op">,</span></span>
+<span id="cb30-38"><a aria-hidden="true" href="#cb30-38" tabindex="-1"></a></span>
+<span id="cb30-39"><a aria-hidden="true" href="#cb30-39" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb30-40"><a aria-hidden="true" href="#cb30-40" tabindex="-1"></a><span class="co">     * This variable defines a padding in pixels to bound text around</span></span>
+<span id="cb30-41"><a aria-hidden="true" href="#cb30-41" tabindex="-1"></a><span class="co">     * (default is 5)</span></span>
+<span id="cb30-42"><a aria-hidden="true" href="#cb30-42" tabindex="-1"></a><span class="co">     */</span></span>
+<span id="cb30-43"><a aria-hidden="true" href="#cb30-43" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">padding</span><span
+    class="op">:</span> <span class="kw">Float</span> <span class="op">=</span> DEFAULT_PADDING<span class="op">,</span></span>
+<span id="cb30-44"><a aria-hidden="true" href="#cb30-44" tabindex="-1"></a></span>
+<span id="cb30-45"><a aria-hidden="true" href="#cb30-45" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb30-46"><a aria-hidden="true" href="#cb30-46" tabindex="-1"></a><span class="co">     * This variable defines the text color to use</span></span>
+<span id="cb30-47"><a aria-hidden="true" href="#cb30-47" tabindex="-1"></a><span class="co">     * (default is BLACK)</span></span>
+<span id="cb30-48"><a aria-hidden="true" href="#cb30-48" tabindex="-1"></a><span class="co">     * (PAdES visual appearance: allow null as text color, preventing graphic operators)</span></span>
+<span id="cb30-49"><a aria-hidden="true" href="#cb30-49" tabindex="-1"></a><span class="co">     */</span></span>
+<span id="cb30-50"><a aria-hidden="true" href="#cb30-50" tabindex="-1"></a>    <span class="kw">val</span> <span class="va">textColor</span><span
+    class="op">:</span> <span class="kw">String</span><span class="op">?</span> <span class="op">=</span> DEFAULT_TEXT_COLOR<span class="op">,</span></span>
+<span id="cb30-51"><a aria-hidden="true" href="#cb30-51" tabindex="-1"></a></span>
+<span id="cb30-52"><a aria-hidden="true" href="#cb30-52" tabindex="-1"></a>    <span class="co">/**</span></span>
+<span id="cb30-53"><a aria-hidden="true" href="#cb30-53" tabindex="-1"></a><span class="co">     * This variable defines the background of a text bounding box</span></span>
+<span id="cb30-54"><a aria-hidden="true" href="#cb30-54" tabindex="-1"></a><span class="co">     */</span></span>
+<span id="cb30-55"><a aria-hidden="true" href="#cb30-55" tabindex="-1"></a>    <span class="kw">val</span> <span
+    class="va">backgroundColor</span><span class="op">:</span> <span class="kw">String</span><span class="op">?</span> <span class="op">=</span> DEFAULT_BACKGROUND_COLOR</span>
+<span id="cb30-56"><a aria-hidden="true" href="#cb30-56" tabindex="-1"></a><span class="op">)</span></span></code></pre>
+</div>
+<h1 id="verifiable-credentials-and-ssi">Verifiable Credentials and
+  SSI</h1>
+<p>This library can be used as part of a Self Sovereign Identity
+  solution to sign <a
+      href="https://www.w3.org/TR/vc-data-model/">Verifiable Credentials</a>.
+  For more information we refer to the accompanying <a
+      href="https://github.com/Sphereon-OpenSource/ssi-proof-client">SSI Proof
+    Client</a></p>
+<h1 id="building-and-running-the-source-code">Building and running the
+  source code</h1>
+<h2 id="requirements">Requirements</h2>
+<p>This library has the following minimal requirements:</p>
+<p>Java 11 and higher (tested up to Java 17) for the build is required.
+  At runtime Kotlin and Java can be used currently</p>
+<p>Gradle 7.X and higher;</p>
+<p>We strongly recommend using the latest available version of JDK, in
+  order to have the most recent security fixes and cryptographical
+  algorithm updates. Before processing the integration steps, please
+  ensure you have successfully installed Maven and JVM with a required
+  version.</p>
+<h2 id="adding-as-maven-dependency">Adding as Maven dependency</h2>
+<p>The simplest way to include DSS to your Maven project is to add a
+  repository into the pom.xml file in the root directory of your project
+  as following:</p>
+<div class="sourceCode" id="cb31"><pre
+    class="sourceCode xml"><code class="sourceCode xml"><span id="cb31-1"><a aria-hidden="true" href="#cb31-1" tabindex="-1"></a></span>
+<span id="cb31-2"><a aria-hidden="true" href="#cb31-2" tabindex="-1"></a>&lt;<span class="kw">project</span>&gt;</span>
+<span id="cb31-3"><a aria-hidden="true" href="#cb31-3" tabindex="-1"></a>  &lt;<span class="kw">repositories</span>&gt;</span>
+<span id="cb31-4"><a aria-hidden="true" href="#cb31-4" tabindex="-1"></a></span>
+<span id="cb31-5"><a aria-hidden="true" href="#cb31-5" tabindex="-1"></a>    .....</span>
+<span id="cb31-6"><a aria-hidden="true" href="#cb31-6" tabindex="-1"></a></span>
+<span id="cb31-7"><a aria-hidden="true" href="#cb31-7" tabindex="-1"></a>    &lt;<span class="kw">repository</span>&gt;</span>
+<span id="cb31-8"><a aria-hidden="true" href="#cb31-8" tabindex="-1"></a>      &lt;<span class="kw">id</span>&gt;sphereon-public&lt;/<span class="kw">id</span>&gt;</span>
+<span id="cb31-9"><a aria-hidden="true" href="#cb31-9" tabindex="-1"></a>      &lt;<span class="kw">name</span>&gt;Sphereon Public&lt;/<span
+    class="kw">name</span>&gt;</span>
+<span id="cb31-10"><a aria-hidden="true" href="#cb31-10" tabindex="-1"></a>      &lt;<span class="kw">url</span>&gt;https://nexus.qa.sphereon.com/repository/sphereon-public/&lt;/<span
+    class="kw">url</span>&gt;</span>
+<span id="cb31-11"><a aria-hidden="true" href="#cb31-11" tabindex="-1"></a>    &lt;/<span class="kw">repository</span>&gt;</span>
+<span id="cb31-12"><a aria-hidden="true" href="#cb31-12" tabindex="-1"></a>  &lt;/<span class="kw">repositories</span>&gt;</span>
+<span id="cb31-13"><a aria-hidden="true" href="#cb31-13" tabindex="-1"></a></span>
+<span id="cb31-14"><a aria-hidden="true" href="#cb31-14" tabindex="-1"></a>  &lt;<span class="kw">dependencies</span>&gt;</span>
+<span id="cb31-15"><a aria-hidden="true" href="#cb31-15" tabindex="-1"></a></span>
+<span id="cb31-16"><a aria-hidden="true" href="#cb31-16" tabindex="-1"></a>    ....</span>
+<span id="cb31-17"><a aria-hidden="true" href="#cb31-17" tabindex="-1"></a></span>
+<span id="cb31-18"><a aria-hidden="true" href="#cb31-18" tabindex="-1"></a>    &lt;<span class="kw">dependency</span>&gt;</span>
+<span id="cb31-19"><a aria-hidden="true" href="#cb31-19" tabindex="-1"></a>      &lt;<span class="kw">groupId</span>&gt;com.sphereon.vdx&lt;/<span
+    class="kw">groupId</span>&gt;</span>
+<span id="cb31-20"><a aria-hidden="true" href="#cb31-20" tabindex="-1"></a>      &lt;<span class="kw">artifactId</span>&gt;eidas-signature-client-jvm&lt;/<span
+    class="kw">artifactId</span>&gt; <span class="co">&lt;!-- The Java implementation if this library --&gt;</span></span>
+<span id="cb31-21"><a aria-hidden="true" href="#cb31-21" tabindex="-1"></a>      &lt;<span class="kw">version</span>&gt;0.9.1&lt;/<span class="kw">version</span>&gt;</span>
+<span id="cb31-22"><a aria-hidden="true" href="#cb31-22" tabindex="-1"></a>    &lt;/<span class="kw">dependency</span>&gt;</span>
+<span id="cb31-23"><a aria-hidden="true" href="#cb31-23" tabindex="-1"></a>  &lt;/<span class="kw">dependencies</span>&gt;</span>
+<span id="cb31-24"><a aria-hidden="true" href="#cb31-24" tabindex="-1"></a>&lt;/<span class="kw">project</span>&gt;</span></code></pre>
+</div>
+<h2 id="gradle-build-local-maven-repo">Gradle build (local maven
+  repo)</h2>
+<pre><code>gradlew clean deployToMavenLocal</code></pre>
+</body>
+</html>
