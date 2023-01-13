@@ -1,10 +1,21 @@
-import com.sphereon.vdx.ades.enums.*
-import com.sphereon.vdx.ades.model.*
+import com.sphereon.vdx.ades.enums.CryptoAlg
+import com.sphereon.vdx.ades.enums.DigestAlg
+import com.sphereon.vdx.ades.enums.SignMode
+import com.sphereon.vdx.ades.enums.SignatureAlg
+import com.sphereon.vdx.ades.enums.SignatureLevel
+import com.sphereon.vdx.ades.enums.SignaturePackaging
+import com.sphereon.vdx.ades.model.OrigData
+import com.sphereon.vdx.ades.model.PadesSignatureFormParameters
+import com.sphereon.vdx.ades.model.SignatureConfiguration
+import com.sphereon.vdx.ades.model.SignatureFormParameters
+import com.sphereon.vdx.ades.model.SignatureLevelParameters
+import com.sphereon.vdx.ades.model.SignatureParameters
 import eu.europa.esig.dss.model.InMemoryDocument
 import eu.europa.esig.dss.validation.CommonCertificateVerifier
 import eu.europa.esig.dss.validation.SignedDocumentValidator
 import org.junit.jupiter.api.Test
 import java.io.ByteArrayOutputStream
+import java.io.FileOutputStream
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -58,6 +69,9 @@ class PAdESSigningSignTests : AbstractAdESTest() {
 //        println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(signOutput))
         assertNotNull(signOutput)
 
+        FileOutputStream(signOutput.name!!).use {
+            it.write(signOutput.value)
+        }
 
         assertTrue(signingService.isValidSignature(digestInput, signature, keyEntry))
 //        assertTrue(signingService.isValidSignature(signInput, signature, signature.keyEntry.publicKey!!))

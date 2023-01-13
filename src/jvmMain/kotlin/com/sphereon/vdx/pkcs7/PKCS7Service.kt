@@ -29,7 +29,7 @@ import eu.europa.esig.dss.spi.DSSUtils
 import eu.europa.esig.dss.validation.CertificateVerifier
 import eu.europa.esig.dss.validation.timestamp.TimestampToken
 import mu.KotlinLogging
-import org.apache.pdfbox.pdmodel.encryption.AccessPermission
+import org.apache.commons.codec.binary.Hex
 import org.apache.pdfbox.pdmodel.interactive.digitalsignature.PDSignature
 import org.apache.pdfbox.pdmodel.interactive.digitalsignature.SignatureInterface
 import org.apache.pdfbox.pdmodel.interactive.digitalsignature.SignatureOptions
@@ -70,6 +70,8 @@ class PKCS7Service(
         documentReader.checkDocumentPermissions()
         ByteArrayOutputStream().use { outputStream ->
             val messageDigest = signAndReturnDigest(parameters, DSSUtils.EMPTY_BYTE_ARRAY, documentReader, toSignDocument, outputStream)
+            println("digest getDataToSign ${Hex.encodeHexString(messageDigest)}")
+
             val signerInfoGeneratorBuilder: SignerInfoGeneratorBuilder =
                 this.pkcs7CMSSignedDataBuilder.getSignerInfoGeneratorBuilder(parameters, messageDigest)
             val generator: CMSSignedDataGenerator = this.pkcs7CMSSignedDataBuilder.createCMSSignedDataGenerator(
@@ -101,7 +103,8 @@ class PKCS7Service(
         val documentReader = PdfBoxDocumentReader(toSignDocument, parameters.passwordProtection)
         try {
             documentReader.checkDocumentPermissions()
-            signAndReturnDigest(parameters, signatureValue.value, documentReader, toSignDocument, baos)
+            val digest = signAndReturnDigest(parameters, signatureValue.value, documentReader, toSignDocument, baos)
+            println("digest signDetached ${Hex.encodeHexString(digest)}")
             val output: DSSDocument = InMemoryDocument(baos.toByteArray())
             output.mimeType = MimeType.PDF
             return output
@@ -153,8 +156,10 @@ class PKCS7Service(
             // doing this on a PDF/A-1b file fails validation by Adobe preflight (PDFBOX-3821)
             // PDF/A-1b requires PDF version 1.4 max, so don't increase the version on such files.
             // We create an approval signature when already certified before or at lower than 1.5 versions.
-            val accessPermissions: AccessPermission = documentReader.pdDocument.currentAccessPermission
-            if (accessPermissions.permissionBytes != 0) {
+
+            // TODO: 03/09/2020 Move to general location, as this is applicable to the whole stamper functionality
+            val mdAccessPermissions = SigUtils.getMDPPermission(documentReader.pdDocument)
+            if (mdAccessPermissions != 0) {
                 logger.warn(
                     "Not certifying although mode was certify, because this is not the first signature for {}, {}", toSignDocument.name,
                     signatureLog
