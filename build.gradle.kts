@@ -1,8 +1,8 @@
 plugins {
     id("maven-publish")
-    kotlin("multiplatform") version "1.6.21"
-    kotlin("plugin.serialization") version "1.6.21"
-    id("io.gitlab.arturbosch.detekt") version "1.21.0-RC1"
+    kotlin("multiplatform") version "1.7.10"
+    kotlin("plugin.serialization") version "1.7.10"
+    id("io.gitlab.arturbosch.detekt") version "1.21.0"
 }
 
 group = "com.sphereon.vdx"
@@ -69,16 +69,15 @@ kotlin {
         }
 
         val dssVersion = "5.10.1"
-        val kotlinSerializationVersion = "1.3.2"
-        val kotlinDateTimeVersion = "0.3.3"
-        val log4jVersion = "2.17.1"
+        val kotlinSerializationVersion = "1.4.0-RC"
+        val kotlinDateTimeVersion = "0.4.0"
         val bcVersion = "1.71"
 
         val commonMain by getting {
             dependencies {
                 api("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinSerializationVersion")
                 api("org.jetbrains.kotlinx:kotlinx-datetime:$kotlinDateTimeVersion")
-                implementation("io.matthewnelson.kotlin-components:encoding-base64:1.1.1")
+                implementation("io.matthewnelson.kotlin-components:encoding-base64:1.1.3")
             }
         }
         val commonTest by getting {
@@ -107,14 +106,14 @@ kotlin {
                 api("jakarta.xml.bind:jakarta.xml.bind-api:3.0.1")
                 implementation("javax.annotation:javax.annotation-api:1.3.2")
                 implementation("javax.activation:activation:1.1.1")
-                api("org.glassfish.jaxb:jaxb-runtime:2.3.3")
+                api("org.glassfish.jaxb:jaxb-runtime:2.3.6")
 
                 api("io.github.microutils:kotlin-logging-jvm:2.1.23")
 
                 // todo separate into separate project probably
                 api("com.sphereon.vdx:eidas-signature-client-rest-jersey3:1.0.0-SNAPSHOT")
 
-                implementation(project.dependencies.platform("com.azure:azure-sdk-bom:1.2.2"))
+                implementation(project.dependencies.platform("com.azure:azure-sdk-bom:1.2.4"))
                 implementation("com.azure:azure-identity")
                 implementation("com.azure:azure-security-keyvault-administration")
                 implementation("com.azure:azure-security-keyvault-certificates")
@@ -133,10 +132,10 @@ kotlin {
 //                implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
 
                 implementation("org.ehcache:ehcache:3.8.1")
-                implementation("org.apache.logging.log4j:log4j-api:${log4jVersion}")
+              /*  implementation("org.apache.logging.log4j:log4j-api:${log4jVersion}")
                 implementation("org.apache.logging.log4j:log4j-core:${log4jVersion}")
                 implementation("org.apache.logging.log4j:log4j-slf4j-impl:${log4jVersion}")
-
+*/
 
             }
         }
