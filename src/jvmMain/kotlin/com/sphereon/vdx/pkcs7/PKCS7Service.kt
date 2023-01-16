@@ -1,6 +1,7 @@
 package com.sphereon.vdx.pkcs7
 
 import com.sphereon.vdx.ades.model.PdfSignatureMode
+import com.sphereon.vdx.pkcs7.support.CMSProcessableInputStream
 import com.sphereon.vdx.pkcs7.support.SigUtils
 import eu.europa.esig.dss.alert.ExceptionOnStatusAlert
 import eu.europa.esig.dss.alert.StatusAlert
@@ -10,6 +11,7 @@ import eu.europa.esig.dss.cades.signature.CustomContentSigner
 import eu.europa.esig.dss.enumerations.SignatureLevel
 import eu.europa.esig.dss.enumerations.TimestampType
 import eu.europa.esig.dss.model.*
+import eu.europa.esig.dss.pades.PAdESCommonParameters
 import eu.europa.esig.dss.pades.SignatureFieldParameters
 import eu.europa.esig.dss.pades.SignatureImageParameters
 import eu.europa.esig.dss.pdf.AnnotationBox
@@ -18,6 +20,8 @@ import eu.europa.esig.dss.pdf.PdfAnnotation
 import eu.europa.esig.dss.pdf.PdfDocumentReader
 import eu.europa.esig.dss.pdf.PdfModificationDetectionUtils
 import eu.europa.esig.dss.pdf.ServiceLoaderPdfObjFactory
+import eu.europa.esig.dss.pdf.encryption.DSSSecureRandomProvider
+import eu.europa.esig.dss.pdf.encryption.SecureRandomProvider
 import eu.europa.esig.dss.pdf.pdfbox.PdfBoxDocumentReader
 import eu.europa.esig.dss.pdf.pdfbox.visible.PdfBoxSignatureDrawer
 import eu.europa.esig.dss.pdf.pdfbox.visible.nativedrawer.PdfBoxNativeSignatureDrawerFactory
@@ -29,14 +33,15 @@ import eu.europa.esig.dss.spi.DSSUtils
 import eu.europa.esig.dss.validation.CertificateVerifier
 import eu.europa.esig.dss.validation.timestamp.TimestampToken
 import mu.KotlinLogging
-import org.apache.commons.codec.binary.Hex
 import org.apache.pdfbox.pdmodel.interactive.digitalsignature.PDSignature
-import org.apache.pdfbox.pdmodel.interactive.digitalsignature.SignatureInterface
 import org.apache.pdfbox.pdmodel.interactive.digitalsignature.SignatureOptions
 import org.bouncycastle.cms.*
 import org.bouncycastle.tsp.TSPException
+import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
+import java.io.InputStream
+import java.security.SecureRandom
 import java.util.*
 
 class PKCS7Service(
@@ -49,7 +54,7 @@ class PKCS7Service(
     ) {
 
     private val signatureDrawerFactory = PdfBoxNativeSignatureDrawerFactory()
-
+    private var secureRandomProvider: SecureRandomProvider? = null
     private val alertOnSignatureFieldOverlap: StatusAlert = ExceptionOnStatusAlert()
     private val alertOnSignatureFieldOutsidePageDimensions: StatusAlert = ExceptionOnStatusAlert()
 
@@ -68,20 +73,17 @@ class PKCS7Service(
 
         val documentReader = PdfBoxDocumentReader(toSignDocument, parameters.passwordProtection)
         documentReader.checkDocumentPermissions()
-        ByteArrayOutputStream().use { outputStream ->
-            val messageDigest = signAndReturnDigest(parameters, DSSUtils.EMPTY_BYTE_ARRAY, documentReader, toSignDocument, outputStream)
-            println("digest getDataToSign ${Hex.encodeHexString(messageDigest)}")
-
+        mergeSignature(parameters, DSSUtils.EMPTY_BYTE_ARRAY, documentReader, toSignDocument).use { contentWithSignatureField ->
             val signerInfoGeneratorBuilder: SignerInfoGeneratorBuilder =
-                this.pkcs7CMSSignedDataBuilder.getSignerInfoGeneratorBuilder(parameters, messageDigest)
+                this.pkcs7CMSSignedDataBuilder.getSignerInfoGeneratorBuilder(parameters, contentWithSignatureField)
             val generator: CMSSignedDataGenerator = this.pkcs7CMSSignedDataBuilder.createCMSSignedDataGenerator(
                 parameters,
                 customContentSigner,
                 signerInfoGeneratorBuilder,
                 null as CMSSignedData?
             )
-            val content = CMSProcessableByteArray(messageDigest)
-            CMSUtils.generateDetachedCMSSignedData(generator, content)
+            val content = CMSProcessableInputStream(contentWithSignatureField)
+            val cmsSignedData = CMSUtils.generateCMSSignedData(generator, content, true);
             val dataToSign = customContentSigner.outputStream.toByteArray()
             return ToBeSigned(dataToSign)
         }
@@ -99,39 +101,27 @@ class PKCS7Service(
     }
 
     private fun signDetached(toSignDocument: DSSDocument, parameters: PKCS7SignatureParameters, signatureValue: SignatureValue): DSSDocument {
-        val baos = ByteArrayOutputStream()
         val documentReader = PdfBoxDocumentReader(toSignDocument, parameters.passwordProtection)
         try {
             documentReader.checkDocumentPermissions()
-            val digest = signAndReturnDigest(parameters, signatureValue.value, documentReader, toSignDocument, baos)
-            println("digest signDetached ${Hex.encodeHexString(digest)}")
-            val output: DSSDocument = InMemoryDocument(baos.toByteArray())
-            output.mimeType = MimeType.PDF
-            return output
+            mergeSignature(parameters, signatureValue.value, documentReader, toSignDocument).use { content ->
+                val output: DSSDocument = InMemoryDocument(content)
+                output.mimeType = MimeType.PDF
+                return output
+            }
         } catch (e: Exception) {
             documentReader.close()
             throw e
-        } finally {
-            baos.close()
         }
     }
 
-    private fun signAndReturnDigest(
+    private fun mergeSignature(
         parameters: PKCS7SignatureParameters,
         signatureContent: ByteArray,
         documentReader: PdfBoxDocumentReader,
-        toSignDocument: DSSDocument,
-        baos: ByteArrayOutputStream
-    ): ByteArray {
-        val digest = DSSUtils.getMessageDigest(parameters.digestAlgorithm)
-        val signatureInterface = SignatureInterface { content ->
-            val b = ByteArray(4096)
-            var count: Int
-            while (content.read(b).also { count = it } > 0) {
-                digest.update(b, 0, count)
-            }
-            signatureContent
-        }
+        toSignDocument: DSSDocument
+    ): InputStream {
+        val outputStream = ByteArrayOutputStream()
 
         // create signature dictionary
         val signature = PDSignature()
@@ -148,8 +138,6 @@ class PKCS7Service(
             "%s %s signature: %s, %s, %s", if (imageParameters.isEmpty) "Invisible" else "Visible",
             if (certify) "certify" else "approval", signature.contactInfo, signature.location, signature.reason
         )
-        logger.info("Start signing {}", signatureLog)
-
         if (certify) {
             // Optional: certify
             // can be done only if version is at least 1.5 and if not already set
@@ -176,6 +164,10 @@ class PKCS7Service(
 
         // the signing date, needed for valid signature
         signature.signDate = Calendar.getInstance()
+
+        val options = SignatureOptions()
+        options.preferredSignatureSize = parameters.contentSize
+
         if (!imageParameters.isEmpty) {
             val signatureOptions = SignatureOptions()
             val signatureDrawer = loadSignatureDrawer(imageParameters) as PdfBoxSignatureDrawer
@@ -184,20 +176,44 @@ class PKCS7Service(
             this.getVisibleSignatureFieldBoxPosition(signatureDrawer, documentReader, imageParameters.fieldParameters)
             //                }
             signatureDrawer.draw()
-            documentReader.pdDocument.addSignature(signature, signatureInterface, signatureOptions)
-        } else {
-            documentReader.pdDocument.addSignature(signature, signatureInterface)
         }
-        val externalSigning = documentReader.pdDocument.saveIncrementalForExternalSigning(baos)
-        // invoke external signature service
-        externalSigning.setSignature(signatureContent)
-        logger.info("End signing {}", signatureLog)
-        return digest.digest()
+
+        documentReader.pdDocument.addSignature(signature, options)
+        if (documentReader.pdDocument.documentId == null) {
+            documentReader.pdDocument.documentId = parameters.signingDate.time
+        }
+
+        if (documentReader.pdDocument.isEncrypted) {
+            val secureRandom: SecureRandom = this.getSecureRandomProvider(parameters)!!.secureRandom
+            documentReader.pdDocument.encryption.securityHandler.setCustomSecureRandom(secureRandom)
+        }
+
+        if (signatureContent.isEmpty()) {
+            documentReader.pdDocument.save(outputStream)
+        } else {
+            val externalSigning = documentReader.pdDocument.saveIncrementalForExternalSigning(outputStream)
+            val inputStream = externalSigning.content
+            val signatureAlgorithm = parameters.signatureAlgorithm
+            val customContentSigner = CustomContentSigner(signatureAlgorithm.jceId, signatureContent)
+            val signerInfoGeneratorBuilder: SignerInfoGeneratorBuilder =
+                this.pkcs7CMSSignedDataBuilder.getSignerInfoGeneratorBuilder(parameters, inputStream)
+            val generator: CMSSignedDataGenerator = this.pkcs7CMSSignedDataBuilder.createCMSSignedDataGenerator(
+                parameters,
+                customContentSigner,
+                signerInfoGeneratorBuilder,
+                null as CMSSignedData?
+            )
+            val content = CMSProcessableInputStream(inputStream)
+            val cmsSignedData = CMSUtils.generateCMSSignedData(generator, content, true);
+            externalSigning.setSignature(cmsSignedData.encoded)
+        }
+
+        val toByteArray = outputStream.toByteArray()
+        return ByteArrayInputStream(toByteArray)
     }
 
     private fun loadSignatureDrawer(imageParameters: SignatureImageParameters?): SignatureDrawer {
-        val signatureDrawer: SignatureDrawer = this.signatureDrawerFactory.getSignatureDrawer(imageParameters)
-        return signatureDrawer
+        return signatureDrawerFactory.getSignatureDrawer(imageParameters)
     }
 
     private fun getVisibleSignatureFieldBoxPosition(
@@ -303,4 +319,12 @@ class PKCS7Service(
             throw DSSException("Cannot obtain the content timestamp", exception)
         }
     }
+
+    private fun getSecureRandomProvider(parameters: PAdESCommonParameters): SecureRandomProvider? {
+        if (this.secureRandomProvider == null) {
+            this.secureRandomProvider = DSSSecureRandomProvider(parameters)
+        }
+        return this.secureRandomProvider
+    }
+
 }
