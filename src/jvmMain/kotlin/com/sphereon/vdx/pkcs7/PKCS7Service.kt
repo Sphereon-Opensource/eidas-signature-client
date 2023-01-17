@@ -44,6 +44,8 @@ import java.io.InputStream
 import java.security.SecureRandom
 import java.util.*
 
+data class MergeResult(val content: ByteArrayInputStream, val dataToSign: ByteArray)
+
 class PKCS7Service(
     certificateVerifier: CertificateVerifier?,
     private var pdfObjFactory: IPdfObjFactory = ServiceLoaderPdfObjFactory(),
@@ -68,26 +70,12 @@ class PKCS7Service(
         Objects.requireNonNull(parameters, "SignatureParameters cannot be null!")
         assertSignaturePossible(toSignDocument)
         assertSigningCertificateValid(parameters)
-        val signatureAlgorithm = parameters.signatureAlgorithm
-        val customContentSigner = CustomContentSigner(signatureAlgorithm.jceId)
-
         val documentReader = PdfBoxDocumentReader(toSignDocument, parameters.passwordProtection)
         documentReader.checkDocumentPermissions()
-        mergeSignature(parameters, DSSUtils.EMPTY_BYTE_ARRAY, documentReader, toSignDocument).use { contentWithSignatureField ->
-            val signerInfoGeneratorBuilder: SignerInfoGeneratorBuilder =
-                this.pkcs7CMSSignedDataBuilder.getSignerInfoGeneratorBuilder(parameters, contentWithSignatureField)
-            val generator: CMSSignedDataGenerator = this.pkcs7CMSSignedDataBuilder.createCMSSignedDataGenerator(
-                parameters,
-                customContentSigner,
-                signerInfoGeneratorBuilder,
-                null as CMSSignedData?
-            )
-            val content = CMSProcessableInputStream(contentWithSignatureField)
-            val cmsSignedData = CMSUtils.generateCMSSignedData(generator, content, true);
-            val dataToSign = customContentSigner.outputStream.toByteArray()
-            return ToBeSigned(dataToSign)
-        }
+        val result = mergeSignature(parameters, DSSUtils.EMPTY_BYTE_ARRAY, documentReader, toSignDocument)
+        return ToBeSigned(result.dataToSign)
     }
+
 
     override fun signDocument(toSignDocument: DSSDocument, parameters: PKCS7SignatureParameters, signatureValue: SignatureValue): DSSDocument {
         assertSigningCertificateValid(parameters)
@@ -104,23 +92,23 @@ class PKCS7Service(
         val documentReader = PdfBoxDocumentReader(toSignDocument, parameters.passwordProtection)
         try {
             documentReader.checkDocumentPermissions()
-            mergeSignature(parameters, signatureValue.value, documentReader, toSignDocument).use { content ->
-                val output: DSSDocument = InMemoryDocument(content)
-                output.mimeType = MimeType.PDF
-                return output
-            }
+            val result = mergeSignature(parameters, signatureValue.value, documentReader, toSignDocument)
+            val output: DSSDocument = InMemoryDocument(result.content)
+            output.mimeType = MimeType.PDF
+            return output
         } catch (e: Exception) {
             documentReader.close()
             throw e
         }
     }
 
+
     private fun mergeSignature(
         parameters: PKCS7SignatureParameters,
         signatureContent: ByteArray,
         documentReader: PdfBoxDocumentReader,
         toSignDocument: DSSDocument
-    ): InputStream {
+    ): MergeResult {
         val outputStream = ByteArrayOutputStream()
 
         // create signature dictionary
@@ -138,32 +126,17 @@ class PKCS7Service(
             "%s %s signature: %s, %s, %s", if (imageParameters.isEmpty) "Invisible" else "Visible",
             if (certify) "certify" else "approval", signature.contactInfo, signature.location, signature.reason
         )
-        if (certify) {
-            // Optional: certify
-            // can be done only if version is at least 1.5 and if not already set
-            // doing this on a PDF/A-1b file fails validation by Adobe preflight (PDFBOX-3821)
-            // PDF/A-1b requires PDF version 1.4 max, so don't increase the version on such files.
-            // We create an approval signature when already certified before or at lower than 1.5 versions.
+        logger.debug("Start signing {}", signatureLog)
 
-            // TODO: 03/09/2020 Move to general location, as this is applicable to the whole stamper functionality
-            val mdAccessPermissions = SigUtils.getMDPPermission(documentReader.pdDocument)
-            if (mdAccessPermissions != 0) {
-                logger.warn(
-                    "Not certifying although mode was certify, because this is not the first signature for {}, {}", toSignDocument.name,
-                    signatureLog
-                )
-            } else if (documentReader.pdDocument.version < 1.5f) {
-                logger.warn(
-                    "Not certifying although mode was certify, because document version {} for {}, {}", documentReader.pdDocument.version,
-                    toSignDocument.name, signatureLog
-                )
-            } else {
-                SigUtils.setMDPPermission(documentReader.pdDocument, signature, 2)
-            }
+        if (certify) {
+            handleCertify(documentReader, toSignDocument, signatureLog, signature)
         }
 
         // the signing date, needed for valid signature
-        signature.signDate = Calendar.getInstance()
+        val calendar = Calendar.getInstance()
+        calendar.time = parameters.signingDate
+        calendar.timeZone = parameters.signingTimeZone
+        signature.signDate = calendar
 
         val options = SignatureOptions()
         options.preferredSignatureSize = parameters.contentSize
@@ -188,28 +161,64 @@ class PKCS7Service(
             documentReader.pdDocument.encryption.securityHandler.setCustomSecureRandom(secureRandom)
         }
 
-        if (signatureContent.isEmpty()) {
-            documentReader.pdDocument.save(outputStream)
-        } else {
-            val externalSigning = documentReader.pdDocument.saveIncrementalForExternalSigning(outputStream)
-            val inputStream = externalSigning.content
-            val signatureAlgorithm = parameters.signatureAlgorithm
-            val customContentSigner = CustomContentSigner(signatureAlgorithm.jceId, signatureContent)
-            val signerInfoGeneratorBuilder: SignerInfoGeneratorBuilder =
-                this.pkcs7CMSSignedDataBuilder.getSignerInfoGeneratorBuilder(parameters, inputStream)
-            val generator: CMSSignedDataGenerator = this.pkcs7CMSSignedDataBuilder.createCMSSignedDataGenerator(
-                parameters,
-                customContentSigner,
-                signerInfoGeneratorBuilder,
-                null as CMSSignedData?
-            )
-            val content = CMSProcessableInputStream(inputStream)
-            val cmsSignedData = CMSUtils.generateCMSSignedData(generator, content, true);
-            externalSigning.setSignature(cmsSignedData.encoded)
-        }
+        val externalSigning = documentReader.pdDocument.saveIncrementalForExternalSigning(outputStream)
+        val inputStream = externalSigning.content
+
+        val signatureAlgorithm = parameters.signatureAlgorithm
+        val customContentSigner = CustomContentSigner(signatureAlgorithm.jceId, signatureContent)
+        val cmsSignedData = generateCMSData(parameters, inputStream, customContentSigner)
+        val dataToSign = customContentSigner.outputStream.toByteArray()
+        externalSigning.setSignature(cmsSignedData.encoded)
 
         val toByteArray = outputStream.toByteArray()
-        return ByteArrayInputStream(toByteArray)
+        logger.debug("End signing {}", signatureLog)
+        return MergeResult(ByteArrayInputStream(toByteArray), dataToSign)
+    }
+
+    private fun handleCertify(
+        documentReader: PdfBoxDocumentReader,
+        toSignDocument: DSSDocument,
+        signatureLog: String,
+        signature: PDSignature
+    ) {
+        // Optional: certify
+        // can be done only if version is at least 1.5 and if not already set
+        // doing this on a PDF/A-1b file fails validation by Adobe preflight (PDFBOX-3821)
+        // PDF/A-1b requires PDF version 1.4 max, so don't increase the version on such files.
+        // We create an approval signature when already certified before or at lower than 1.5 versions.
+
+        // TODO: 03/09/2020 Move to general location, as this is applicable to the whole stamper functionality
+        val mdAccessPermissions = SigUtils.getMDPPermission(documentReader.pdDocument)
+        if (mdAccessPermissions != 0) {
+            logger.warn(
+                "Not certifying although mode was certify, because this is not the first signature for {}, {}", toSignDocument.name,
+                signatureLog
+            )
+        } else if (documentReader.pdDocument.version < 1.5f) {
+            logger.warn(
+                "Not certifying although mode was certify, because document version {} for {}, {}", documentReader.pdDocument.version,
+                toSignDocument.name, signatureLog
+            )
+        } else {
+            SigUtils.setMDPPermission(documentReader.pdDocument, signature, 2)
+        }
+    }
+
+    private fun generateCMSData(
+        parameters: PKCS7SignatureParameters,
+        inputStream: InputStream,
+        customContentSigner: CustomContentSigner
+    ): CMSSignedData {
+        val signerInfoGeneratorBuilder: SignerInfoGeneratorBuilder =
+            this.pkcs7CMSSignedDataBuilder.getSignerInfoGeneratorBuilder(parameters, inputStream)
+        val generator: CMSSignedDataGenerator = this.pkcs7CMSSignedDataBuilder.createCMSSignedDataGenerator(
+            parameters,
+            customContentSigner,
+            signerInfoGeneratorBuilder,
+            null as CMSSignedData?
+        )
+        val content = CMSProcessableInputStream(inputStream)
+        return CMSUtils.generateCMSSignedData(generator, content, true);
     }
 
     private fun loadSignatureDrawer(imageParameters: SignatureImageParameters?): SignatureDrawer {
@@ -326,5 +335,4 @@ class PKCS7Service(
         }
         return this.secureRandomProvider
     }
-
 }

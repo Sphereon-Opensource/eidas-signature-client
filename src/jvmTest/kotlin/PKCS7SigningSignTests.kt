@@ -60,7 +60,7 @@ class PKCS7SigningSignTests : AbstractAdESTest() {
         val digestInput = signingService.digest(signInput)
 //        println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(digestInput))
 
-//        val signature = signingService.createSignature(digestInput, keyEntry)
+        val signature = signingService.createSignature(digestInput, keyEntry)
 //        println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(signature))
 
         val signOutput = signingService.sign(origData, keyEntry, SignMode.DOCUMENT, signatureConfiguration)
