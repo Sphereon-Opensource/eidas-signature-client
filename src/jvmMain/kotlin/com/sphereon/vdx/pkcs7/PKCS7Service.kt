@@ -8,6 +8,7 @@ import eu.europa.esig.dss.alert.StatusAlert
 import eu.europa.esig.dss.alert.status.MessageStatus
 import eu.europa.esig.dss.cades.CMSUtils
 import eu.europa.esig.dss.cades.signature.CustomContentSigner
+import eu.europa.esig.dss.enumerations.DigestAlgorithm
 import eu.europa.esig.dss.enumerations.SignatureLevel
 import eu.europa.esig.dss.enumerations.TimestampType
 import eu.europa.esig.dss.model.*
@@ -18,16 +19,18 @@ import eu.europa.esig.dss.pdf.AnnotationBox
 import eu.europa.esig.dss.pdf.IPdfObjFactory
 import eu.europa.esig.dss.pdf.PdfAnnotation
 import eu.europa.esig.dss.pdf.PdfDocumentReader
-import eu.europa.esig.dss.pdf.PdfModificationDetectionUtils
 import eu.europa.esig.dss.pdf.ServiceLoaderPdfObjFactory
 import eu.europa.esig.dss.pdf.encryption.DSSSecureRandomProvider
 import eu.europa.esig.dss.pdf.encryption.SecureRandomProvider
+import eu.europa.esig.dss.pdf.modifications.DefaultPdfDifferencesFinder
+import eu.europa.esig.dss.pdf.modifications.PdfDifferencesFinder
 import eu.europa.esig.dss.pdf.pdfbox.PdfBoxDocumentReader
 import eu.europa.esig.dss.pdf.pdfbox.visible.PdfBoxSignatureDrawer
 import eu.europa.esig.dss.pdf.pdfbox.visible.nativedrawer.PdfBoxNativeSignatureDrawerFactory
 import eu.europa.esig.dss.pdf.visible.SignatureDrawer
 import eu.europa.esig.dss.pdf.visible.SignatureFieldBoxBuilder
 import eu.europa.esig.dss.signature.AbstractSignatureService
+import eu.europa.esig.dss.signature.SignatureExtension
 import eu.europa.esig.dss.signature.SigningOperation
 import eu.europa.esig.dss.spi.DSSUtils
 import eu.europa.esig.dss.validation.CertificateVerifier
@@ -35,6 +38,14 @@ import eu.europa.esig.dss.validation.timestamp.TimestampToken
 import mu.KotlinLogging
 import org.apache.pdfbox.pdmodel.interactive.digitalsignature.PDSignature
 import org.apache.pdfbox.pdmodel.interactive.digitalsignature.SignatureOptions
+import org.bouncycastle.asn1.ASN1Encodable
+import org.bouncycastle.asn1.ASN1EncodableVector
+import org.bouncycastle.asn1.ASN1Primitive
+import org.bouncycastle.asn1.DERSet
+import org.bouncycastle.asn1.cms.Attribute
+import org.bouncycastle.asn1.cms.AttributeTable
+import org.bouncycastle.asn1.cms.Attributes
+import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers
 import org.bouncycastle.cms.*
 import org.bouncycastle.tsp.TSPException
 import java.io.ByteArrayInputStream
@@ -59,6 +70,7 @@ class PKCS7Service(
     private var secureRandomProvider: SecureRandomProvider? = null
     private val alertOnSignatureFieldOverlap: StatusAlert = ExceptionOnStatusAlert()
     private val alertOnSignatureFieldOutsidePageDimensions: StatusAlert = ExceptionOnStatusAlert()
+    private var pdfDifferencesFinder: PdfDifferencesFinder = DefaultPdfDifferencesFinder()
 
     companion object {
         private val logger = KotlinLogging.logger {}
@@ -80,12 +92,19 @@ class PKCS7Service(
     override fun signDocument(toSignDocument: DSSDocument, parameters: PKCS7SignatureParameters, signatureValue: SignatureValue): DSSDocument {
         assertSigningCertificateValid(parameters)
 
-        val signature: DSSDocument = signDetached(toSignDocument, parameters, signatureValue)
+        var signedDocument: DSSDocument = signDetached(toSignDocument, parameters, signatureValue)
+        val signatureLevel = parameters.signatureLevel
+        val extension: SignatureExtension<PKCS7SignatureParameters>? = this.getExtensionProfile(signatureLevel)
+        if (signatureLevel != SignatureLevel.PKCS7_B && signatureLevel != SignatureLevel.PKCS7_T && extension != null) {
+            signedDocument = extension.extendSignatures(signedDocument, parameters)
+        }
+
         parameters.reinit()
-        signature.name = this.getFinalFileName(toSignDocument, SigningOperation.SIGN, SignatureLevel.CAdES_A)
+
+        signedDocument.name = this.getFinalFileName(toSignDocument, SigningOperation.SIGN, SignatureLevel.CAdES_A)
             .replace("-cades-a", "")
             .plus(".pdf")
-        return signature
+        return signedDocument
     }
 
     private fun signDetached(toSignDocument: DSSDocument, parameters: PKCS7SignatureParameters, signatureValue: SignatureValue): DSSDocument {
@@ -140,6 +159,9 @@ class PKCS7Service(
 
         val options = SignatureOptions()
         options.preferredSignatureSize = parameters.contentSize
+        if (parameters.signatureLevel != SignatureLevel.PKCS7_B) {
+            options.preferredSignatureSize *= 3 // Add space for timestamp signatures
+        }
 
         if (!imageParameters.isEmpty) {
             val signatureOptions = SignatureOptions()
@@ -209,6 +231,9 @@ class PKCS7Service(
         inputStream: InputStream,
         customContentSigner: CustomContentSigner
     ): CMSSignedData {
+        val signatureLevel = parameters.signatureLevel
+        Objects.requireNonNull(signatureLevel, "SignatureLevel must be defined!")
+
         val signerInfoGeneratorBuilder: SignerInfoGeneratorBuilder =
             this.pkcs7CMSSignedDataBuilder.getSignerInfoGeneratorBuilder(parameters, inputStream)
         val generator: CMSSignedDataGenerator = this.pkcs7CMSSignedDataBuilder.createCMSSignedDataGenerator(
@@ -218,7 +243,59 @@ class PKCS7Service(
             null as CMSSignedData?
         )
         val content = CMSProcessableInputStream(inputStream)
-        return CMSUtils.generateCMSSignedData(generator, content, true);
+        var cmsSignedData = CMSUtils.generateCMSSignedData(generator, content, true)
+        if (signatureLevel != SignatureLevel.PKCS7_B) {
+            //cmsSignedData = addSignedTimeStamp(cmsSignedData)
+            val pkcS7BaselineT = PKCS7BaselineT(tspSource, certificateVerifier, pdfObjFactory)
+            cmsSignedData = pkcS7BaselineT.extendCMSSignatures(cmsSignedData, parameters)
+        }
+        return cmsSignedData
+    }
+
+    private fun addSignedTimeStamp(signedData: CMSSignedData): CMSSignedData {
+        val signerStore: SignerInformationStore = signedData.getSignerInfos()
+        val newSigners: MutableList<SignerInformation> = ArrayList()
+
+        for (signer in signerStore.signers) {
+            // This adds a timestamp to every signer (into his unsigned attributes) in the signature.
+            newSigners.add(signTimeStamp(signer))
+        }
+
+        // Because new SignerInformation is created, new SignerInfoStore has to be created
+        // and also be replaced in signedData. Which creates a new signedData object.
+
+        // Because new SignerInformation is created, new SignerInfoStore has to be created
+        // and also be replaced in signedData. Which creates a new signedData object.
+        return CMSSignedData.replaceSigners(signedData, SignerInformationStore(newSigners))
+
+    }
+
+    private fun signTimeStamp(signer: SignerInformation): SignerInformation {
+        val digestAlgorithm = DigestAlgorithm.SHA256 // FIXME
+        val unsignedAttributes = signer.unsignedAttributes
+        var vector = ASN1EncodableVector()
+        if (unsignedAttributes != null) {
+            vector = unsignedAttributes.toASN1EncodableVector()
+        }
+
+        val token = tspSource.getTimeStampResponse(digestAlgorithm, signer.signature)
+        val oid = PKCSObjectIdentifiers.id_aa_signatureTimeStampToken
+        val signatureTimeStamp: ASN1Encodable = Attribute(
+            oid,
+            DERSet(ASN1Primitive.fromByteArray(token.bytes))
+        )
+
+        vector.add(signatureTimeStamp)
+        val signedAttributes = Attributes(vector)
+
+        // There is no other way changing the unsigned attributes of the signer information.
+        // result is never null, new SignerInformation always returned,
+        // see source code of replaceUnsignedAttributes
+
+        // There is no other way changing the unsigned attributes of the signer information.
+        // result is never null, new SignerInformation always returned,
+        // see source code of replaceUnsignedAttributes
+        return SignerInformation.replaceUnsignedAttributes(signer, AttributeTable(signedAttributes))
     }
 
     private fun loadSignatureDrawer(imageParameters: SignatureImageParameters?): SignatureDrawer {
@@ -240,10 +317,10 @@ class PKCS7Service(
         return signatureFieldAnnotation
     }
 
-
     private fun toPdfPageCoordinates(fieldAnnotationBox: AnnotationBox, pageBox: AnnotationBox): AnnotationBox? {
         return fieldAnnotationBox.toPdfPageCoordinates(pageBox.height)
     }
+
 
     private fun assertSignatureFieldPositionValid(annotationBox: AnnotationBox, reader: PdfDocumentReader, parameters: SignatureFieldParameters) {
         reader.getPageRotation(parameters.page)
@@ -253,6 +330,7 @@ class PKCS7Service(
         this.checkSignatureFieldBoxOverlap(annotationBox, pdfAnnotations)
     }
 
+
     private fun checkSignatureFieldAgainstPageDimensions(signatureFieldBox: AnnotationBox, pageBox: AnnotationBox) {
         if (signatureFieldBox.minX < pageBox.minX || signatureFieldBox.maxX > pageBox.maxX || signatureFieldBox.minY < pageBox.minY || signatureFieldBox.maxY > pageBox.maxY) {
             this.alertOnSignatureFieldOutsidePageDimensions(signatureFieldBox, pageBox)
@@ -260,8 +338,8 @@ class PKCS7Service(
     }
 
     private fun checkSignatureFieldBoxOverlap(signatureFieldBox: AnnotationBox?, pdfAnnotations: List<PdfAnnotation?>?) {
-        if (PdfModificationDetectionUtils.isAnnotationBoxOverlapping(signatureFieldBox, pdfAnnotations)) {
-            this.alertOnSignatureFieldOverlap()
+        if (pdfDifferencesFinder.isAnnotationBoxOverlapping(signatureFieldBox, pdfAnnotations)) {
+            alertOnSignatureFieldOverlap()
         }
     }
 
@@ -335,4 +413,24 @@ class PKCS7Service(
         }
         return this.secureRandomProvider
     }
+
+    private fun getExtensionProfile(signatureLevel: SignatureLevel): SignatureExtension<PKCS7SignatureParameters>? {
+        Objects.requireNonNull(signatureLevel, "SignatureLevel must be defined!")
+        return when (signatureLevel) {
+            SignatureLevel.PKCS7_B -> null
+            SignatureLevel.PKCS7_T -> PKCS7BaselineT(tspSource, certificateVerifier, pdfObjFactory)
+            SignatureLevel.PKCS7_LT -> PKCS7BaselineLT(
+                tspSource,
+                certificateVerifier,
+                pdfObjFactory
+            )
+            SignatureLevel.PKCS7_LTA -> PKCS7BaselineLTA(
+                tspSource,
+                certificateVerifier,
+                pdfObjFactory
+            )
+            else -> throw UnsupportedOperationException(String.format("Unsupported signature format '%s' for extension.", signatureLevel))
+        }
+    }
+
 }
