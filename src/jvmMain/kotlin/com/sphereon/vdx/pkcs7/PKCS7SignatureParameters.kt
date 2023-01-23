@@ -2,15 +2,16 @@ package com.sphereon.vdx.pkcs7
 
 import com.sphereon.vdx.ades.model.PdfSignatureMode
 import eu.europa.esig.dss.cades.CAdESSignatureParameters
+import eu.europa.esig.dss.cades.signature.CAdESTimestampParameters
 import eu.europa.esig.dss.enumerations.CertificationPermission
-import eu.europa.esig.dss.enumerations.SignatureForm
-import eu.europa.esig.dss.enumerations.SignatureLevel
 import eu.europa.esig.dss.pades.PAdESCommonParameters
-import eu.europa.esig.dss.pades.PAdESSignatureParameters
+import eu.europa.esig.dss.pades.PAdESProfileParameters
 import eu.europa.esig.dss.pades.PAdESTimestampParameters
 import eu.europa.esig.dss.pades.SignatureImageParameters
+import eu.europa.esig.dss.pdf.PdfSignatureCache
 import org.apache.pdfbox.pdmodel.interactive.digitalsignature.PDSignature
-import java.util.*
+import java.util.Date
+import java.util.TimeZone
 
 class PKCS7SignatureParameters : CAdESSignatureParameters(), PAdESCommonParameters {
 
@@ -24,17 +25,9 @@ class PKCS7SignatureParameters : CAdESSignatureParameters(), PAdESCommonParamete
 
     var signatureImageParameters: SignatureImageParameters? = null
     private var passwordProtection: String? = null
-    private val signatureSize = 9472
+    private val signatureSize =  32768
     private val signatureFilter = PDSignature.FILTER_ADOBE_PPKLITE
     private val signatureSubFilter = PDSignature.SUBFILTER_ADBE_PKCS7_DETACHED
-
-    override fun setSignatureLevel(signatureLevel: SignatureLevel?) {
-        if (signatureLevel != null && SignatureForm.PKCS7 == signatureLevel.signatureForm) {
-            super.setSignatureLevel(signatureLevel)
-        } else {
-            throw IllegalArgumentException("Only PKCS7 form is allowed!")
-        }
-    }
 
     override fun getSigningDate(): Date {
         return bLevel().signingDate
@@ -63,42 +56,77 @@ class PKCS7SignatureParameters : CAdESSignatureParameters(), PAdESCommonParamete
         return this.passwordProtection
     }
 
-    internal fun toPAdESSignatureParameters(): PAdESSignatureParameters {
-        val parameters = PAdESSignatureParameters()
-        parameters.contactInfo = this.contactInfo
-        parameters.location = this.location
-        parameters.permission = this.permission
-        parameters.reason = this.reason
-        parameters.signerName = this.signerName
-        parameters.signingTimeZone = this.signingTimeZone
-        parameters.passwordProtection = this.passwordProtection
-        parameters.filter = this.signatureFilter.name
-        parameters.subFilter = this.signatureSubFilter.name
-        parameters.detachedContents = this.detachedContents
-        parameters.contentTimestamps = this.contentTimestamps
-        parameters.contentIdentifierPrefix = this.contentIdentifierPrefix
-        parameters.contentIdentifierSuffix = this.contentIdentifierSuffix
-        parameters.contentHintsType = this.contentHintsType
-        parameters.contentHintsDescription = this.contentHintsDescription
-        parameters.certificateChain = this.certificateChain
-        parameters.digestAlgorithm = this.digestAlgorithm
-        parameters.encryptionAlgorithm = this.encryptionAlgorithm
-        parameters.isCheckCertificateRevocation = this.isCheckCertificateRevocation
-        parameters.isEn319122 = this.isEn319122
-        parameters.isGenerateTBSWithoutCertificate = this.isGenerateTBSWithoutCertificate
-        parameters.isSignWithExpiredCertificate = this.isSignWithExpiredCertificate
-        parameters.isSignWithNotYetValidCertificate = this.isSignWithNotYetValidCertificate
-        parameters.maskGenerationFunction = this.maskGenerationFunction
-        parameters.archiveTimestampParameters = PAdESTimestampParameters(this.archiveTimestampParameters.digestAlgorithm)
-        parameters.archiveTimestampParameters.filter = this.signatureFilter.name
-        parameters.archiveTimestampParameters.subFilter = this.signatureSubFilter.name
-        parameters.contentTimestampParameters = PAdESTimestampParameters(this.contentTimestampParameters.digestAlgorithm)
-        parameters.contentTimestampParameters.filter = this.signatureFilter.name
-        parameters.contentTimestampParameters.subFilter = this.signatureSubFilter.name
-        parameters.signatureTimestampParameters = PAdESTimestampParameters(this.signatureTimestampParameters.digestAlgorithm)
-        parameters.signatureTimestampParameters.filter = this.signatureFilter.name
-        parameters.signatureTimestampParameters.subFilter = this.signatureSubFilter.name
-        parameters.signatureLevel = SignatureLevel.PAdES_BASELINE_B // TODO check if this has the same effect
-        return parameters
+    fun setAppName(appName: String) {
+        this.appName = appName
     }
+
+    override fun getAppName(): String {
+        return appName
+    }
+
+    override fun getPdfSignatureCache(): PdfSignatureCache {
+        return getContext().pdfToBeSignedCache
+    }
+
+    override fun getContext(): PAdESProfileParameters {
+        if (context == null) {
+            context = PAdESProfileParameters()
+        }
+        return context as PAdESProfileParameters
+    }
+
+    /**
+     * Sets a password string
+     *
+     * @param passwordProtection [String] password to set
+     */
+    fun setPasswordProtection(passwordProtection: String?) {
+        this.passwordProtection = passwordProtection
+    }
+
+
+    override fun getContentTimestampParameters(): PAdESTimestampParameters {
+        if (contentTimestampParameters == null) {
+            contentTimestampParameters = PAdESTimestampParameters()
+        }
+        return contentTimestampParameters as PAdESTimestampParameters
+    }
+
+    override fun setContentTimestampParameters(contentTimestampParameters: CAdESTimestampParameters) {
+        if (contentTimestampParameters is PAdESTimestampParameters) {
+            this.contentTimestampParameters = contentTimestampParameters
+        } else {
+            this.contentTimestampParameters = PAdESTimestampParameters(contentTimestampParameters.digestAlgorithm)
+        }
+    }
+
+    override fun getSignatureTimestampParameters(): PAdESTimestampParameters {
+        if (signatureTimestampParameters == null) {
+        }
+        return signatureTimestampParameters as PAdESTimestampParameters
+    }
+
+    override fun setSignatureTimestampParameters(signatureTimestampParameters: CAdESTimestampParameters) {
+        if (signatureTimestampParameters is PAdESTimestampParameters) {
+            this.signatureTimestampParameters = signatureTimestampParameters
+        } else {
+            this.signatureTimestampParameters = PAdESTimestampParameters(signatureTimestampParameters.digestAlgorithm)
+        }
+    }
+
+    override fun getArchiveTimestampParameters(): PAdESTimestampParameters {
+        if (archiveTimestampParameters == null) {
+            archiveTimestampParameters = PAdESTimestampParameters()
+        }
+        return archiveTimestampParameters as PAdESTimestampParameters
+    }
+
+    override fun setArchiveTimestampParameters(archiveTimestampParameters: CAdESTimestampParameters) {
+        if (archiveTimestampParameters is PAdESTimestampParameters) {
+            this.archiveTimestampParameters = archiveTimestampParameters
+        } else {
+            this.archiveTimestampParameters = PAdESTimestampParameters(archiveTimestampParameters.digestAlgorithm)
+        }
+    }
+
 }

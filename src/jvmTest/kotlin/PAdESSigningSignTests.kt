@@ -90,6 +90,9 @@ class PAdESSigningSignTests : AbstractAdESTest() {
             assertContentEquals(origData.value, baos.toByteArray())
         }
 
+        FileOutputStream(signOutput.name!!).use {
+            it.write(signOutput.value)
+        }
     }
 
     @Test

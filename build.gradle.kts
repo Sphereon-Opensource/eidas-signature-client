@@ -61,7 +61,7 @@ kotlin {
             languageSettings.optIn("ExperimentalSerializationApi")
         }
 
-        val dssVersion = "5.10.1"
+        val dssVersion = "5.11.1"
         val kotlinSerializationVersion = "1.4.0-RC"
         val kotlinDateTimeVersion = "0.4.0"
         val bcVersion = "1.71"

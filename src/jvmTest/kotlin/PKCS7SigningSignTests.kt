@@ -5,6 +5,7 @@ import com.sphereon.vdx.ades.enums.SignatureAlg
 import com.sphereon.vdx.ades.enums.SignatureLevel
 import com.sphereon.vdx.ades.enums.SignaturePackaging
 import com.sphereon.vdx.ades.model.OrigData
+import com.sphereon.vdx.ades.model.PdfSignatureMode
 import com.sphereon.vdx.ades.model.Pkcs7SignatureFormParameters
 import com.sphereon.vdx.ades.model.SignatureConfiguration
 import com.sphereon.vdx.ades.model.SignatureFormParameters
@@ -41,7 +42,8 @@ class PKCS7SigningSignTests : AbstractAdESTest() {
                         signerName = "Test Case",
                         contactInfo = "support@sphereon.com",
                         reason = "Test",
-                        location = "Online"
+                        location = "Online",
+                        mode = PdfSignatureMode.CERTIFICATION
                     )
                 )
             ),
@@ -58,15 +60,15 @@ class PKCS7SigningSignTests : AbstractAdESTest() {
         val digestInput = signingService.digest(signInput)
 //        println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(digestInput))
 
-//        val signature = signingService.createSignature(digestInput, keyEntry)
+        val signature = signingService.createSignature(digestInput, keyEntry)
 //        println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(signature))
 
         val signOutput = signingService.sign(origData, keyEntry, SignMode.DOCUMENT, signatureConfiguration)
 //        println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(signOutput))
-        assertNotNull(signOutput)
+            assertNotNull(signOutput)
 
-        FileOutputStream(signOutput.name!!).use {
-            it.write(signOutput.value)
+            FileOutputStream(signOutput.name!!).use {
+                it.write(signOutput.value)
         }
 
 

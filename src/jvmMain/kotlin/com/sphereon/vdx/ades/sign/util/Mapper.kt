@@ -2,8 +2,12 @@ package com.sphereon.vdx.ades.sign.util
 
 import com.sphereon.vdx.ades.SignClientException
 import com.sphereon.vdx.ades.SigningException
-import com.sphereon.vdx.ades.enums.*
+import com.sphereon.vdx.ades.enums.CryptoAlg
+import com.sphereon.vdx.ades.enums.DigestAlg
 import com.sphereon.vdx.ades.enums.ImageScaling
+import com.sphereon.vdx.ades.enums.MaskGenFunction
+import com.sphereon.vdx.ades.enums.SignMode
+import com.sphereon.vdx.ades.enums.SignatureAlg
 import com.sphereon.vdx.ades.enums.SignatureForm
 import com.sphereon.vdx.ades.enums.SignatureLevel
 import com.sphereon.vdx.ades.enums.SignaturePackaging
@@ -14,7 +18,25 @@ import com.sphereon.vdx.ades.enums.TextWrapping
 import com.sphereon.vdx.ades.enums.VisualSignatureAlignmentHorizontal
 import com.sphereon.vdx.ades.enums.VisualSignatureAlignmentVertical
 import com.sphereon.vdx.ades.enums.VisualSignatureRotation
-import com.sphereon.vdx.ades.model.*
+import com.sphereon.vdx.ades.model.Certificate
+import com.sphereon.vdx.ades.model.ConfigKeyBinding
+import com.sphereon.vdx.ades.model.IKeyEntry
+import com.sphereon.vdx.ades.model.IPrivateKeyEntry
+import com.sphereon.vdx.ades.model.Key
+import com.sphereon.vdx.ades.model.KeyEntry
+import com.sphereon.vdx.ades.model.KeystoreParameters
+import com.sphereon.vdx.ades.model.OrigData
+import com.sphereon.vdx.ades.model.PasswordInputCallback
+import com.sphereon.vdx.ades.model.PdfSignatureMode
+import com.sphereon.vdx.ades.model.Pkcs11Parameters
+import com.sphereon.vdx.ades.model.PrivateKeyEntry
+import com.sphereon.vdx.ades.model.SignInput
+import com.sphereon.vdx.ades.model.SignOutput
+import com.sphereon.vdx.ades.model.Signature
+import com.sphereon.vdx.ades.model.SignatureParameters
+import com.sphereon.vdx.ades.model.VisualSignatureFieldParameters
+import com.sphereon.vdx.ades.model.VisualSignatureParameters
+import com.sphereon.vdx.ades.model.VisualSignatureTextParameters
 import com.sphereon.vdx.ades.pki.AzureKeyvaultClientConfig
 import com.sphereon.vdx.ades.pki.AzureKeyvaultTokenConnection
 import com.sphereon.vdx.ades.pki.DSSWrappedKeyEntry
@@ -24,13 +46,28 @@ import eu.europa.esig.dss.AbstractSignatureParameters
 import eu.europa.esig.dss.cades.CAdESSignatureParameters
 import eu.europa.esig.dss.cades.signature.CAdESService
 import eu.europa.esig.dss.cades.signature.CAdESTimestampParameters
-import eu.europa.esig.dss.enumerations.*
 import eu.europa.esig.dss.enumerations.CertificationPermission
+import eu.europa.esig.dss.enumerations.DigestAlgorithm
+import eu.europa.esig.dss.enumerations.EncryptionAlgorithm
+import eu.europa.esig.dss.enumerations.MaskGenerationFunction
+import eu.europa.esig.dss.enumerations.SignatureAlgorithm
 import eu.europa.esig.dss.jades.signature.JAdESService
-import eu.europa.esig.dss.model.*
+import eu.europa.esig.dss.model.BLevelParameters
+import eu.europa.esig.dss.model.DSSDocument
+import eu.europa.esig.dss.model.Digest
+import eu.europa.esig.dss.model.InMemoryDocument
+import eu.europa.esig.dss.model.MimeType
+import eu.europa.esig.dss.model.SerializableTimestampParameters
+import eu.europa.esig.dss.model.SignatureValue
+import eu.europa.esig.dss.model.SignerLocation
 import eu.europa.esig.dss.model.TimestampParameters
+import eu.europa.esig.dss.model.ToBeSigned
 import eu.europa.esig.dss.model.x509.CertificateToken
-import eu.europa.esig.dss.pades.*
+import eu.europa.esig.dss.pades.PAdESSignatureParameters
+import eu.europa.esig.dss.pades.PAdESTimestampParameters
+import eu.europa.esig.dss.pades.SignatureFieldParameters
+import eu.europa.esig.dss.pades.SignatureImageParameters
+import eu.europa.esig.dss.pades.SignatureImageTextParameters
 import eu.europa.esig.dss.pades.signature.PAdESService
 import eu.europa.esig.dss.service.tsp.OnlineTSPSource
 import eu.europa.esig.dss.signature.AbstractSignatureService
@@ -51,7 +88,8 @@ import java.security.cert.X509Certificate
 import java.security.spec.AlgorithmParameterSpec
 import java.security.spec.PKCS8EncodedKeySpec
 import java.security.spec.X509EncodedKeySpec
-import java.util.*
+import java.util.Date
+import java.util.TimeZone
 
 
 fun DigestAlg.toDSS(): DigestAlgorithm {
@@ -242,8 +280,12 @@ fun AbstractSignatureService<out AbstractSignatureParameters<out TimestampParame
     return padesService
 }
 
-fun AbstractSignatureService<out AbstractSignatureParameters<out TimestampParameters>, out TimestampParameters>.toPKCS7Service(): PKCS7Service {
-    return this as PKCS7Service
+fun AbstractSignatureService<out AbstractSignatureParameters<out TimestampParameters>, out TimestampParameters>.toPKCS7Service(timestampParameters: com.sphereon.vdx.ades.model.TimestampParameters?): PKCS7Service {
+    val pkcS7Service = this as PKCS7Service
+    if (timestampParameters != null) {
+        pkcS7Service.setTspSource(OnlineTSPSource(timestampParameters.tsaUrl))
+    }
+    return pkcS7Service
 }
 
 fun OrigData.toDSSDocument(): DSSDocument {
@@ -587,7 +629,7 @@ fun mapPKCSSignatureParams(
 
     mapTimestampParams(dssParams, signatureParameters.signatureForm(), timestampParameters)
     mapGenericSignatureParams(dssParams, signatureParameters, key)
-
+    mapBlevelParams(dssParams.bLevel(), signatureParameters, signingDate)
     signatureParameters.signatureFormParameters?.let { it ->
         it.pkcs7SignatureFormParameters?.let { formParameters ->
             dssParams.contactInfo = formParameters.contactInfo
