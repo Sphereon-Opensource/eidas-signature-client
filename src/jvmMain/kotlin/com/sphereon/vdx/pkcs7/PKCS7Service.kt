@@ -159,9 +159,6 @@ class PKCS7Service(
 
         val options = SignatureOptions()
         options.preferredSignatureSize = parameters.contentSize
-        if (parameters.signatureLevel != SignatureLevel.PKCS7_B) {
-            options.preferredSignatureSize *= 3 // Add space for timestamp signatures
-        }
 
         if (!imageParameters.isEmpty) {
             val signatureOptions = SignatureOptions()

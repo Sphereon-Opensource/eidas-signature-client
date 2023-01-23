@@ -189,9 +189,9 @@ data class Pkcs7SignatureFormParameters(
     /**
      * Defines the preserved space for a signature context. Only change if you know what you are doing
      *
-     * Default : 9472 (default value in pdfbox)
+     * Default :  32768 (should be enough for LTV)
      */
-    val signatureSize: Int? = 9472,
+    val signatureSize: Int? = 32768,
 
     /**
      * This attribute allows to override the used Filter for a Signature.
@@ -267,9 +267,9 @@ data class PadesSignatureFormParameters(
     /**
      * Defines the preserved space for a signature context
      *
-     * Default : 9472 (default value in pdfbox)
+     * Default : 32768 (should be enough for LTV)
      */
-    val signatureSize: Int? = 9472,
+    val signatureSize: Int? = 32768,
 
     /**
      * This attribute allows to override the used Filter for a Signature.

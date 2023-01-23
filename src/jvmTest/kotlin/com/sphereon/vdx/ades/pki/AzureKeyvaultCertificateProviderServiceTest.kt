@@ -257,7 +257,7 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
                         contactInfo = "support@sphereon.com",
                         reason = "Test",
                         location = "Online",
-                        signatureSize = 15000,
+                        signatureSize = 15000, // FIXME, this value gets lost somehow
                         signatureSubFilter = PdfSignatureSubFilter.ADBE_PKCS7_DETACHED.specName,
                         signingTimeZone = "GMT-3",
                         visualSignatureParameters = VisualSignatureParameters(

@@ -25,7 +25,7 @@ class PKCS7SignatureParameters : CAdESSignatureParameters(), PAdESCommonParamete
 
     var signatureImageParameters: SignatureImageParameters? = null
     private var passwordProtection: String? = null
-    private val signatureSize = 9472
+    private val signatureSize =  32768
     private val signatureFilter = PDSignature.FILTER_ADOBE_PPKLITE
     private val signatureSubFilter = PDSignature.SUBFILTER_ADBE_PKCS7_DETACHED
 
