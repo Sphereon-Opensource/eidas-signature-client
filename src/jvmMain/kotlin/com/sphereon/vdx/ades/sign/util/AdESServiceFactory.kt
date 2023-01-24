@@ -30,6 +30,8 @@ class AdESServiceFactory {
                 throw SigningException("Please provide a signature form to get an AdES Service!")
             }
             val certificateVerifier = CommonCertificateVerifier()
+            certificateVerifier.isCheckRevocationForUntrustedChains = true
+
             // We can inject several sources. eg: OCSP, CRL, AIA, trusted lists
 
             // Capability to download resources from AIA

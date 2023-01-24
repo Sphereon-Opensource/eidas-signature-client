@@ -19,7 +19,6 @@ import com.sphereon.vdx.ades.enums.VisualSignatureAlignmentHorizontal
 import com.sphereon.vdx.ades.enums.VisualSignatureAlignmentVertical
 import com.sphereon.vdx.ades.enums.VisualSignatureRotation
 import com.sphereon.vdx.ades.model.Certificate
-import com.sphereon.vdx.ades.model.ConfigKeyBinding
 import com.sphereon.vdx.ades.model.IKeyEntry
 import com.sphereon.vdx.ades.model.IPrivateKeyEntry
 import com.sphereon.vdx.ades.model.Key
@@ -31,7 +30,6 @@ import com.sphereon.vdx.ades.model.PdfSignatureMode
 import com.sphereon.vdx.ades.model.Pkcs11Parameters
 import com.sphereon.vdx.ades.model.PrivateKeyEntry
 import com.sphereon.vdx.ades.model.SignInput
-import com.sphereon.vdx.ades.model.SignOutput
 import com.sphereon.vdx.ades.model.Signature
 import com.sphereon.vdx.ades.model.SignatureParameters
 import com.sphereon.vdx.ades.model.VisualSignatureFieldParameters
@@ -402,7 +400,7 @@ fun SignatureParameters.toDSS(
     return when (signatureForm()) {
         SignatureForm.CAdES -> toCades(key, signedData, signingDate, signatureAlg, timestampParameters)
         SignatureForm.PAdES -> toPades(key, signedData, signingDate, signatureAlg, timestampParameters)
-        SignatureForm.PKCS7 -> toPKCS7(key, /*signedData, signingDate, signatureAlg, timestampParameters*/)
+        SignatureForm.PKCS7 -> toPKCS7(key, signingDate, timestampParameters)
         else -> throw SigningException("Encryption algorithm $encryptionAlgorithm not supported yet")
     }
 }
@@ -605,21 +603,17 @@ private fun initTimestampParameters(pades: Boolean) =
 
 fun SignatureParameters.toPKCS7(
     key: IKeyEntry,
-    /*signedData: ByteArray? = null,
     signingDate: Instant? = null,
-    signatureAlg: SignatureAlg? = null,*/
     timestampParameters: com.sphereon.vdx.ades.model.TimestampParameters? = null
 ): PKCS7SignatureParameters {
     if (signatureForm() != SignatureForm.PKCS7) throw SigningException("Cannot convert to PKCS7 signature parameters when signature form is ${signatureForm()}")
-    return mapPKCSSignatureParams(this, key/*, signingDate, signedData, signatureAlg*/, timestampParameters)
+    return mapPKCSSignatureParams(this, key, signingDate, timestampParameters)
 }
 
 fun mapPKCSSignatureParams(
     signatureParameters: SignatureParameters,
     key: IKeyEntry,
-    /*signingDate: Instant? = null,
-    signedData: ByteArray? = null,
-    signatureAlg: SignatureAlg? = null,*/
+    signingDate: Instant? = null,
     timestampParameters: com.sphereon.vdx.ades.model.TimestampParameters?
 ): PKCS7SignatureParameters {
     val dssParams = PKCS7SignatureParameters()

@@ -93,6 +93,7 @@ kotlin {
                 implementation("eu.europa.ec.joinup.sd-dss:dss-signature-rest:$dssVersion")
                 implementation("eu.europa.ec.joinup.sd-dss:dss-enumerations:$dssVersion")
                 implementation("eu.europa.ec.joinup.sd-dss:dss-pades-pdfbox:$dssVersion")
+                implementation("eu.europa.ec.joinup.sd-dss:dss-crl-parser-x509crl:$dssVersion")
                 api("org.bouncycastle:bcprov-debug-jdk18on:$bcVersion")
                 api("javax.cache:cache-api:1.1.1")
                 implementation("javax.xml.bind:jaxb-api:2.3.0")

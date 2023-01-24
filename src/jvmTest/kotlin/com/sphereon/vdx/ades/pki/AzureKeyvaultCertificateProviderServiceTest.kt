@@ -151,14 +151,14 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
 //        println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(signInput))
 
         // Let's first create a signature of the document/data without creating a digest
-        val signatureData = signingService.createSignature(signInput)
+        val signatureData = signingService.createSignature(signInput, SignatureAlg.RSA_SHA256)
         assertNotNull(signatureData)
         assertEquals(SignMode.DOCUMENT, signatureData.signMode)
         assertEquals(SignatureAlg.RSA_SHA256, signatureData.algorithm)
 
         // Let's create a digest ourselves and sign that as well
         val digestInput = signingService.digest(signInput)
-        val signatureDigest = signingService.createSignature(digestInput)
+        val signatureDigest = signingService.createSignature(digestInput, SignatureAlg.RSA_SHA256)
         assertNotNull(signatureDigest)
         assertEquals(SignMode.DIGEST, signatureDigest.signMode)
         assertEquals(SignatureAlg.RSA_RAW, signatureDigest.algorithm)
@@ -172,7 +172,6 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
 
         val signOutputDigest = signingService.sign(pdfData, signatureDigest, signatureConfiguration)
         assertNotNull(signOutputDigest)
-
 
 
         InMemoryDocument(signOutputDigest.value, signOutputData.name).save("" + System.currentTimeMillis() + "-sphereon-signed.pdf")
@@ -211,16 +210,10 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
 
         assertEquals(1, documentValidator.signatures.size)
 
-        // TODO Signature is invalid until OCSP signing is complete, validation disabled
-/*
-        val validatedDocument = documentValidator.validateDocument()
-        assertEquals(1, validatedDocument.simpleReport.validSignaturesCount)
-
         val diagData = documentValidator.diagnosticData
         assertEquals(1, diagData.signatures.size)
-        assertEquals(6, diagData.usedCertificates.size)
+        assertEquals(7, diagData.usedCertificates.size)
 
-*/
         assertContentEquals(signatureDigest.value, documentValidator.signatures.first().signatureValue)
 
     }
@@ -288,14 +281,14 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
 //        println(Json { prettyPrint = true; serializersModule = serializers }.encodeToString(signInput))
 
         // Let's first create a signature of the document/data without creating a digest
-        val signatureData = signingService.createSignature(signInput, kid)
+        val signatureData = signingService.createSignature(signInput, SignatureAlg.RSA_SHA256)
         assertNotNull(signatureData)
         assertEquals(SignMode.DOCUMENT, signatureData.signMode)
         assertEquals(SignatureAlg.RSA_SHA256, signatureData.algorithm)
 
         // Let's create a digest ourselves and sign that as well
         val digestInput = signingService.digest(signInput)
-        val signatureDigest = signingService.createSignature(digestInput, kid)
+        val signatureDigest = signingService.createSignature(digestInput, SignatureAlg.RSA_SHA256)
         assertNotNull(signatureDigest)
         assertEquals(SignMode.DIGEST, signatureDigest.signMode)
         assertEquals(SignatureAlg.RSA_RAW, signatureDigest.algorithm)
@@ -311,13 +304,12 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
         assertNotNull(signOutputDigest)
 
 
-
         InMemoryDocument(signOutputDigest.value, signOutputData.name).save("" + System.currentTimeMillis() + "-sphereon-signed.pdf")
 
-        val validSignatureData = signingService.isValidSignature(signInput, signatureData, kid)
+        val validSignatureData = signingService.isValidSignature(signInput, signatureData)
         assertTrue(validSignatureData)
 
-        val validSignatureDigest = signingService.isValidSignature(digestInput, signatureDigest, kid)
+        val validSignatureDigest = signingService.isValidSignature(digestInput, signatureDigest)
         assertTrue(validSignatureDigest)
 
         assertTrue(signingService.isValidSignature(signInput, signatureData, signatureData.keyEntry.publicKey))
@@ -348,16 +340,11 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
 
         assertEquals(1, documentValidator.signatures.size)
 
-        // TODO Signature is invalid until OCSP signing is complete, validation disabled
-/*
-        val validatedDocument = documentValidator.validateDocument()
-        assertEquals(1, validatedDocument.simpleReport.validSignaturesCount)
-
         val diagData = documentValidator.diagnosticData
         assertEquals(1, diagData.signatures.size)
-        assertEquals(6, diagData.usedCertificates.size)
+        assertEquals(7, diagData.usedCertificates.size)
 
-*/
+
         assertContentEquals(signatureDigest.value, documentValidator.signatures.first().signatureValue)
 
     }
