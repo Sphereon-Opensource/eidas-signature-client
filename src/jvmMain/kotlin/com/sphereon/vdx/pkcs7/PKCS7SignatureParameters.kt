@@ -102,6 +102,7 @@ class PKCS7SignatureParameters : CAdESSignatureParameters(), PAdESCommonParamete
 
     override fun getSignatureTimestampParameters(): PAdESTimestampParameters {
         if (signatureTimestampParameters == null) {
+            throw RuntimeException("signatureTimestampParameters may not be null")
         }
         return signatureTimestampParameters as PAdESTimestampParameters
     }
@@ -128,5 +129,4 @@ class PKCS7SignatureParameters : CAdESSignatureParameters(), PAdESCommonParamete
             this.archiveTimestampParameters = PAdESTimestampParameters(archiveTimestampParameters.digestAlgorithm)
         }
     }
-
 }

@@ -131,13 +131,7 @@ class PKCS7Service(
         val outputStream = ByteArrayOutputStream()
 
         // create signature dictionary
-        val signature = PDSignature()
-        signature.setFilter(PDSignature.FILTER_ADOBE_PPKLITE)
-        signature.setSubFilter(PDSignature.SUBFILTER_ADBE_PKCS7_DETACHED)
-        signature.name = parameters.signerName
-        signature.location = parameters.location
-        signature.reason = parameters.reason ?: "E-signed by ${parameters.signerName}"
-        signature.contactInfo = parameters.contactInfo
+        val signature = createPdSignature(parameters)
         val certify = parameters.signatureMode == PdfSignatureMode.CERTIFICATION
 
         val imageParameters = parameters.imageParameters
@@ -151,11 +145,7 @@ class PKCS7Service(
             handleCertify(documentReader, toSignDocument, signatureLog, signature)
         }
 
-        // the signing date, needed for valid signature
-        val calendar = Calendar.getInstance()
-        calendar.time = parameters.signingDate
-        calendar.timeZone = parameters.signingTimeZone
-        signature.signDate = calendar
+        addSignDate(parameters, signature)
 
         val options = SignatureOptions()
         options.preferredSignatureSize = parameters.contentSize
@@ -192,6 +182,28 @@ class PKCS7Service(
         val toByteArray = outputStream.toByteArray()
         logger.debug("End signing {}", signatureLog)
         return MergeResult(ByteArrayInputStream(toByteArray), dataToSign)
+    }
+
+    private fun createPdSignature(parameters: PKCS7SignatureParameters): PDSignature {
+        val signature = PDSignature()
+        signature.setFilter(PDSignature.FILTER_ADOBE_PPKLITE)
+        signature.setSubFilter(PDSignature.SUBFILTER_ADBE_PKCS7_DETACHED)
+        signature.name = parameters.signerName
+        signature.location = parameters.location
+        signature.reason = parameters.reason ?: "E-signed by ${parameters.signerName}"
+        signature.contactInfo = parameters.contactInfo
+        return signature
+    }
+
+    private fun addSignDate(
+        parameters: PKCS7SignatureParameters,
+        signature: PDSignature
+    ) {
+        // the signing date, needed for valid signature
+        val calendar = Calendar.getInstance()
+        calendar.time = parameters.signingDate
+        calendar.timeZone = parameters.signingTimeZone
+        signature.signDate = calendar
     }
 
     private fun handleCertify(
@@ -429,5 +441,4 @@ class PKCS7Service(
             else -> throw UnsupportedOperationException(String.format("Unsupported signature format '%s' for extension.", signatureLevel))
         }
     }
-
 }
