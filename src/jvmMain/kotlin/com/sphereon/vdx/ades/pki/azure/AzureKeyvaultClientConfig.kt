@@ -1,4 +1,4 @@
-package com.sphereon.vdx.ades.pki
+package com.sphereon.vdx.ades.pki.azure
 
 @kotlinx.serialization.Serializable
 data class AzureKeyvaultClientConfig(

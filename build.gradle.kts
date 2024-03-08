@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "com.sphereon.vdx"
-version = "1.0.0-SNAPSHOT"
+version = "1.2.0-SNAPSHOT"
 
 
 detekt {
@@ -105,7 +105,7 @@ kotlin {
                 api("io.github.microutils:kotlin-logging-jvm:2.1.23")
 
                 // todo separate into separate project probably
-                api("com.sphereon.vdx:eidas-signature-client-rest-jersey3:1.0.0-SNAPSHOT")
+                api("com.sphereon.vdx:eidas-signature-client-rest-jersey3:1.1.0-SNAPSHOT")
 
                 implementation(project.dependencies.platform("com.azure:azure-sdk-bom:1.2.4"))
                 implementation("com.azure:azure-identity")

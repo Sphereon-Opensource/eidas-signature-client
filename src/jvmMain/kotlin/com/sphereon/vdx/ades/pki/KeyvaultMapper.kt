@@ -13,6 +13,7 @@ import com.sphereon.vdx.ades.SigningException
 import com.sphereon.vdx.ades.enums.CryptoAlg
 import com.sphereon.vdx.ades.model.IKeyEntry
 import com.sphereon.vdx.ades.model.KeyEntry
+import com.sphereon.vdx.ades.pki.azure.*
 import com.sphereon.vdx.ades.sign.util.CertificateUtil
 import com.sphereon.vdx.ades.sign.util.toCertificate
 import com.sphereon.vdx.ades.sign.util.toKey

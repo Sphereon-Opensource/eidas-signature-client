@@ -2,31 +2,9 @@ package com.sphereon.vdx.ades.pki
 
 import AbstractAdESTest
 import KeyEntryCacheSerializer
-import com.sphereon.vdx.ades.enums.CryptoAlg
-import com.sphereon.vdx.ades.enums.DigestAlg
-import com.sphereon.vdx.ades.enums.KeyProviderType
-import com.sphereon.vdx.ades.enums.PdfSignatureSubFilter
-import com.sphereon.vdx.ades.enums.SignMode
-import com.sphereon.vdx.ades.enums.SignatureAlg
-import com.sphereon.vdx.ades.enums.SignatureLevel
-import com.sphereon.vdx.ades.enums.SignaturePackaging
-import com.sphereon.vdx.ades.enums.SignerTextPosition
-import com.sphereon.vdx.ades.model.BLevelParams
-import com.sphereon.vdx.ades.model.KeyProviderConfig
-import com.sphereon.vdx.ades.model.KeyProviderSettings
-import com.sphereon.vdx.ades.model.OrigData
-import com.sphereon.vdx.ades.model.PadesSignatureFormParameters
-import com.sphereon.vdx.ades.model.PdfSignatureMode
-import com.sphereon.vdx.ades.model.Pkcs7SignatureFormParameters
-import com.sphereon.vdx.ades.model.SignatureConfiguration
-import com.sphereon.vdx.ades.model.SignatureFormParameters
-import com.sphereon.vdx.ades.model.SignatureLevelParameters
-import com.sphereon.vdx.ades.model.SignatureParameters
-import com.sphereon.vdx.ades.model.TimestampParameterSettings
-import com.sphereon.vdx.ades.model.TimestampParameters
-import com.sphereon.vdx.ades.model.VisualSignatureFieldParameters
-import com.sphereon.vdx.ades.model.VisualSignatureParameters
-import com.sphereon.vdx.ades.model.VisualSignatureTextParameters
+import com.sphereon.vdx.ades.enums.*
+import com.sphereon.vdx.ades.model.*
+import com.sphereon.vdx.ades.pki.azure.*
 import com.sphereon.vdx.ades.sign.KidSignatureService
 import com.sphereon.vdx.ades.sign.util.toX509Certificate
 import eu.europa.esig.dss.enumerations.TokenExtractionStrategy
@@ -53,11 +31,10 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
 
     @Test
     fun `Given a KID the Azure Keyvault Certificate Provider Service should return a key`() {
-        val keyProvider = KeyProviderServiceFactory.createFromConfig(
-            constructCertificateProviderSettings(true),
-            azureKeyvaultClientConfig = constructKeyvaultClientConfig(),
+        val keyProvider = KeyProviderServiceFactory.createFromConfig(constructCertificateProviderSettings(true)) {
+            azureKeyvaultClientConfig = constructKeyvaultClientConfig()
             cacheObjectSerializer = KeyEntryCacheSerializer()
-        )
+        }
         val key = keyProvider.getKey("esignum:3f98a9a740fb41b79e3679cce7a34ba6")
 
         assertNotNull(key)
@@ -96,9 +73,9 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
         val logoData = OrigData(value = logo.readBytes(), name = "sphereon.png", mimeType = "image/png")
 
 
-        val keyProvider = KeyProviderServiceFactory.createFromConfig(
-            constructCertificateProviderSettings(false), azureKeyvaultClientConfig = constructKeyvaultClientConfig()
-        )
+        val keyProvider = KeyProviderServiceFactory.createFromConfig(constructCertificateProviderSettings(false)) {
+            azureKeyvaultClientConfig = constructKeyvaultClientConfig()
+        }
         val signingService = KidSignatureService(keyProvider)
         val kid = "esignum:3f98a9a740fb41b79e3679cce7a34ba6"
         val signatureConfiguration = SignatureConfiguration(
@@ -226,9 +203,9 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
         val logoData = OrigData(value = logo.readBytes(), name = "sphereon.png", mimeType = "image/png")
 
 
-        val keyProvider = KeyProviderServiceFactory.createFromConfig(
-            constructCertificateProviderSettings(false), azureKeyvaultClientConfig = constructKeyvaultClientConfig()
-        )
+        val keyProvider = KeyProviderServiceFactory.createFromConfig(constructCertificateProviderSettings(false)) {
+            azureKeyvaultClientConfig = constructKeyvaultClientConfig()
+        }
         val signingService = KidSignatureService(keyProvider)
         val kid = "esignum:3f98a9a740fb41b79e3679cce7a34ba6"
         val signatureConfiguration = SignatureConfiguration(

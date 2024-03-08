@@ -5,7 +5,7 @@ import com.sphereon.vdx.ades.enums.KeyProviderType
 import com.sphereon.vdx.ades.model.KeyProviderConfig
 import com.sphereon.vdx.ades.model.KeyProviderSettings
 import com.sphereon.vdx.ades.model.PasswordInputCallback
-import com.sphereon.vdx.ades.pki.AzureKeyvaultClientConfig
+import com.sphereon.vdx.ades.pki.azure.AzureKeyvaultClientConfig
 import eu.europa.esig.dss.token.SignatureTokenConnection
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import java.security.Security
