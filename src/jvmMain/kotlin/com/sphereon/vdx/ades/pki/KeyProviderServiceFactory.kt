@@ -9,6 +9,8 @@ import com.sphereon.vdx.ades.pki.azure.AzureKeyvaultClientConfig
 import com.sphereon.vdx.ades.pki.azure.AzureKeyvaultKeyProviderService
 import com.sphereon.vdx.ades.pki.digidentity.DigidentityKeyProviderService
 import com.sphereon.vdx.ades.pki.digidentity.DigidentityProviderConfig
+import com.sphereon.vdx.ades.pki.restclient.RestClientConfig
+import com.sphereon.vdx.ades.pki.restclient.RestClientKeyProviderService
 
 object KeyProviderServiceFactory {
 

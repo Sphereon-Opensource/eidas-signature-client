@@ -38,6 +38,7 @@ import eu.europa.esig.dss.token.DSSPrivateKeyEntry
 import eu.europa.esig.dss.token.KSPrivateKeyEntry
 import eu.europa.esig.dss.token.Pkcs11SignatureToken
 import eu.europa.esig.dss.token.Pkcs12SignatureToken
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.toJavaInstant
 import java.awt.Color
@@ -154,7 +155,7 @@ fun X509Certificate.toCertificate(): Certificate {
 }
 
 fun PublicKey.toKey(): Key {
-    return Key(algorithm = CryptoAlg.valueOf(algorithm), value = encoded, format = format)
+    return Key(algorithm = CryptoAlg.from(algorithm), value = encoded, format = format)
 }
 
 fun X509Certificate.toPublicKey(): Key {
@@ -163,6 +164,10 @@ fun X509Certificate.toPublicKey(): Key {
 
 fun Certificate.toX509Certificate(): X509Certificate {
     return CertificateUtil.toX509Certificate(this)
+}
+fun Certificate.isActive(): Boolean {
+    val now = Clock.System.now()
+    return now in notBefore..notAfter
 }
 
 fun Pkcs11Parameters.toPkcs11SignatureToken(): Pkcs11SignatureToken {

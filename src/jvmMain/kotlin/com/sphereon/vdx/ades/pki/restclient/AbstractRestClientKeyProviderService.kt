@@ -1,10 +1,12 @@
-package com.sphereon.vdx.ades.pki
+package com.sphereon.vdx.ades.pki.restclient
 
 import AbstractCacheObjectSerializer
 import com.sphereon.vdx.ades.SignClientException
 import com.sphereon.vdx.ades.model.IKeyEntry
 import com.sphereon.vdx.ades.model.KeyProviderSettings
+import com.sphereon.vdx.ades.pki.AbstractKeyProviderService
 import com.sphereon.vdx.ades.rest.client.ApiClient
+import com.sphereon.vdx.ades.rest.client.auth.Authentication
 import com.sphereon.vdx.ades.rest.client.auth.HttpBearerAuth
 import com.sphereon.vdx.ades.rest.client.auth.OAuth
 
@@ -21,8 +23,9 @@ abstract class AbstractRestClientKeyProviderService(
 
     init {
         assertConfig()
-        apiClient = newApiClient()
-        initAuth()
+        val authMap = initAuth()
+        apiClient = newApiClient(authMap)
+
     }
 
     fun oAuth(): OAuth {
@@ -39,8 +42,8 @@ abstract class AbstractRestClientKeyProviderService(
         )
     }
 
-    private fun newApiClient(): ApiClient {
-        val apiClient = ApiClient()
+    private fun newApiClient(authMap: MutableMap<String, Authentication>): ApiClient {
+        val apiClient = KotlinApiClient(authMap)
 
         apiClient.basePath = restClientConfig.baseUrl
         if (restClientConfig.connectTimeoutInMS != null) {
@@ -49,10 +52,14 @@ abstract class AbstractRestClientKeyProviderService(
         if (restClientConfig.readTimeoutInMS != null) {
             apiClient.readTimeout = restClientConfig.readTimeoutInMS
         }
+        restClientConfig.defaultHeaders?.forEach {
+            apiClient.addDefaultHeader(it.key, it.value)
+        }
         return apiClient
     }
 
-    private fun initAuth() {
+    private fun initAuth(): MutableMap<String, Authentication> {
+        val authMap = mutableMapOf<String, Authentication>()
         if (restClientConfig.oAuth2 != null) {
             val auth = OAuth(
                 restClientConfig.baseUrl ?: throw SignClientException("Base url for the REST Signature service has not been set"),
@@ -61,17 +68,15 @@ abstract class AbstractRestClientKeyProviderService(
             auth.setFlow(restClientConfig.oAuth2.flow)
             auth.setScope(restClientConfig.oAuth2.scope)
             auth.setCredentials(restClientConfig.oAuth2.clientId, restClientConfig.oAuth2.clientSecret, restClientConfig.oAuth2.debug)
-            auth.setAccessToken(restClientConfig.oAuth2.accessToken)
-            apiClient.authentications[OAUTH2_LITERAL] = auth
+            restClientConfig.oAuth2.accessToken?.let { auth.setAccessToken(it) }
+            authMap[OAUTH2_LITERAL] = auth
         }
         if (restClientConfig.bearerAuth != null) {
             val auth = HttpBearerAuth(restClientConfig.bearerAuth.schema)
             auth.bearerToken = restClientConfig.bearerAuth.bearerToken
-            apiClient.authentications[BEARER_LITERAL] = auth
+            authMap[BEARER_LITERAL] = auth
         }
-        restClientConfig.defaultHeaders?.forEach {
-            apiClient.addDefaultHeader(it.key, it.value)
-        }
+        return authMap
     }
 
     private fun assertConfig() {

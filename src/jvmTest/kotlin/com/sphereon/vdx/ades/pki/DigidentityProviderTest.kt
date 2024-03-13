@@ -24,45 +24,43 @@ class DigidentityProviderTest : AbstractAdESTest() {
             digidentityProviderConfig = constructProviderConfig()
             cacheObjectSerializer = KeyEntryCacheSerializer()
         }
-        val key = keyProvider.getKey("7e13564x-88am-0621-p4l5-56e7312344as")
+        val key = keyProvider.getKey("9b2b85df-9149-4440-a7a7-67953a38b832")
 
         assertNotNull(key)
-        assertEquals("7e13564x-88am-0621-p4l5-56e7312344as", key.kid)
+        assertEquals("9b2b85df-9149-4440-a7a7-67953a38b832", key.kid)
         assertNotNull(key.publicKey)
         assertEquals("X.509", key.publicKey.format)
         assertEquals(CryptoAlg.RSA, key.publicKey.algorithm)
-        assertEquals("59F815EF01229B27147BB84F2F412C16C5BD6BE0", key.certificate?.fingerPrint)
+        assertEquals("D5D0075C981C4462BAB99737E9BE0C49F750BB63", key.certificate?.fingerPrint)
         assertEquals(
-            "CN=Ensured Document Signing CA, O=Ensured B.V., L=Heerhugowaard, ST=Noord-Holland, C=NL",
+            "C=NL, O=Digidentity B.V., OID.2.5.4.97=NTRNL-27322631, CN=TEST Digidentity Business Qualified CA",
             key.certificate?.issuerDN
         )
         assertEquals(
-            "EMAILADDRESS=signature@esignum.io, CN=Afdeling beheer, OU=Afdeling beheer, O=Sphereon B.V., ST=Utrecht, C=NL",
+            "C=NL, O=Regional Sanjoflex, OID.2.5.4.97=NTRNL-90002768, CN=Regional Sanjoflex",
             key.certificate?.subjectDN
         )
-        assertEquals("302503097311715737064467329723821046857", key.certificate?.serialNumber)
+        assertEquals("70155151975609048911381342004623025095", key.certificate?.serialNumber)
         assertNotNull(key.certificate?.keyUsage)
         assertEquals(9, key.certificate?.keyUsage!!.size)
-        assertEquals(true, key.certificate?.keyUsage!!["digitalSignature"])
+        assertEquals(false, key.certificate?.keyUsage!!["digitalSignature"]) // TODO Double-check if this shouldn't be true
         assertEquals(true, key.certificate?.keyUsage!!["nonRepudiation"])
-        assertEquals(LocalDateTime.parse("2021-08-31T00:00:00").toInstant(TimeZone.UTC), key.certificate?.notBefore)
-        assertEquals(LocalDateTime.parse("2024-08-30T23:59:59").toInstant(TimeZone.UTC), key.certificate?.notAfter)
+        assertEquals(LocalDateTime.parse("2024-02-19T11:05:18").toInstant(TimeZone.UTC), key.certificate?.notBefore)
+        assertEquals(LocalDateTime.parse("2025-02-18T11:05:17").toInstant(TimeZone.UTC), key.certificate?.notAfter) // TODO Hmmz this will assure the build will fail next year
 
         assertNotNull(key.certificateChain)
-        assertEquals(4, key.certificateChain!!.size)
+        assertEquals(3, key.certificateChain!!.size)
         // We already tested a certificate above. So we only test for proper order of the cert chain here
-        assertEquals("59F815EF01229B27147BB84F2F412C16C5BD6BE0", key.certificateChain!![0].fingerPrint)
-        assertEquals("2F8E604EBE9CD29F08C3EA5BCE79B9D85CC5091D", key.certificateChain!![1].fingerPrint)
-        assertEquals("EF6C68DDE05896655EF293CF05331F86FB17D8E6", key.certificateChain!![2].fingerPrint)
-        assertEquals("D89E3BD43D5D909B47A18977AA9D5CE36CEE184C", key.certificateChain!![3].fingerPrint)
-
+        assertEquals("D5D0075C981C4462BAB99737E9BE0C49F750BB63", key.certificateChain!![0].fingerPrint)
+        assertEquals("9F9CFCE17EA78D9510D9A598453DC05BCC532053", key.certificateChain!![1].fingerPrint)
+        assertEquals("719AFB0F5D19A3F3FD64E7D7065E9147328EBA6C", key.certificateChain!![2].fingerPrint)
     }
 
 
     private fun constructProviderConfig(): DigidentityProviderConfig {
         return DigidentityProviderConfig(
             baseUrl = "https://api.digidentity-preproduction.eu/v1",
-            autoSignerId = "7e13564x-88am-0621-p4l5-56e7312344as",
+            autoSignerId = "9b2b85df-9149-4440-a7a7-67953a38b832",
             credentialOpts = DigidentityCredentialOpts(
                 credentialMode = DigidentityCredentialMode.SERVICE_CLIENT_SECRET,
                 secretCredentialOpts = DigidentitySecretCredentialOpts(

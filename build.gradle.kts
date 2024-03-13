@@ -1,7 +1,7 @@
 plugins {
     id("maven-publish")
-    kotlin("multiplatform") version "1.7.10"
-    kotlin("plugin.serialization") version "1.7.10"
+    kotlin("multiplatform") version "1.9.23"
+    kotlin("plugin.serialization") version "1.9.23"
     id("io.gitlab.arturbosch.detekt") version "1.21.0"
 }
 
@@ -63,7 +63,7 @@ kotlin {
 
         val dssVersion = "5.11.1"
         val kotlinSerializationVersion = "1.4.0-RC"
-        val kotlinDateTimeVersion = "0.4.0"
+        val kotlinDateTimeVersion = "0.5.0"
         val bcVersion = "1.71"
 
         val commonMain by getting {
@@ -101,6 +101,8 @@ kotlin {
                 implementation("javax.annotation:javax.annotation-api:1.3.2")
                 implementation("javax.activation:activation:1.1.1")
                 api("org.glassfish.jaxb:jaxb-runtime:2.3.6")
+                implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
+
 
                 api("io.github.microutils:kotlin-logging-jvm:2.1.23")
 
@@ -122,9 +124,6 @@ kotlin {
 
                 implementation("org.bouncycastle:bcpkix-jdk18on:$bcVersion")
                 implementation("io.mockk:mockk:1.12.4")
-
-//                implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
-
                 implementation("org.ehcache:ehcache:3.8.1")
               /*  implementation("org.apache.logging.log4j:log4j-api:${log4jVersion}")
                 implementation("org.apache.logging.log4j:log4j-core:${log4jVersion}")

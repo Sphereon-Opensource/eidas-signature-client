@@ -18,22 +18,24 @@ class DigidentityESignApi(private val apiClient: ApiClient) {
         val attributes: T
     )
 
-    data class SignRequestAttributes(
+    class SignRequestAttributes(
         @JsonProperty("hash_to_sign") val hashToSign: String
     )
 
 
     class SignRequest(hashToSign: String) {
         val data: Data<SignRequestAttributes> = Data(
-            type = "sign",
+            type = TYPE_SIGN,
             attributes = SignRequestAttributes(hashToSign = hashToSign)
         )
     }
 
+    data class SignResponse(val data: Data<SignResponseAttributes>)
+
     data class SignResponseAttributes(
         val signature: String,
         val certificate: String,
-        @JsonProperty("hash_to_sign") val hashToSign: String
+        @JsonProperty("hash_to_sign") val hash_to_sign: String
     )
 
     data class SignResult(
@@ -49,7 +51,7 @@ class DigidentityESignApi(private val apiClient: ApiClient) {
             kid = data.id ?: throw IllegalArgumentException("ID is missing in response"),
             signature = data.attributes.signature,
             certificate = data.attributes.certificate,
-            hashToSign = data.attributes.hashToSign
+            hashToSign = data.attributes.hash_to_sign
         )
     }
 
@@ -57,11 +59,10 @@ class DigidentityESignApi(private val apiClient: ApiClient) {
     @Throws(ApiException::class)
     fun signHash(kid: String, hash: String): SignResult {
         val signRequest = SignRequest(hash)
-        val localVarReturnType: GenericType<Data<SignResponseAttributes>> =
-            object : GenericType<Data<SignResponseAttributes>>() {}
+        val localVarReturnType: GenericType<SignResponse> = object : GenericType<SignResponse>() {}
         val response = apiClient.invokeAPI(
             "sign",
-            "auto_signers/${kid}/sign",
+            "/auto_signers/${kid}/sign",
             "POST",
             emptyList(),
             signRequest,
@@ -74,6 +75,6 @@ class DigidentityESignApi(private val apiClient: ApiClient) {
             localVarReturnType,
             false
         )
-        return signResultFrom(response.data)
+        return signResultFrom(response.data.data)
     }
 }

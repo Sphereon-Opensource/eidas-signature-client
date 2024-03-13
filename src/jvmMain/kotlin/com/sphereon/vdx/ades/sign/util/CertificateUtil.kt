@@ -56,12 +56,16 @@ object CertificateUtil {
 
     fun toKeyEntry(x509Certificate: X509Certificate, kid: String): IKeyEntry {
         val certificate = toCertificate(x509Certificate)
+        val x509Chain = mutableListOf<X509Certificate>()
+        x509Chain.add(x509Certificate)
+        x509Chain.addAll(downloadExtraCertificates(x509Certificate))
+
         return KeyEntry(
             kid = kid,
             publicKey = x509Certificate.toPublicKey(),
             certificate = certificate,
-            encryptionAlgorithm = CryptoAlg.valueOf(x509Certificate.sigAlgName)
-            // TODO: certChain
+            encryptionAlgorithm = CryptoAlg.from(x509Certificate.sigAlgName),
+            certificateChain = x509Chain.map { it.toCertificate() }
         )
     }
 

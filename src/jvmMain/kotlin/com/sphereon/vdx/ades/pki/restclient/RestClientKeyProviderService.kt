@@ -1,4 +1,4 @@
-package com.sphereon.vdx.ades.pki
+package com.sphereon.vdx.ades.pki.restclient
 
 import AbstractCacheObjectSerializer
 import com.sphereon.vdx.ades.PKIException
