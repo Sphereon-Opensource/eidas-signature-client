@@ -1,6 +1,5 @@
 package com.sphereon.vdx.ades.pki.digidentity
 
-import AbstractCacheObjectSerializer
 import com.sphereon.vdx.ades.PKIException
 import com.sphereon.vdx.ades.SignClientException
 import com.sphereon.vdx.ades.enums.KeyProviderType
@@ -26,12 +25,13 @@ private val logger = KotlinLogging.logger {}
 
 private const val DUMMY_HASH = "0000000000000000000000000000000000000000000000000000000000000000"
 
+private val CLEANUP_REGEX = "[\\r\\n\\t]+".toRegex()
+
 @OptIn(ExperimentalStdlibApi::class)
 open class DigidentityKeyProviderService(
     settings: KeyProviderSettings,
     val providerConfig: DigidentityProviderConfig,
-    cacheObjectSerializer: AbstractCacheObjectSerializer<String, IKeyEntry>? = null
-) : AbstractRestClientKeyProviderService(settings, restClientConfigFrom(providerConfig), cacheObjectSerializer) {
+) : AbstractRestClientKeyProviderService(settings, restClientConfigFrom(providerConfig)) {
 
     private var esignApi: DigidentityESignApi
 
@@ -50,14 +50,15 @@ open class DigidentityKeyProviderService(
             if (hash.length != 64) {
                 throw IllegalArgumentException("Invalid hash supplied to be signed")
             }
-            esignApi.signHash(keyEntry.kid, hash)
+            esignApi.signHash(keyEntry.kid, hash.lowercase()) // Digidentity API crashes when we send uppercase hex chars
         } else {
             val hash = MessageDigest.getInstance("SHA-256").digest(signInput.toBeSigned().bytes).toHexString()
             esignApi.signHash(keyEntry.kid, hash)
         }
 
+        val signatureClean = signResponse.signature.replace(CLEANUP_REGEX, "")
         val signature = Signature(
-            value = java.util.Base64.getDecoder().decode(signResponse.signature),
+            value = java.util.Base64.getDecoder().decode(signatureClean),
             algorithm = SignatureAlg.RSA_SHA256, // FIXME this might change in the future, so parse from certificate
             signMode = signInput.signMode,
             keyEntry = keyEntry,

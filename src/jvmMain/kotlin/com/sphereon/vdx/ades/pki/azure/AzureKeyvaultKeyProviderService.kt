@@ -1,6 +1,5 @@
 package com.sphereon.vdx.ades.pki.azure
 
-import AbstractCacheObjectSerializer
 import com.azure.core.http.policy.RetryOptions
 import com.azure.core.http.policy.RetryPolicy
 import com.azure.security.keyvault.certificates.CertificateAsyncClient
@@ -26,8 +25,7 @@ private val logger = KotlinLogging.logger {}
 open class AzureKeyvaultKeyProviderService(
     settings: KeyProviderSettings,
     val keyvaultConfig: AzureKeyvaultClientConfig,
-    cacheObjectSerializer: AbstractCacheObjectSerializer<String, IKeyEntry>? = null
-) : AbstractKeyProviderService(settings, cacheObjectSerializer) {
+) : AbstractKeyProviderService(settings) {
 
     private val keyClient: KeyAsyncClient
     private val certClient: CertificateAsyncClient?

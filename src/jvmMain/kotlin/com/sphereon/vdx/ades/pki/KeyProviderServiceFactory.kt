@@ -1,9 +1,7 @@
 package com.sphereon.vdx.ades.pki
 
-import AbstractCacheObjectSerializer
 import com.sphereon.vdx.ades.SignClientException
 import com.sphereon.vdx.ades.enums.KeyProviderType
-import com.sphereon.vdx.ades.model.IKeyEntry
 import com.sphereon.vdx.ades.model.KeyProviderSettings
 import com.sphereon.vdx.ades.pki.azure.AzureKeyvaultClientConfig
 import com.sphereon.vdx.ades.pki.azure.AzureKeyvaultKeyProviderService
@@ -18,7 +16,6 @@ object KeyProviderServiceFactory {
         var restClientConfig: RestClientConfig? = null,
         var azureKeyvaultClientConfig: AzureKeyvaultClientConfig? = null,
         var digidentityProviderConfig: DigidentityProviderConfig? = null,
-        var cacheObjectSerializer: AbstractCacheObjectSerializer<String, IKeyEntry>? = null
     )
 
     fun createFromConfig(
@@ -32,8 +29,7 @@ object KeyProviderServiceFactory {
                 RestClientKeyProviderService(
                     settings,
                     options.restClientConfig
-                        ?: throw SignClientException("Cannot create REST key provider without providing a REST client config"),
-                    options.cacheObjectSerializer
+                        ?: throw SignClientException("Cannot create REST key provider without providing a REST client config")
                 )
             }
 
@@ -41,8 +37,7 @@ object KeyProviderServiceFactory {
                 AzureKeyvaultKeyProviderService(
                     settings,
                     options.azureKeyvaultClientConfig
-                        ?: throw SignClientException("Cannot create a Azure Keyvault key provider without providing a Azure Keyvault client config"),
-                    options.cacheObjectSerializer
+                        ?: throw SignClientException("Cannot create a Azure Keyvault key provider without providing a Azure Keyvault client config")
                 )
             }
 
@@ -50,13 +45,12 @@ object KeyProviderServiceFactory {
                 DigidentityKeyProviderService(
                     settings,
                     options.digidentityProviderConfig
-                        ?: throw SignClientException("Cannot create a Digidentity key provider without providing a Digidentity provider config"),
-                    options.cacheObjectSerializer
+                        ?: throw SignClientException("Cannot create a Digidentity key provider without providing a Digidentity provider config")
                 )
             }
 
             else -> {
-                LocalKeyProviderService(settings, options.cacheObjectSerializer)
+                LocalKeyProviderService(settings)
             }
         }
     }

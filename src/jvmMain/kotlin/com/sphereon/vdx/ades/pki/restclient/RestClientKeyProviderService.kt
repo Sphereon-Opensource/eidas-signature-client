@@ -1,6 +1,5 @@
 package com.sphereon.vdx.ades.pki.restclient
 
-import AbstractCacheObjectSerializer
 import com.sphereon.vdx.ades.PKIException
 import com.sphereon.vdx.ades.SignClientException
 import com.sphereon.vdx.ades.enums.CryptoAlg
@@ -22,8 +21,7 @@ import org.apache.http.HttpStatus
 open class RestClientKeyProviderService(
     settings: KeyProviderSettings,
     restClientConfig: RestClientConfig,
-    cacheObjectSerializer: AbstractCacheObjectSerializer<String, IKeyEntry>? = null
-) : AbstractRestClientKeyProviderService(settings, restClientConfig, cacheObjectSerializer) {
+) : AbstractRestClientKeyProviderService(settings, restClientConfig) {
 
     init {
         assertRestSettings()

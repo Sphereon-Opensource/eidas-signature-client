@@ -1,8 +1,6 @@
 package com.sphereon.vdx.ades.pki.restclient
 
-import AbstractCacheObjectSerializer
 import com.sphereon.vdx.ades.SignClientException
-import com.sphereon.vdx.ades.model.IKeyEntry
 import com.sphereon.vdx.ades.model.KeyProviderSettings
 import com.sphereon.vdx.ades.pki.AbstractKeyProviderService
 import com.sphereon.vdx.ades.rest.client.ApiClient
@@ -15,9 +13,8 @@ private const val OAUTH2_LITERAL = "oauth2"
 
 abstract class AbstractRestClientKeyProviderService(
     settings: KeyProviderSettings,
-    private val restClientConfig: RestClientConfig,
-    cacheObjectSerializer: AbstractCacheObjectSerializer<String, IKeyEntry>?
-) : AbstractKeyProviderService(settings, cacheObjectSerializer) {
+    private val restClientConfig: RestClientConfig
+) : AbstractKeyProviderService(settings) {
 
     protected val apiClient: ApiClient
 

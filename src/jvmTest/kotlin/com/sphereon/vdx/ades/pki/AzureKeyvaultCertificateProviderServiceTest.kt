@@ -1,7 +1,6 @@
 package com.sphereon.vdx.ades.pki
 
 import AbstractAdESTest
-import KeyEntryCacheSerializer
 import com.sphereon.vdx.ades.enums.*
 import com.sphereon.vdx.ades.model.*
 import com.sphereon.vdx.ades.pki.azure.*
@@ -33,7 +32,6 @@ class AzureKeyvaultCertificateProviderServiceTest : AbstractAdESTest() {
     fun `Given a KID the Azure Keyvault Certificate Provider Service should return a key`() {
         val keyProvider = KeyProviderServiceFactory.createFromConfig(constructCertificateProviderSettings(true)) {
             azureKeyvaultClientConfig = constructKeyvaultClientConfig()
-            cacheObjectSerializer = KeyEntryCacheSerializer()
         }
         val key = keyProvider.getKey("esignum:3f98a9a740fb41b79e3679cce7a34ba6")
 

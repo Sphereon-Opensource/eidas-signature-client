@@ -1,16 +1,7 @@
 package com.sphereon.vdx.ades.pki
 
-import AbstractCacheObjectSerializer
-import com.sphereon.vdx.ades.enums.CryptoAlg
-import com.sphereon.vdx.ades.enums.DigestAlg
-import com.sphereon.vdx.ades.enums.MaskGenFunction
-import com.sphereon.vdx.ades.enums.SignMode
-import com.sphereon.vdx.ades.enums.SignatureAlg
-import com.sphereon.vdx.ades.model.IKeyEntry
-import com.sphereon.vdx.ades.model.Key
-import com.sphereon.vdx.ades.model.KeyProviderSettings
-import com.sphereon.vdx.ades.model.SignInput
-import com.sphereon.vdx.ades.model.Signature
+import com.sphereon.vdx.ades.enums.*
+import com.sphereon.vdx.ades.model.*
 import com.sphereon.vdx.ades.sign.util.toDSS
 import com.sphereon.vdx.ades.sign.util.toJavaPublicKey
 import eu.europa.esig.dss.enumerations.SignatureAlgorithm
@@ -29,11 +20,10 @@ private val logger = KotlinLogging.logger {}
  */
 abstract class AbstractKeyProviderService(
     override val settings: KeyProviderSettings,
-    cacheObjectSerializer: AbstractCacheObjectSerializer<String, IKeyEntry>?
 ) : IKeyProviderService {
 
     protected val cacheService: CacheService<String, IKeyEntry> =
-        CacheService("Keys", settings.config.cacheEnabled, settings.config.cacheTTLInSeconds, cacheObjectSerializer)
+        CacheService("Keys", settings.config.cacheEnabled, settings.config.cacheTTLInSeconds)
 
 
     override fun createSignature(signInput: SignInput, keyEntry: IKeyEntry): Signature {
@@ -60,12 +50,10 @@ abstract class AbstractKeyProviderService(
         Objects.requireNonNull(publicKey, "Public key cannot be null!")
         return try {
             val javaSig = java.security.Signature.getInstance(
-                // Replace with RAW for RSA in case we receive a digest. Probably we should correct the signature algorithm value itself instead of correcting it here
-                if (signInput.signMode == SignMode.DIGEST && signature.algorithm.encryptionAlgorithm == CryptoAlg.RSA)
-                    if (signature.algorithm.maskGenFunction == null) SignatureAlgorithm.RSA_RAW.jceId else SignatureAlgorithm.RSA_SSA_PSS_RAW_MGF1.jceId
-                else signature.algorithm.toDSS().jceId,
+                getSignatureAlgorithmJceId(signInput, signature),
                 DSSSecurityProvider.getSecurityProviderName()
             )
+
             if (signature.algorithm.maskGenFunction != null) {
                 val digestJavaName: String = signature.algorithm.digestAlgorithm?.toDSS()!!.javaName
                 val parameterSpec = PSSParameterSpec(
@@ -92,6 +80,36 @@ abstract class AbstractKeyProviderService(
         } catch (e: GeneralSecurityException) {
             logger.warn { "Signature with date '${signature.date}' and provider '${signature.providerId}' for input '${signInput.name}' was INVALID, with an exception: ${e.message}" }
             false
+        }
+    }
+
+    private fun getSignatureAlgorithmJceId(signInput: SignInput, signature: Signature): String {
+        if (signInput.signMode != SignMode.DIGEST || signature.algorithm.encryptionAlgorithm != CryptoAlg.RSA) {
+            return signature.algorithm.toDSS().jceId
+        }
+
+        val hasMaskGenFunction = signature.algorithm.maskGenFunction
+        return when (signature.algorithm.digestAlgorithm) {
+            DigestAlg.SHA256 -> when (hasMaskGenFunction) {
+                null -> SignatureAlgorithm.RSA_SHA256.jceId
+                else -> SignatureAlgorithm.RSA_SSA_PSS_SHA256_MGF1.jceId
+            }
+            DigestAlg.SHA3_256 -> when (hasMaskGenFunction) {
+                null -> SignatureAlgorithm.RSA_SHA3_256.jceId
+                else -> SignatureAlgorithm.RSA_SSA_PSS_SHA256_MGF1.jceId
+            }
+            DigestAlg.SHA512 -> when (hasMaskGenFunction) {
+                null -> SignatureAlgorithm.RSA_SHA512.jceId
+                else -> SignatureAlgorithm.RSA_SSA_PSS_SHA512_MGF1.jceId
+            }
+            DigestAlg.SHA3_512 -> when (hasMaskGenFunction) {
+                null -> SignatureAlgorithm.RSA_SHA3_512.jceId
+                else -> SignatureAlgorithm.RSA_SSA_PSS_SHA3_512_MGF1.jceId
+            }
+            else -> when (hasMaskGenFunction) {
+                null -> SignatureAlgorithm.RSA_RAW.jceId
+                else -> SignatureAlgorithm.RSA_SSA_PSS_RAW_MGF1.jceId
+            }
         }
     }
 

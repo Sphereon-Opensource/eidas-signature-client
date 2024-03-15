@@ -70,7 +70,10 @@ kotlin {
             dependencies {
                 api("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinSerializationVersion")
                 api("org.jetbrains.kotlinx:kotlinx-datetime:$kotlinDateTimeVersion")
+                api("io.github.microutils:kotlin-logging:3.0.5")
                 implementation("io.matthewnelson.kotlin-components:encoding-base64:1.1.3")
+                implementation("com.mayakapps.kache:kache:2.1.0-beta05")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
             }
         }
         val commonTest by getting {
@@ -95,7 +98,6 @@ kotlin {
                 implementation("eu.europa.ec.joinup.sd-dss:dss-pades-pdfbox:$dssVersion")
                 implementation("eu.europa.ec.joinup.sd-dss:dss-crl-parser-x509crl:$dssVersion")
                 api("org.bouncycastle:bcprov-debug-jdk18on:$bcVersion")
-                api("javax.cache:cache-api:1.1.1")
                 implementation("javax.xml.bind:jaxb-api:2.3.0")
                 api("jakarta.xml.bind:jakarta.xml.bind-api:3.0.1")
                 implementation("javax.annotation:javax.annotation-api:1.3.2")
@@ -104,7 +106,7 @@ kotlin {
                 implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
 
 
-                api("io.github.microutils:kotlin-logging-jvm:2.1.23")
+                api("io.github.microutils:kotlin-logging-jvm:3.0.5")
 
                 // todo separate into separate project probably
                 api("com.sphereon.vdx:eidas-signature-client-rest-jersey3:1.1.0-SNAPSHOT")
@@ -124,7 +126,6 @@ kotlin {
 
                 implementation("org.bouncycastle:bcpkix-jdk18on:$bcVersion")
                 implementation("io.mockk:mockk:1.12.4")
-                implementation("org.ehcache:ehcache:3.8.1")
               /*  implementation("org.apache.logging.log4j:log4j-api:${log4jVersion}")
                 implementation("org.apache.logging.log4j:log4j-core:${log4jVersion}")
                 implementation("org.apache.logging.log4j:log4j-slf4j-impl:${log4jVersion}")
