@@ -4,7 +4,14 @@ import com.azure.core.credential.TokenCredential
 import com.azure.core.http.policy.ExponentialBackoffOptions
 import com.azure.core.util.ClientOptions
 import com.azure.core.util.Header
-import com.azure.identity.*
+import com.azure.identity.ClientCertificateCredential
+import com.azure.identity.ClientCertificateCredentialBuilder
+import com.azure.identity.ClientSecretCredential
+import com.azure.identity.ClientSecretCredentialBuilder
+import com.azure.identity.InteractiveBrowserCredential
+import com.azure.identity.InteractiveBrowserCredentialBuilder
+import com.azure.identity.UsernamePasswordCredential
+import com.azure.identity.UsernamePasswordCredentialBuilder
 import com.azure.security.keyvault.certificates.models.KeyVaultCertificate
 import com.azure.security.keyvault.keys.cryptography.models.SignatureAlgorithm
 import com.azure.security.keyvault.keys.models.KeyVaultKey
@@ -13,7 +20,14 @@ import com.sphereon.vdx.ades.SigningException
 import com.sphereon.vdx.ades.enums.CryptoAlg
 import com.sphereon.vdx.ades.model.IKeyEntry
 import com.sphereon.vdx.ades.model.KeyEntry
-import com.sphereon.vdx.ades.pki.azure.*
+import com.sphereon.vdx.ades.pki.azure.AzureKeyvaultClientConfig
+import com.sphereon.vdx.ades.pki.azure.CertificateCredentialOpts
+import com.sphereon.vdx.ades.pki.azure.CredentialMode
+import com.sphereon.vdx.ades.pki.azure.CredentialOpts
+import com.sphereon.vdx.ades.pki.azure.ExponentialBackoffRetryOpts
+import com.sphereon.vdx.ades.pki.azure.InteractiveBrowserCredentialOpts
+import com.sphereon.vdx.ades.pki.azure.SecretCredentialOpts
+import com.sphereon.vdx.ades.pki.azure.UsernamePasswordCredentialOpts
 import com.sphereon.vdx.ades.sign.util.CertificateUtil
 import com.sphereon.vdx.ades.sign.util.toCertificate
 import com.sphereon.vdx.ades.sign.util.toKey
@@ -22,7 +36,7 @@ import java.security.cert.X509Certificate
 import java.time.Duration
 
 fun AzureKeyvaultClientConfig.toClientOptions(): ClientOptions? {
-    if ((headers == null || headers.isEmpty()) && applicationId == null) {
+    if (headers.isNullOrEmpty() && applicationId == null) {
         return null
     }
     return ClientOptions().setApplicationId(applicationId).setHeaders(headers?.map { Header(it.name, it.values) })

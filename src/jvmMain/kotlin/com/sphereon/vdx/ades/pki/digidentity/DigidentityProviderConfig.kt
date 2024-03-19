@@ -23,6 +23,7 @@ data class DigidentitySecretCredentialOpts(
     val clientId: String,
     val clientSecret: String,
     val apiKey: String,
+    val tokenUrl: String = "https://auth.digidentity-preproduction.eu/oauth2/token.json"
 )
 
 enum class DigidentityCredentialMode(val credentialType: CredentialType) {

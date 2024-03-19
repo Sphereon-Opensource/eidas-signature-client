@@ -12,42 +12,10 @@ enum class DigestAlg(
     val saltLength: Int? = 0
 ) {
     NONE("", "", ""),
-    SHA256(
-        "SHA256",
-        "SHA-256",
-        "2.16.840.1.101.3.4.2.1",
-        "http://www.w3.org/2001/04/xmlenc#sha256",
-        "S256",
-        "SHA-256",
-        32
-    ),
-    SHA512(
-        "SHA512",
-        "SHA-512",
-        "2.16.840.1.101.3.4.2.3",
-        "http://www.w3.org/2001/04/xmlenc#sha512",
-        "S512",
-        "SHA-512",
-        64
-    ),
-    SHA3_256(
-        "SHA3-256",
-        "SHA3-256",
-        "2.16.840.1.101.3.4.2.8",
-        "http://www.w3.org/2007/05/xmldsig-more#sha3-256",
-        "S3-256",
-        null,
-        32
-    ),
-    SHA3_512(
-        "SHA3-512",
-        "SHA3-512",
-        "2.16.840.1.101.3.4.2.10",
-        "http://www.w3.org/2007/05/xmldsig-more#sha3-512",
-        "S3-512",
-        null,
-        64
-    );
+    SHA256("SHA256", "SHA-256", "2.16.840.1.101.3.4.2.1", "http://www.w3.org/2001/04/xmlenc#sha256", "S256", "SHA-256", 32),
+    SHA512("SHA512", "SHA-512", "2.16.840.1.101.3.4.2.3", "http://www.w3.org/2001/04/xmlenc#sha512", "S512", "SHA-512", 64),
+    SHA3_256("SHA3-256", "SHA3-256", "2.16.840.1.101.3.4.2.8", "http://www.w3.org/2007/05/xmldsig-more#sha3-256", "S3-256", null, 32),
+    SHA3_512("SHA3-512", "SHA3-512", "2.16.840.1.101.3.4.2.10", "http://www.w3.org/2007/05/xmldsig-more#sha3-512", "S3-512", null, 64);
 
     companion object {
         fun isNone(digestAlg: DigestAlg?): Boolean {

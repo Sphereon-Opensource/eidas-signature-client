@@ -1,7 +1,15 @@
 package com.sphereon.vdx.ades.pki
 
-import com.sphereon.vdx.ades.enums.*
-import com.sphereon.vdx.ades.model.*
+import com.sphereon.vdx.ades.enums.CryptoAlg
+import com.sphereon.vdx.ades.enums.DigestAlg
+import com.sphereon.vdx.ades.enums.MaskGenFunction
+import com.sphereon.vdx.ades.enums.SignMode
+import com.sphereon.vdx.ades.enums.SignatureAlg
+import com.sphereon.vdx.ades.model.IKeyEntry
+import com.sphereon.vdx.ades.model.Key
+import com.sphereon.vdx.ades.model.KeyProviderSettings
+import com.sphereon.vdx.ades.model.SignInput
+import com.sphereon.vdx.ades.model.Signature
 import com.sphereon.vdx.ades.sign.util.toDSS
 import com.sphereon.vdx.ades.sign.util.toJavaPublicKey
 import eu.europa.esig.dss.enumerations.SignatureAlgorithm
@@ -26,6 +34,7 @@ abstract class AbstractKeyProviderService(
     override val settings: KeyProviderSettings,
 ) : IKeyProviderService {
 
+    @Suppress("LeakingThis")
     protected val cacheService: CacheService<String, IKeyEntry> =
         CacheService("Keys", settings.config.cacheEnabled, settings.config.cacheTTLInSeconds)
 
@@ -38,11 +47,7 @@ abstract class AbstractKeyProviderService(
         return createSignatureImpl(signInput, keyEntry, mgf)
     }
 
-    override fun createSignature(
-        signInput: SignInput,
-        keyEntry: IKeyEntry,
-        signatureAlgorithm: SignatureAlg
-    ): Signature {
+    override fun createSignature(signInput: SignInput, keyEntry: IKeyEntry, signatureAlgorithm: SignatureAlg): Signature {
         val input = signInput.copy(digestAlgorithm = signatureAlgorithm.digestAlgorithm)
         return createSignatureImpl(input, keyEntry, signatureAlgorithm.maskGenFunction)
     }

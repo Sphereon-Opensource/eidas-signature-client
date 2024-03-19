@@ -44,22 +44,23 @@ open class DigidentityKeyProviderService(
     override fun createSignatureImpl(signInput: SignInput, keyEntry: IKeyEntry, mgf: MaskGenFunction?): Signature {
         logger.entry(signInput, keyEntry, mgf)
         logger.info { "Creating signature with date '${signInput.signingDate}' provider Id '${settings.id}', key Id '${keyEntry.kid}' and sign input '${signInput.name}'..." }
+
         val isDigest = isDigestMode(signInput)
-        val signResponse = if (isDigest) {
+        val digest = if (isDigest) {
             val digest = signInput.toDigest().hexValue
             if (digest.length != 64) {
                 throw IllegalArgumentException("Invalid hash supplied to be signed")
             }
-            esignApi.signHash(keyEntry.kid, digest.lowercase()) // Digidentity API crashes when we send uppercase hex chars
+            digest.lowercase() // Digidentity API crashes when we send uppercase hex chars
         } else {
-            val digest = DSSUtils.digest(signInput.digestAlgorithm!!.toDSS(), signInput.input).toHexString()
-            esignApi.signHash(keyEntry.kid, digest)
+            DSSUtils.digest(signInput.digestAlgorithm!!.toDSS(), signInput.input).toHexString()
         }
-
+        val signResponse = esignApi.signHash(keyEntry.kid, digest)
         val signatureClean = signResponse.signature.replace(CLEANUP_REGEX, "")
+
         val signature = Signature(
             value = java.util.Base64.getDecoder().decode(signatureClean),
-            algorithm = SignatureAlg.RSA_SHA256, // FIXME this might change in the future, so parse from certificate
+            algorithm = SignatureAlg.RSA_SHA256, // The only supported algo atm
             signMode = signInput.signMode,
             keyEntry = keyEntry,
             providerId = signResponse.kid,
@@ -114,7 +115,7 @@ fun restClientConfigFrom(providerConfig: DigidentityProviderConfig): RestClientC
         return RestClientConfig(
             baseUrl = providerConfig.baseUrl,
             oAuth2 = OAuth2Config(
-                tokenUrl = "https://auth.digidentity-preproduction.eu/oauth2/token.json",
+                tokenUrl = it.tokenUrl,
                 clientId = it.clientId,
                 clientSecret = it.clientSecret,
             ),
