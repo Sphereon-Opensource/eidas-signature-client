@@ -271,7 +271,7 @@ class DigidentityProviderTest : AbstractAdESTest() {
         val signatureDigest = signingService.createSignature(digestInput, SignatureAlg.RSA_SHA256)
         assertNotNull(signatureDigest)
         assertEquals(SignMode.DIGEST, signatureDigest.signMode)
-        assertEquals(SignatureAlg.RSA_RAW, signatureDigest.algorithm)
+        assertEquals(SignatureAlg.RSA_SHA256, signatureDigest.algorithm)
 
         assertContentEquals(signatureData.value, signatureDigest.value)
         assertEquals(signatureData.keyEntry.certificate!!.fingerPrint, signatureDigest.keyEntry.certificate!!.fingerPrint)
@@ -324,14 +324,11 @@ class DigidentityProviderTest : AbstractAdESTest() {
 
         val diagData = documentValidator.diagnosticData
         assertEquals(1, diagData.signatures.size)
-        assertEquals(7, diagData.usedCertificates.size)
+        assertEquals(8, diagData.usedCertificates.size)
 
 
         assertContentEquals(signatureDigest.value, documentValidator.signatures.first().signatureValue)
-
     }
-
-
 
 
     private fun constructProviderConfig(): DigidentityProviderConfig {

@@ -7,6 +7,10 @@ import com.sphereon.vdx.ades.sign.util.toJavaPublicKey
 import eu.europa.esig.dss.enumerations.SignatureAlgorithm
 import eu.europa.esig.dss.spi.DSSSecurityProvider
 import mu.KotlinLogging
+import org.bouncycastle.asn1.ASN1ObjectIdentifier
+import org.bouncycastle.asn1.DERNull
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier
+import org.bouncycastle.asn1.x509.DigestInfo
 import java.security.GeneralSecurityException
 import java.security.spec.MGF1ParameterSpec
 import java.security.spec.PSSParameterSpec
@@ -34,7 +38,11 @@ abstract class AbstractKeyProviderService(
         return createSignatureImpl(signInput, keyEntry, mgf)
     }
 
-    override fun createSignature(signInput: SignInput, keyEntry: IKeyEntry, signatureAlgorithm: SignatureAlg): Signature {
+    override fun createSignature(
+        signInput: SignInput,
+        keyEntry: IKeyEntry,
+        signatureAlgorithm: SignatureAlg
+    ): Signature {
         val input = signInput.copy(digestAlgorithm = signatureAlgorithm.digestAlgorithm)
         return createSignatureImpl(input, keyEntry, signatureAlgorithm.maskGenFunction)
     }
@@ -50,7 +58,10 @@ abstract class AbstractKeyProviderService(
         Objects.requireNonNull(publicKey, "Public key cannot be null!")
         return try {
             val javaSig = java.security.Signature.getInstance(
-                getSignatureAlgorithmJceId(signInput, signature),
+                // Replace with RAW for RSA in case we receive a digest. Probably we should correct the signature algorithm value itself instead of correcting it here
+                if (signInput.signMode == SignMode.DIGEST && signature.algorithm.encryptionAlgorithm == CryptoAlg.RSA)
+                    if (signature.algorithm.maskGenFunction == null) SignatureAlgorithm.RSA_RAW.jceId else SignatureAlgorithm.RSA_SSA_PSS_RAW_MGF1.jceId
+                else signature.algorithm.toDSS().jceId,
                 DSSSecurityProvider.getSecurityProviderName()
             )
 
@@ -67,12 +78,11 @@ abstract class AbstractKeyProviderService(
             }
 
             javaSig.initVerify(publicKey.toJavaPublicKey())
-            /*val digest = if (signInput.signMode == SignMode.DIGEST || signature.algorithm.digestAlgorithm == null) {
-                signInput.input
+            if (signInput.signMode == SignMode.DIGEST && signature.algorithm.digestAlgorithm != null) {
+                javaSig.update(derEncode(signature.algorithm.digestAlgorithm, signInput))
             } else {
-                DSSUtils.digest(signature.algorithm.digestAlgorithm.toDSS(), signInput.input)
-            }*/
-            javaSig.update(signInput.input)
+                javaSig.update(signInput.input)
+            }
             val verify = javaSig.verify(signature.value)
             logger.info { "Signature with date '${signature.date}' and provider '${signature.providerId}' for input '${signInput.name}' was ${if (verify) "VALID" else "INVALID"}" }
             logger.exit(verify)
@@ -83,37 +93,27 @@ abstract class AbstractKeyProviderService(
         }
     }
 
-    private fun getSignatureAlgorithmJceId(signInput: SignInput, signature: Signature): String {
-        if (signInput.signMode != SignMode.DIGEST || signature.algorithm.encryptionAlgorithm != CryptoAlg.RSA) {
-            return signature.algorithm.toDSS().jceId
-        }
-
-        val hasMaskGenFunction = signature.algorithm.maskGenFunction
-        return when (signature.algorithm.digestAlgorithm) {
-            DigestAlg.SHA256 -> when (hasMaskGenFunction) {
-                null -> SignatureAlgorithm.RSA_SHA256.jceId
-                else -> SignatureAlgorithm.RSA_SSA_PSS_SHA256_MGF1.jceId
-            }
-            DigestAlg.SHA3_256 -> when (hasMaskGenFunction) {
-                null -> SignatureAlgorithm.RSA_SHA3_256.jceId
-                else -> SignatureAlgorithm.RSA_SSA_PSS_SHA256_MGF1.jceId
-            }
-            DigestAlg.SHA512 -> when (hasMaskGenFunction) {
-                null -> SignatureAlgorithm.RSA_SHA512.jceId
-                else -> SignatureAlgorithm.RSA_SSA_PSS_SHA512_MGF1.jceId
-            }
-            DigestAlg.SHA3_512 -> when (hasMaskGenFunction) {
-                null -> SignatureAlgorithm.RSA_SHA3_512.jceId
-                else -> SignatureAlgorithm.RSA_SSA_PSS_SHA3_512_MGF1.jceId
-            }
-            else -> when (hasMaskGenFunction) {
-                null -> SignatureAlgorithm.RSA_RAW.jceId
-                else -> SignatureAlgorithm.RSA_SSA_PSS_RAW_MGF1.jceId
-            }
-        }
+    /*
+       When we have predigested value instead the content that has yet to be digested, we need to make sure
+       we DER encode the hash because in RSA_RAW / NONEwithRSA mode BouncyCastle will no longer take care of this,
+       hence the verification will fail.
+     */
+    private fun derEncode(
+        digestAlgorithm: DigestAlg,
+        signInput: SignInput
+    ): ByteArray {
+        val asN1ObjectIdentifier = ASN1ObjectIdentifier(digestAlgorithm.oid)
+        val algId = AlgorithmIdentifier(asN1ObjectIdentifier, DERNull.INSTANCE)
+        val dInfo = DigestInfo(algId, signInput.input)
+        return dInfo.getEncoded("DER")
     }
 
-    protected abstract fun createSignatureImpl(signInput: SignInput, keyEntry: IKeyEntry, mgf: MaskGenFunction? = null): Signature
+    protected abstract fun createSignatureImpl(
+        signInput: SignInput,
+        keyEntry: IKeyEntry,
+        mgf: MaskGenFunction? = null
+    ): Signature
+
     protected fun isDigestMode(signInput: SignInput) =
         signInput.signMode == SignMode.DIGEST && signInput.digestAlgorithm != DigestAlg.NONE
 }

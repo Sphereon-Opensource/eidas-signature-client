@@ -14,10 +14,10 @@ import com.sphereon.vdx.ades.pki.restclient.OAuth2Config
 import com.sphereon.vdx.ades.pki.restclient.RestClientConfig
 import com.sphereon.vdx.ades.sign.util.CertificateUtil
 import com.sphereon.vdx.ades.sign.util.isActive
-import com.sphereon.vdx.ades.sign.util.toBeSigned
+import com.sphereon.vdx.ades.sign.util.toDSS
 import com.sphereon.vdx.ades.sign.util.toDigest
+import eu.europa.esig.dss.spi.DSSUtils
 import mu.KotlinLogging
-import java.security.MessageDigest
 
 private const val API_KEY_HEADER = "Api-Key"
 
@@ -46,14 +46,14 @@ open class DigidentityKeyProviderService(
         logger.info { "Creating signature with date '${signInput.signingDate}' provider Id '${settings.id}', key Id '${keyEntry.kid}' and sign input '${signInput.name}'..." }
         val isDigest = isDigestMode(signInput)
         val signResponse = if (isDigest) {
-            val hash = signInput.toDigest().hexValue
-            if (hash.length != 64) {
+            val digest = signInput.toDigest().hexValue
+            if (digest.length != 64) {
                 throw IllegalArgumentException("Invalid hash supplied to be signed")
             }
-            esignApi.signHash(keyEntry.kid, hash.lowercase()) // Digidentity API crashes when we send uppercase hex chars
+            esignApi.signHash(keyEntry.kid, digest.lowercase()) // Digidentity API crashes when we send uppercase hex chars
         } else {
-            val hash = MessageDigest.getInstance("SHA-256").digest(signInput.toBeSigned().bytes).toHexString()
-            esignApi.signHash(keyEntry.kid, hash)
+            val digest = DSSUtils.digest(signInput.digestAlgorithm!!.toDSS(), signInput.input).toHexString()
+            esignApi.signHash(keyEntry.kid, digest)
         }
 
         val signatureClean = signResponse.signature.replace(CLEANUP_REGEX, "")
