@@ -1,4 +1,4 @@
-package com.sphereon.vdx.ades.pki
+package com.sphereon.vdx.ades.pki.restclient
 
 import com.sphereon.vdx.ades.rest.client.auth.OAuthFlow
 
@@ -8,7 +8,8 @@ data class RestClientConfig(
     val connectTimeoutInMS: Int? = 5000,
     val readTimeoutInMS: Int? = 10000,
     val oAuth2: OAuth2Config? = null,
-    val bearerAuth: BearerTokenConfig? = null
+    val bearerAuth: BearerTokenConfig? = null,
+    val defaultHeaders: Map<String, String>? = null
 )
 
 @kotlinx.serialization.Serializable

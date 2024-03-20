@@ -1,4 +1,4 @@
-package com.sphereon.vdx.ades.pki
+package com.sphereon.vdx.ades.pki.azure
 
 import com.azure.core.http.policy.RetryOptions
 import com.azure.core.http.policy.RetryPolicy
@@ -9,6 +9,10 @@ import com.azure.security.keyvault.keys.cryptography.models.SignatureAlgorithm
 import com.sphereon.vdx.ades.enums.SignMode
 import com.sphereon.vdx.ades.model.SignInput
 import com.sphereon.vdx.ades.model.Signature
+import com.sphereon.vdx.ades.pki.toAzureSignatureAlgorithm
+import com.sphereon.vdx.ades.pki.toClientOptions
+import com.sphereon.vdx.ades.pki.toExponentialBackoffOptions
+import com.sphereon.vdx.ades.pki.toTokenCredential
 import com.sphereon.vdx.ades.sign.AbstractSignatureTokenConnection
 import com.sphereon.vdx.ades.sign.util.toDSS
 import eu.europa.esig.dss.token.DSSPrivateKeyEntry

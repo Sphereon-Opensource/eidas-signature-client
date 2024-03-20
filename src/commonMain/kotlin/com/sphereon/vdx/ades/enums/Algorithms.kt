@@ -29,6 +29,8 @@ enum class CryptoAlg(val internalName: String, val oid: String, val padding: Str
 
     RSA("RSA", "1.2.840.113549.1.1.1", "RSA/ECB/PKCS1Padding"),
 
+    SHA256_WITH_RSA("SHA256withRSA", "1.2.840.113549.1.1.11", ""), // PKCS#1 v1.5 is implied for SHA256withRSA
+
 //    DSA("DSA", "1.2.840.10040.4.1", "DSA"),
 
     ECDSA("ECDSA", "1.2.840.10045.2.1", "ECDSA"),
@@ -44,5 +46,11 @@ enum class CryptoAlg(val internalName: String, val oid: String, val padding: Str
     ED448("Ed448", "1.3.101.113", "Ed448"),
 
     HMAC("HMAC", "", "");
+
+    companion object {
+        fun from(name: String): CryptoAlg = entries.find { it.internalName == name }
+            ?: throw IllegalArgumentException("Algorithm $name not found")
+
+    }
 }
 

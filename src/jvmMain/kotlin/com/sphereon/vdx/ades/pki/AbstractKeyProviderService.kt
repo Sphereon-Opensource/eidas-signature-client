@@ -1,6 +1,5 @@
 package com.sphereon.vdx.ades.pki
 
-import AbstractCacheObjectSerializer
 import com.sphereon.vdx.ades.enums.CryptoAlg
 import com.sphereon.vdx.ades.enums.DigestAlg
 import com.sphereon.vdx.ades.enums.MaskGenFunction
@@ -16,6 +15,10 @@ import com.sphereon.vdx.ades.sign.util.toJavaPublicKey
 import eu.europa.esig.dss.enumerations.SignatureAlgorithm
 import eu.europa.esig.dss.spi.DSSSecurityProvider
 import mu.KotlinLogging
+import org.bouncycastle.asn1.ASN1ObjectIdentifier
+import org.bouncycastle.asn1.DERNull
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier
+import org.bouncycastle.asn1.x509.DigestInfo
 import java.security.GeneralSecurityException
 import java.security.spec.MGF1ParameterSpec
 import java.security.spec.PSSParameterSpec
@@ -29,11 +32,11 @@ private val logger = KotlinLogging.logger {}
  */
 abstract class AbstractKeyProviderService(
     override val settings: KeyProviderSettings,
-    cacheObjectSerializer: AbstractCacheObjectSerializer<String, IKeyEntry>?
 ) : IKeyProviderService {
 
+    @Suppress("LeakingThis")
     protected val cacheService: CacheService<String, IKeyEntry> =
-        CacheService("Keys", settings.config.cacheEnabled, settings.config.cacheTTLInSeconds, cacheObjectSerializer)
+        CacheService("Keys", settings.config.cacheEnabled, settings.config.cacheTTLInSeconds)
 
 
     override fun createSignature(signInput: SignInput, keyEntry: IKeyEntry): Signature {
@@ -66,6 +69,7 @@ abstract class AbstractKeyProviderService(
                 else signature.algorithm.toDSS().jceId,
                 DSSSecurityProvider.getSecurityProviderName()
             )
+
             if (signature.algorithm.maskGenFunction != null) {
                 val digestJavaName: String = signature.algorithm.digestAlgorithm?.toDSS()!!.javaName
                 val parameterSpec = PSSParameterSpec(
@@ -79,12 +83,11 @@ abstract class AbstractKeyProviderService(
             }
 
             javaSig.initVerify(publicKey.toJavaPublicKey())
-            /*val digest = if (signInput.signMode == SignMode.DIGEST || signature.algorithm.digestAlgorithm == null) {
-                signInput.input
+            if (signInput.signMode == SignMode.DIGEST && signature.algorithm.digestAlgorithm != null) {
+                javaSig.update(derEncode(signature.algorithm.digestAlgorithm, signInput))
             } else {
-                DSSUtils.digest(signature.algorithm.digestAlgorithm.toDSS(), signInput.input)
-            }*/
-            javaSig.update(signInput.input)
+                javaSig.update(signInput.input)
+            }
             val verify = javaSig.verify(signature.value)
             logger.info { "Signature with date '${signature.date}' and provider '${signature.providerId}' for input '${signInput.name}' was ${if (verify) "VALID" else "INVALID"}" }
             logger.exit(verify)
@@ -95,7 +98,27 @@ abstract class AbstractKeyProviderService(
         }
     }
 
-    protected abstract fun createSignatureImpl(signInput: SignInput, keyEntry: IKeyEntry, mgf: MaskGenFunction? = null): Signature
+    /*
+       When we have predigested value instead the content that has yet to be digested, we need to make sure
+       we DER encode the hash because in RSA_RAW / NONEwithRSA mode BouncyCastle will no longer take care of this,
+       hence the verification will fail.
+     */
+    private fun derEncode(
+        digestAlgorithm: DigestAlg,
+        signInput: SignInput
+    ): ByteArray {
+        val asN1ObjectIdentifier = ASN1ObjectIdentifier(digestAlgorithm.oid)
+        val algId = AlgorithmIdentifier(asN1ObjectIdentifier, DERNull.INSTANCE)
+        val dInfo = DigestInfo(algId, signInput.input)
+        return dInfo.getEncoded("DER")
+    }
+
+    protected abstract fun createSignatureImpl(
+        signInput: SignInput,
+        keyEntry: IKeyEntry,
+        mgf: MaskGenFunction? = null
+    ): Signature
+
     protected fun isDigestMode(signInput: SignInput) =
         signInput.signMode == SignMode.DIGEST && signInput.digestAlgorithm != DigestAlg.NONE
 }
