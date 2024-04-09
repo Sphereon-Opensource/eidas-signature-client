@@ -1,12 +1,12 @@
 plugins {
     id("maven-publish")
-    kotlin("multiplatform") version "1.7.10"
-    kotlin("plugin.serialization") version "1.7.10"
+    kotlin("multiplatform") version "1.9.23"
+    kotlin("plugin.serialization") version "1.9.23"
     id("io.gitlab.arturbosch.detekt") version "1.21.0"
 }
 
 group = "com.sphereon.vdx"
-version = "1.0.0-SNAPSHOT"
+version = "1.1.0-SNAPSHOT"
 
 
 detekt {
@@ -63,14 +63,17 @@ kotlin {
 
         val dssVersion = "5.11.1"
         val kotlinSerializationVersion = "1.4.0-RC"
-        val kotlinDateTimeVersion = "0.4.0"
+        val kotlinDateTimeVersion = "0.5.0"
         val bcVersion = "1.71"
 
         val commonMain by getting {
             dependencies {
                 api("org.jetbrains.kotlinx:kotlinx-serialization-json:$kotlinSerializationVersion")
                 api("org.jetbrains.kotlinx:kotlinx-datetime:$kotlinDateTimeVersion")
+                api("io.github.microutils:kotlin-logging:3.0.5")
                 implementation("io.matthewnelson.kotlin-components:encoding-base64:1.1.3")
+                implementation("com.mayakapps.kache:kache:2.1.0-beta05")
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.8.0")
             }
         }
         val commonTest by getting {
@@ -95,17 +98,18 @@ kotlin {
                 implementation("eu.europa.ec.joinup.sd-dss:dss-pades-pdfbox:$dssVersion")
                 implementation("eu.europa.ec.joinup.sd-dss:dss-crl-parser-x509crl:$dssVersion")
                 api("org.bouncycastle:bcprov-debug-jdk18on:$bcVersion")
-                api("javax.cache:cache-api:1.1.1")
                 implementation("javax.xml.bind:jaxb-api:2.3.0")
                 api("jakarta.xml.bind:jakarta.xml.bind-api:3.0.1")
                 implementation("javax.annotation:javax.annotation-api:1.3.2")
                 implementation("javax.activation:activation:1.1.1")
                 api("org.glassfish.jaxb:jaxb-runtime:2.3.6")
+                implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
 
-                api("io.github.microutils:kotlin-logging-jvm:2.1.23")
+
+                api("io.github.microutils:kotlin-logging-jvm:3.0.5")
 
                 // todo separate into separate project probably
-                api("com.sphereon.vdx:eidas-signature-client-rest-jersey3:1.0.0-SNAPSHOT")
+                api("com.sphereon.vdx:eidas-signature-client-rest-jersey3:1.1.0-SNAPSHOT")
 
                 implementation(project.dependencies.platform("com.azure:azure-sdk-bom:1.2.4"))
                 implementation("com.azure:azure-identity")
@@ -122,10 +126,6 @@ kotlin {
 
                 implementation("org.bouncycastle:bcpkix-jdk18on:$bcVersion")
                 implementation("io.mockk:mockk:1.12.4")
-
-//                implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.13.2")
-
-                implementation("org.ehcache:ehcache:3.8.1")
               /*  implementation("org.apache.logging.log4j:log4j-api:${log4jVersion}")
                 implementation("org.apache.logging.log4j:log4j-core:${log4jVersion}")
                 implementation("org.apache.logging.log4j:log4j-slf4j-impl:${log4jVersion}")

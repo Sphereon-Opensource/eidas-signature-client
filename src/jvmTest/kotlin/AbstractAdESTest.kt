@@ -25,8 +25,7 @@ abstract class AbstractAdESTest {
                 id = "pkcs12",
                 providerConfig,
                 passwordInputCallback
-            ),
-            KeyEntryCacheSerializer()
+            )
         )
     }
 

@@ -5,6 +5,8 @@ import com.sphereon.vdx.ades.enums.KeyProviderType
 import com.sphereon.vdx.ades.enums.SignMode
 import com.sphereon.vdx.ades.model.*
 import com.sphereon.vdx.ades.model.SignInput
+import com.sphereon.vdx.ades.pki.restclient.RestClientConfig
+import com.sphereon.vdx.ades.pki.restclient.RestClientKeyProviderService
 import com.sphereon.vdx.ades.rest.client.ApiResponse
 import com.sphereon.vdx.ades.rest.client.JSON
 import com.sphereon.vdx.ades.rest.client.api.KeysApi
@@ -15,12 +17,15 @@ import com.sphereon.vdx.ades.rest.client.model.Signature
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.spyk
-import kotlinx.datetime.*
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.time.Instant
-import kotlin.test.*
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 class RestCertificateProviderServiceTest {
     @Test

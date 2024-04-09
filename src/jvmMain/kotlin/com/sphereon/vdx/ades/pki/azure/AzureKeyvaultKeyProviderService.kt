@@ -1,6 +1,5 @@
-package com.sphereon.vdx.ades.pki
+package com.sphereon.vdx.ades.pki.azure
 
-import AbstractCacheObjectSerializer
 import com.azure.core.http.policy.RetryOptions
 import com.azure.core.http.policy.RetryPolicy
 import com.azure.security.keyvault.certificates.CertificateAsyncClient
@@ -14,6 +13,7 @@ import com.sphereon.vdx.ades.SigningException
 import com.sphereon.vdx.ades.enums.KeyProviderType
 import com.sphereon.vdx.ades.enums.MaskGenFunction
 import com.sphereon.vdx.ades.model.*
+import com.sphereon.vdx.ades.pki.*
 import com.sphereon.vdx.ades.sign.util.*
 import mu.KotlinLogging
 import java.util.*
@@ -25,8 +25,7 @@ private val logger = KotlinLogging.logger {}
 open class AzureKeyvaultKeyProviderService(
     settings: KeyProviderSettings,
     val keyvaultConfig: AzureKeyvaultClientConfig,
-    cacheObjectSerializer: AbstractCacheObjectSerializer<String, IKeyEntry>? = null
-) : AbstractKeyProviderService(settings, cacheObjectSerializer) {
+) : AbstractKeyProviderService(settings) {
 
     private val keyClient: KeyAsyncClient
     private val certClient: CertificateAsyncClient?
@@ -72,14 +71,14 @@ open class AzureKeyvaultKeyProviderService(
 
     override fun getKeys(): List<IKeyEntry> {
         val res = keyClient.listPropertiesOfKeys().filter { it.isEnabled }.map {
-            getKey("${it.id}${KEY_NAME_VERSION_SEP}${it.version}")!!
+            getKey("${it.id}$KEY_NAME_VERSION_SEP${it.version}")!!
 
         }
         return res.toIterable().toList()
     }
 
     override fun getKey(kid: String): IKeyEntry? {
-        logger.exit(kid)
+        logger.entry(kid)
         val cachedKey = cacheService.get(kid)
         if (cachedKey != null) {
             logger.debug { "Cache hit for key entry with id $kid" }

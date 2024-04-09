@@ -8,8 +8,8 @@ import com.sphereon.vdx.ades.model.KeyEntry
 import com.sphereon.vdx.ades.model.OrigData
 import com.sphereon.vdx.ades.model.SignInput
 import com.sphereon.vdx.ades.model.Signature
-import com.sphereon.vdx.ades.pki.RestClientConfig
-import com.sphereon.vdx.ades.pki.RestClientKeyProviderService
+import com.sphereon.vdx.ades.pki.restclient.RestClientConfig
+import com.sphereon.vdx.ades.pki.restclient.RestClientKeyProviderService
 import com.sphereon.vdx.ades.rest.client.JSON
 import com.sphereon.vdx.ades.rest.client.api.SigningApi
 import com.sphereon.vdx.ades.rest.client.model.*
@@ -21,7 +21,8 @@ import io.mockk.spyk
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import java.time.Instant
-import kotlin.test.*
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 
 class RestClientSignatureServiceTest {
     @Test
